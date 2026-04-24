@@ -1,0 +1,309 @@
+{% load static role_tags kwd_filters %}
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') !== 'false' }" :class="{ 'dark': darkMode }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FleetOps Pro{% endblock %}</title>
+    <meta name="description" content="FleetOps Pro — Kuwait Delivery Operations Management">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS v4 Browser -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+
+    <style type="text/tailwindcss">
+        @theme {
+            --color-brand: #f97316;
+            --color-brand-hover: #ea580c;
+            --color-brand-light: #fed7aa;
+            --color-surface-dark: #0a0a0f;
+            --color-card-dark: #111118;
+            --color-sidebar-dark: #0d0d14;
+            --color-border-dark: #1e1e2e;
+        }
+    </style>
+
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        body { overflow-x: hidden; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+
+        /* Sidebar transition */
+        .sidebar-enter { transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+
+        /* Glow effects */
+        .glow-orange { box-shadow: 0 0 20px rgba(249, 115, 22, 0.15); }
+        .glow-card { box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3); }
+
+        /* Print styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.4s ease-out; }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); }
+            to { transform: translateX(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(249, 115, 22, 0.3); }
+            50% { box-shadow: 0 0 20px rgba(249, 115, 22, 0.6); }
+        }
+        .pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-surface-dark text-gray-100 min-h-screen">
+
+    <!-- Toast Notifications -->
+    {% if messages %}
+    <div class="fixed top-4 right-4 z-[100] space-y-2 no-print">
+        {% for message in messages %}
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-x-4"
+             x-transition:enter-end="opacity-1 translate-x-0"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-1"
+             x-transition:leave-end="opacity-0 translate-x-4"
+             class="px-5 py-3 rounded-xl shadow-2xl border backdrop-blur-sm flex items-center gap-3 cursor-pointer max-w-sm
+                    {% if message.tags == 'success' %}bg-emerald-900/80 border-emerald-700 text-emerald-100
+                    {% elif message.tags == 'error' %}bg-red-900/80 border-red-700 text-red-100
+                    {% elif message.tags == 'warning' %}bg-amber-900/80 border-amber-700 text-amber-100
+                    {% else %}bg-blue-900/80 border-blue-700 text-blue-100{% endif %}"
+             @click="show = false">
+            <span class="text-lg">
+                {% if message.tags == 'success' %}✅{% elif message.tags == 'error' %}❌{% elif message.tags == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+            </span>
+            <span class="text-sm font-medium">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar -->
+        <aside class="no-print fixed lg:sticky top-0 left-0 z-50 h-screen w-[280px] bg-sidebar-dark border-r border-border-dark flex flex-col sidebar-enter overflow-y-auto"
+               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-full'"
+               x-cloak>
+
+            <!-- Logo -->
+            <div class="p-5 border-b border-border-dark flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg">
+                        <span class="text-white text-xl">🚛</span>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-white text-lg tracking-tight">FleetOps Pro</h1>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest">Kuwait Operations</p>
+                    </div>
+                </div>
+                <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-white p-1 rounded">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 py-4 px-3 space-y-1">
+                <!-- DASHBOARD -->
+                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Dashboard</p>
+
+                {% if_role 'admin' as is_admin %}
+                {% if_role 'manager' as is_manager %}
+                {% if_role 'employee' as is_employee %}
+                {% if_role 'driver' as is_driver %}
+
+                {% if is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🏠</span> Dashboard
+                </a>
+                {% endif %}
+                {% if is_manager and not is_admin %}
+                <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🏠</span> Dashboard
+                </a>
+                {% endif %}
+                {% if is_employee and not is_admin and not is_manager %}
+                <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🏠</span> Dashboard
+                </a>
+                {% endif %}
+                {% if is_driver %}
+                <a href="{% url 'driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'driver_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🏠</span> Dashboard
+                </a>
+                {% endif %}
+
+                <!-- TEAM MANAGEMENT (admin only) -->
+                {% if is_admin %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Team Management</p>
+                <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>👤</span> Manage Team
+                </a>
+                {% endif %}
+
+                <!-- DRIVER MANAGEMENT -->
+                {% if not is_driver %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Driver Management</p>
+                {% if is_admin %}
+                <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🚗</span> Manage Drivers
+                </a>
+                {% elif is_manager %}
+                <a href="{% url 'manager_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🚗</span> Manage Drivers
+                </a>
+                {% elif is_employee %}
+                <a href="{% url 'employee_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🚗</span> View Drivers
+                </a>
+                {% endif %}
+                {% endif %}
+
+                {% if is_driver %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">My Profile</p>
+                <a href="{% url 'driver_my_profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'my-profile' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🚗</span> My Profile
+                </a>
+                {% endif %}
+
+                <!-- INVOICES -->
+                {% if not is_driver %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Invoices</p>
+                <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>📄</span> Driver Invoices
+                </a>
+                {% if is_admin or is_manager %}
+                <a href="{% if is_admin %}{% url 'admin_deductions' %}{% else %}{% url 'manager_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🧾</span> Deduction Invoices
+                </a>
+                {% endif %}
+                {% endif %}
+
+                <!-- ARCHIVE -->
+                {% if not is_driver %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Archive</p>
+                <a href="{% url 'archive_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'archive' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>🗃️</span> Invoice Archive
+                </a>
+                {% endif %}
+
+                <!-- COMMUNICATIONS -->
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Communications</p>
+                <a href="{% url 'notification_list' %}" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'notifications' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span class="flex items-center gap-3"><span>🔔</span> Notifications</span>
+                    {% if unread_notifications_count %}<span class="bg-orange-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>{% endif %}
+                </a>
+                <a href="{% url 'message_inbox' %}" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'messages' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span class="flex items-center gap-3"><span>💬</span> Messages</span>
+                    {% if unread_messages_count %}<span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unread_messages_count }}</span>{% endif %}
+                </a>
+                {% if not is_driver %}
+                <a href="{% url 'contact' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'contact' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>📝</span> Contact Page
+                </a>
+                {% endif %}
+            </nav>
+
+            <!-- User card -->
+            <div class="p-4 border-t border-border-dark">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg">
+                        {{ request.user.first_name.0 }}{{ request.user.last_name.0 }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white truncate">{{ request.user.get_full_name }}</p>
+                        <span class="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full
+                            {% if user_role == 'admin' %}bg-orange-500/20 text-orange-400
+                            {% elif user_role == 'manager' %}bg-blue-500/20 text-blue-400
+                            {% elif user_role == 'employee' %}bg-emerald-500/20 text-emerald-400
+                            {% else %}bg-purple-500/20 text-purple-400{% endif %}">
+                            {{ user_role }}
+                        </span>
+                    </div>
+                </div>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 text-sm font-medium transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </aside>
+
+        <!-- Overlay for mobile -->
+        <div x-show="sidebarOpen" @click="sidebarOpen = false"
+             class="fixed inset-0 bg-black/60 z-40 lg:hidden no-print" x-cloak></div>
+
+        <!-- Main Content -->
+        <main class="flex-1 min-w-0" :class="sidebarOpen ? 'lg:ml-0' : ''">
+            <!-- Top Navbar -->
+            <header class="no-print sticky top-0 z-30 bg-surface-dark/80 backdrop-blur-xl border-b border-border-dark">
+                <div class="flex items-center justify-between px-4 lg:px-6 h-16">
+                    <div class="flex items-center gap-4">
+                        <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </button>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">{% block page_title %}Dashboard{% endblock %}</h2>
+                            <div class="text-xs text-gray-500">{% block breadcrumb %}{% endblock %}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <!-- Theme toggle -->
+                        <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
+                                class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                            <span x-show="darkMode">☀️</span>
+                            <span x-show="!darkMode">🌙</span>
+                        </button>
+                        <!-- Notifications bell -->
+                        <a href="{% url 'notification_list' %}" class="relative p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                            {% if unread_notifications_count %}<span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center pulse-glow">{{ unread_notifications_count }}</span>{% endif %}
+                        </a>
+                        <!-- User dropdown -->
+                        <div class="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-border-dark">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold">
+                                {{ request.user.first_name.0 }}{{ request.user.last_name.0 }}
+                            </div>
+                            <span class="text-sm text-gray-300 font-medium">{{ request.user.first_name }}</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <div class="p-4 lg:p-6 animate-fade-in">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

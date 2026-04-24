@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load kwd_filters role_tags %}
+{% block title %}Driver Invoices — FleetOps Pro{% endblock %}
+{% block page_title %}Driver Invoices{% endblock %}
+{% block breadcrumb %}Invoices → {{ month_label }}{% endblock %}
+
+{% block content %}
+{% if_role 'admin' 'manager' as can_archive %}
+
+<!-- Month Nav + Actions -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+        <a href="?month={{ prev_month }}" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors">← Prev</a>
+        <h3 class="text-lg font-bold text-white px-3">{{ month_label }}</h3>
+        <a href="?month={{ next_month }}" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm transition-colors">Next →</a>
+    </div>
+    <div class="flex items-center gap-2">
+        <a href="{% url 'invoice_export' %}?month={{ current_month }}" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            Export Excel
+        </a>
+        {% if can_archive %}
+        <form method="post" action="{% url 'invoice_archive_action' %}" x-data @submit.prevent="if(confirm('Archive all invoices for {{ month_label }}? This will move them to the archive.')) $el.submit()">
+            {% csrf_token %}
+            <input type="hidden" name="month" value="{{ current_month }}">
+            <button type="submit" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg>
+                Archive Month
+            </button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Add Invoice Modal -->
+<div x-data="{ open: false }" class="mb-4">
+    <button @click="open = true" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Entry
+    </button>
+
+    <!-- Modal -->
+    <div x-show="open" x-transition class="fixed inset-0 z-50 flex items-center justify-center p-4" x-cloak>
+        <div class="fixed inset-0 bg-black/60" @click="open = false"></div>
+        <div class="relative bg-card-dark border border-border-dark rounded-2xl p-6 w-full max-w-lg z-10">
+            <h3 class="text-lg font-bold text-white mb-4">Add Invoice Entry</h3>
+            <form method="post" action="{% url 'invoice_add' %}" class="space-y-4">
+                {% csrf_token %}
+                <input type="hidden" name="current_month" value="{{ current_month }}">
+                <div><label class="block text-sm font-medium text-gray-400 mb-1">Driver</label>{{ form.driver }}</div>
+                <div><label class="block text-sm font-medium text-gray-400 mb-1">Date</label>{{ form.specified_date }}</div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Cash (KWD)</label>{{ form.cash }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Hours</label>{{ form.hours }}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Main Orders</label>{{ form.main_orders }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Additional Orders</label>{{ form.additional_orders }}</div>
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" @click="open = false" class="px-4 py-2 bg-gray-800 text-gray-300 rounded-lg text-sm">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm font-semibold">Add Entry</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Groups -->
+{% for group in driver_groups %}
+<div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden mb-4">
+    <div class="px-4 py-3 bg-orange-500/5 border-b border-border-dark flex items-center justify-between">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold">
+                {{ group.driver.first_name.0 }}{{ group.driver.last_name.0 }}
+            </div>
+            <div>
+                <span class="font-semibold text-white text-sm">{{ group.driver.full_name }}</span>
+                <span class="text-xs text-gray-500 ml-2">{{ group.driver.get_company_name_display }} • {{ group.driver.get_contract_type_display }}</span>
+            </div>
+        </div>
+        <div class="text-right text-xs">
+            <span class="text-orange-400 font-semibold">{{ group.total_cash|kwd }}</span>
+            <span class="text-gray-500 ml-2">{{ group.total_main|add:group.total_additional }} orders</span>
+        </div>
+    </div>
+    <table class="w-full">
+        <thead><tr class="border-b border-border-dark">
+            <th class="px-4 py-2 text-left text-xs text-gray-500">Date</th>
+            <th class="px-4 py-2 text-right text-xs text-gray-500">Cash</th>
+            <th class="px-4 py-2 text-right text-xs text-gray-500">Main</th>
+            <th class="px-4 py-2 text-right text-xs text-gray-500">Addl.</th>
+            <th class="px-4 py-2 text-right text-xs text-gray-500">Hours</th>
+            <th class="px-4 py-2 text-right text-xs text-gray-500">Actions</th>
+        </tr></thead>
+        <tbody class="divide-y divide-border-dark">
+            {% for inv in group.invoices %}
+            <tr class="hover:bg-white/[0.02]">
+                <td class="px-4 py-2 text-sm text-gray-300">{{ inv.specified_date|date:"M d, Y" }}</td>
+                <td class="px-4 py-2 text-sm text-right text-emerald-400 font-medium">{{ inv.cash|kwd }}</td>
+                <td class="px-4 py-2 text-sm text-right text-gray-300">{{ inv.main_orders }}</td>
+                <td class="px-4 py-2 text-sm text-right text-gray-300">{{ inv.additional_orders }}</td>
+                <td class="px-4 py-2 text-sm text-right text-gray-300">{{ inv.hours }}</td>
+                <td class="px-4 py-2 text-right">
+                    <div class="flex items-center justify-end gap-1">
+                        <a href="{% url 'invoice_edit' inv.pk %}" class="p-1.5 rounded text-gray-400 hover:text-orange-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg></a>
+                        <form method="post" action="{% url 'invoice_delete' inv.pk %}" x-data @submit.prevent="if(confirm('Delete?')) $el.submit()">{% csrf_token %}<button type="submit" class="p-1.5 rounded text-gray-400 hover:text-red-400 transition-colors"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button></form>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% empty %}
+<div class="bg-card-dark border border-border-dark rounded-2xl p-12 text-center">
+    <span class="text-4xl block mb-3">📄</span>
+    <p class="text-gray-500">No invoices for {{ month_label }}.</p>
+</div>
+{% endfor %}
+
+<!-- Grand Totals -->
+{% if driver_groups %}
+<div class="bg-card-dark border border-orange-500/30 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4">
+    <span class="text-sm font-bold text-orange-400 uppercase">Grand Total</span>
+    <div class="flex flex-wrap gap-6 text-sm">
+        <span class="text-gray-400">Cash: <span class="text-white font-semibold">{{ grand_cash|kwd }}</span></span>
+        <span class="text-gray-400">Main: <span class="text-white font-semibold">{{ grand_main }}</span></span>
+        <span class="text-gray-400">Addl: <span class="text-white font-semibold">{{ grand_additional }}</span></span>
+        <span class="text-gray-400">Hours: <span class="text-white font-semibold">{{ grand_hours }}</span></span>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

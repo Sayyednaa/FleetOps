@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load kwd_filters %}
+{% block title %}Manager Dashboard — FleetOps Pro{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Welcome back, {{ request.user.first_name }}{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-5 glow-card hover:border-orange-500/30 transition-all duration-300">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl">📦</span><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-orange-500/10 text-orange-400">This Month</span></div>
+        <p class="text-3xl font-extrabold text-white">{{ total_orders|default:"0" }}</p>
+        <p class="text-sm text-gray-500 mt-1">Total Orders</p>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-5 glow-card hover:border-emerald-500/30 transition-all duration-300">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl">💰</span><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400">Revenue</span></div>
+        <p class="text-3xl font-extrabold text-white">{{ total_cash|kwd }}</p>
+        <p class="text-sm text-gray-500 mt-1">Total Cash</p>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-5 glow-card hover:border-blue-500/30 transition-all duration-300">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl">⏱️</span><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-500/10 text-blue-400">Hours</span></div>
+        <p class="text-3xl font-extrabold text-white">{{ total_hours|format_hours }}</p>
+        <p class="text-sm text-gray-500 mt-1">Total Hours</p>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-5 glow-card hover:border-purple-500/30 transition-all duration-300">
+        <div class="flex items-center justify-between mb-3"><span class="text-2xl">🚗</span><span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-purple-500/10 text-purple-400">Fleet</span></div>
+        <div class="flex items-baseline gap-3"><p class="text-3xl font-extrabold text-white">{{ active_drivers }}</p>{% if expiring_docs > 0 %}<span class="text-xs text-red-400 font-semibold">⚠️ {{ expiring_docs }} alerts</span>{% endif %}</div>
+        <p class="text-sm text-gray-500 mt-1">Active Drivers</p>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-bold text-white">Revenue Trend</h3><span class="text-xs text-gray-500">KWD by Vehicle Type</span></div>
+        <div class="relative h-[250px]"><canvas id="revenueChart"></canvas></div>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-bold text-white">Orders Trend</h3><span class="text-xs text-gray-500">Monthly Comparison</span></div>
+        <div class="relative h-[250px]"><canvas id="ordersLineChart"></canvas></div>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-bold text-white">Orders by Type</h3><span class="text-xs text-gray-500">Bike vs Car</span></div>
+        <div class="relative h-[250px]"><canvas id="ordersBarChart"></canvas></div>
+    </div>
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <div class="flex items-center justify-between mb-4"><h3 class="text-lg font-bold text-white">Order Distribution</h3><span class="text-xs text-gray-500">Bike vs Car Split</span></div>
+        <div class="relative h-[250px] flex items-center justify-center"><canvas id="doughnutChart"></canvas></div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    {% include 'components/tasks_widget.html' with tasks=tasks %}
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6"><h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🔔</span> Recent Notifications</h3><div class="space-y-2">{% for notif in recent_notifs %}<div class="p-3 rounded-xl bg-orange-500/5 border-l-2 border-orange-500"><p class="text-sm font-medium text-white">{{ notif.title }}</p><p class="text-xs text-gray-500 mt-0.5">{{ notif.body }}</p></div>{% empty %}<p class="text-sm text-gray-500 text-center py-4">No unread notifications 🎉</p>{% endfor %}</div>{% if recent_notifs %}<a href="{% url 'notification_list' %}" class="block text-center text-sm text-orange-400 hover:text-orange-300 mt-3 font-medium">View all →</a>{% endif %}</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chartData = {{ chart_data|safe }};
+const chartDefaults = { responsive: true, maintainAspectRatio: false, plugins: { legend: { labels: { color: '#9ca3af', font: { family: 'Inter' } } } }, scales: { x: { ticks: { color: '#6b7280' }, grid: { color: '#1e1e2e' } }, y: { ticks: { color: '#6b7280' }, grid: { color: '#1e1e2e' } } } };
+new Chart(document.getElementById('revenueChart'), { type: 'line', data: { labels: chartData.labels, datasets: [{ label: 'Bike (KWD)', data: chartData.revenue_bike, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', tension: 0.4, fill: true }, { label: 'Car (KWD)', data: chartData.revenue_car, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.4, fill: true }] }, options: chartDefaults });
+new Chart(document.getElementById('ordersLineChart'), { type: 'line', data: { labels: chartData.labels, datasets: [{ label: 'Bike Orders', data: chartData.orders_bike, borderColor: '#f97316', tension: 0.4 }, { label: 'Car Orders', data: chartData.orders_car, borderColor: '#3b82f6', tension: 0.4 }] }, options: chartDefaults });
+new Chart(document.getElementById('ordersBarChart'), { type: 'bar', data: { labels: chartData.labels, datasets: [{ label: 'Bike Orders', data: chartData.orders_bike, backgroundColor: 'rgba(249,115,22,0.7)', borderRadius: 6 }, { label: 'Car Orders', data: chartData.orders_car, backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 6 }] }, options: chartDefaults });
+const totalBike = chartData.orders_bike.reduce((a, b) => a + b, 0); const totalCar = chartData.orders_car.reduce((a, b) => a + b, 0);
+new Chart(document.getElementById('doughnutChart'), { type: 'doughnut', data: { labels: ['Bike Orders', 'Car Orders'], datasets: [{ data: [totalBike, totalCar], backgroundColor: ['rgba(249,115,22,0.8)', 'rgba(59,130,246,0.8)'], borderColor: ['#f97316', '#3b82f6'], borderWidth: 2 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { color: '#9ca3af', font: { family: 'Inter' }, padding: 20 } } }, cutout: '65%' } });
+</script>
+{% endblock %}

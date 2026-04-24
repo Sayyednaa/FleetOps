@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In — FleetOps Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+    <style>
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        @keyframes float { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-10px); } }
+        .float-anim { animation: float 3s ease-in-out infinite; }
+        @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .gradient-bg { background: linear-gradient(-45deg, #0a0a0f, #111118, #1a0f0a, #0a0a0f); background-size: 400% 400%; animation: gradient-shift 8s ease infinite; }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4" x-data="{ showPass: false, showDemo: false }">
+
+    <!-- Decorative elements -->
+    <div class="fixed top-20 left-20 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl"></div>
+    <div class="fixed bottom-20 right-20 w-96 h-96 bg-orange-600/5 rounded-full blur-3xl"></div>
+
+    <div class="w-full max-w-md relative">
+        <!-- Logo -->
+        <div class="text-center mb-8 float-anim">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-2xl shadow-orange-500/20 mb-4">
+                <span class="text-4xl">🚛</span>
+            </div>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">FleetOps Pro</h1>
+            <p class="text-gray-500 text-sm mt-1">Kuwait Delivery Operations</p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="bg-[#111118] border border-[#1e1e2e] rounded-2xl shadow-2xl p-8">
+            <h2 class="text-xl font-bold text-white mb-1">Welcome back</h2>
+            <p class="text-gray-500 text-sm mb-6">Sign in to your account</p>
+
+            {% if form.errors %}
+            <div class="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm flex items-center gap-2">
+                <span>❌</span>
+                <span>Invalid email or password. Please try again.</span>
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'login' %}" class="space-y-5">
+                {% csrf_token %}
+
+                <!-- Email -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Email</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                        </span>
+                        <input type="text" name="username" required autofocus
+                               class="w-full pl-10 pr-4 py-3 bg-[#0a0a0f] border border-[#2a2a3a] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                               placeholder="admin@fleetops.com"
+                               value="{{ form.username.value|default:'' }}">
+                    </div>
+                </div>
+
+                <!-- Password -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-400 mb-1.5">Password</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                        </span>
+                        <input :type="showPass ? 'text' : 'password'" name="password" required
+                               class="w-full pl-10 pr-12 py-3 bg-[#0a0a0f] border border-[#2a2a3a] rounded-xl text-white placeholder-gray-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                               placeholder="••••••••">
+                        <button type="button" @click="showPass = !showPass" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-300">
+                            <svg x-show="!showPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                            <svg x-show="showPass" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" x-cloak><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <input type="hidden" name="next" value="{{ next }}">
+
+                <button type="submit" class="w-full py-3 px-4 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-xl shadow-lg shadow-orange-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:shadow-orange-500/30 hover:scale-[1.01] active:scale-[0.99]">
+                    Sign In
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                </button>
+            </form>
+        </div>
+
+        <!-- Demo Credentials -->
+        <div class="mt-4 border border-[#1e1e2e] rounded-xl overflow-hidden">
+            <button @click="showDemo = !showDemo" class="w-full px-4 py-3 text-sm text-gray-400 bg-[#111118] hover:bg-[#16161f] flex justify-between items-center transition-colors">
+                <span class="flex items-center gap-2">🔑 Demo Accounts</span>
+                <span x-text="showDemo ? '▲' : '▼'" class="text-xs"></span>
+            </button>
+            <div x-show="showDemo" x-transition class="p-4 bg-[#0d0d14] text-xs font-mono space-y-3" x-cloak>
+                <div class="flex justify-between items-center p-2 rounded-lg bg-orange-500/5 border border-orange-500/10">
+                    <span class="text-orange-400 font-semibold">👑 Admin</span>
+                    <span class="text-gray-400">admin@fleetops.com / admin123</span>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded-lg bg-blue-500/5 border border-blue-500/10">
+                    <span class="text-blue-400 font-semibold">🛡️ Manager</span>
+                    <span class="text-gray-400">manager@fleetops.com / manager123</span>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
+                    <span class="text-emerald-400 font-semibold">👤 Employee</span>
+                    <span class="text-gray-400">employee@fleetops.com / employee123</span>
+                </div>
+                <div class="flex justify-between items-center p-2 rounded-lg bg-purple-500/5 border border-purple-500/10">
+                    <span class="text-purple-400 font-semibold">🚗 Driver</span>
+                    <span class="text-gray-400">driver@fleetops.com / driver123</span>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-gray-600 text-xs mt-6">© 2026 FleetOps Pro — Kuwait Operations</p>
+    </div>
+</body>
+</html>

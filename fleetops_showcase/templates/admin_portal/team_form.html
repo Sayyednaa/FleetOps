@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Team Member — FleetOps Pro{% endblock %}
+{% block page_title %}{% if editing %}Edit Team Member{% else %}Add Team Member{% endif %}{% endblock %}
+{% block breadcrumb %}Admin → Team → {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6 lg:p-8">
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm">
+            <p class="font-semibold mb-1">Please fix the errors below:</p>
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Personal Info -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>👤</span> Personal Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">First Name</label>{{ form.first_name }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Last Name</label>{{ form.last_name }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Email</label>{{ form.email }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Phone</label>{{ form.phone }}</div>
+                </div>
+            </div>
+
+            <!-- Role & Position -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🏢</span> Role & Position</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Role</label>{{ form.role }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Position</label>{{ form.position }}</div>
+                </div>
+            </div>
+
+            <!-- Identity -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🪪</span> Identity & Contract</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Identification Number</label>{{ form.identification_number }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Passport</label>{{ form.passport }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Contract Expiry Date</label>{{ form.contract_expiry_date }}</div>
+                </div>
+            </div>
+
+            <!-- Financial -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>💰</span> Financial</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Base Salary (KD)</label>{{ form.base_salary_kd }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">IBAN Number</label>{{ form.iban_number }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Bank Name</label>{{ form.bank_name }}</div>
+                </div>
+            </div>
+
+            <!-- Password -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🔒</span> Password</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Password {% if editing %}<span class="text-gray-600">(leave blank to keep)</span>{% endif %}</label>{{ form.password1 }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>{{ form.password2 }}</div>
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📎</span> Documents</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Avatar</label>{{ form.avatar }}{% if editing and member.avatar %}<p class="text-xs text-gray-500 mt-1">Current: {{ member.avatar.name }}</p>{% endif %}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Supporting Document</label>{{ form.supporting_document }}{% if editing and member.supporting_document %}<p class="text-xs text-gray-500 mt-1">Current: {{ member.supporting_document.name }}</p>{% endif %}</div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center justify-end gap-3 pt-4 border-t border-border-dark">
+                <a href="{% url 'admin_team_list' %}" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-orange-500/20">
+                    {% if editing %}Update{% else %}Create{% endif %} Member
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

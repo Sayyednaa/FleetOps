@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load kwd_filters %}
+{% block title %}My Profile — FleetOps Pro{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block breadcrumb %}Driver → My Profile{% endblock %}
+
+{% block content %}
+{% if driver %}
+<div class="max-w-5xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/20 rounded-2xl p-6 flex items-center justify-between">
+        <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+                {{ driver.first_name.0 }}{{ driver.last_name.0 }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-white">{{ driver.full_name }}</h2>
+                <p class="text-gray-400">{{ driver.get_company_name_display }} — {{ driver.get_contract_type_display }}</p>
+            </div>
+        </div>
+        <a href="{% url 'message_compose' %}?to={{ request.user.pk }}" class="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors">Contact HR</a>
+    </div>
+
+    <!-- Document Status -->
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <h3 class="text-lg font-bold text-white mb-4">📋 Document Status</h3>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
+            {% for doc in documents %}
+            {% include 'components/document_badge.html' with doc=doc %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Personal -->
+        <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-white mb-4">👤 Personal Info</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Name</span><span class="text-white">{{ driver.full_name }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Email</span><span class="text-white">{{ driver.email|default:"—" }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Phone</span><span class="text-white">{{ driver.phone }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Civil ID</span><span class="text-white">{{ driver.civil_id_number }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Passport</span><span class="text-white">{{ driver.passport_number|default:"—" }}</span></div>
+            </div>
+        </div>
+
+        <!-- Vehicle -->
+        <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-white mb-4">🚗 Vehicle Info</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Type</span><span class="text-white">{{ driver.get_vehicle_type_display }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Name</span><span class="text-white">{{ driver.vehicle_name|default:"—" }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Plate</span><span class="text-white">{{ driver.vehicle_plate_number|default:"—" }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Zone</span><span class="text-white">{{ driver.zone|default:"—" }}</span></div>
+            </div>
+        </div>
+
+        <!-- Financial -->
+        <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-white mb-4">💰 Financial</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Basic Salary</span><span class="text-white">{{ driver.basic_salary_wp|kwd }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Bank</span><span class="text-white">{{ driver.get_bank_name_display|default:"—" }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">IBAN</span><span class="text-white font-mono text-xs">{{ driver.iban_number|default:"—" }}</span></div>
+            </div>
+        </div>
+
+        <!-- Work Assignment -->
+        <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+            <h3 class="text-lg font-bold text-white mb-4">📍 Work Assignment</h3>
+            <div class="space-y-3">
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Company</span><span class="text-white">{{ driver.get_company_name_display }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Contract</span><span class="text-white">{{ driver.get_contract_type_display }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Working ID</span><span class="text-white">{{ driver.working_id|default:"—" }}</span></div>
+                <div class="flex justify-between text-sm"><span class="text-gray-500">Serial #</span><span class="text-white">{{ driver.employee_serial_number|default:"—" }}</span></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<div class="text-center py-20">
+    <span class="text-5xl mb-4 block">⚠️</span>
+    <h3 class="text-xl font-bold text-white mb-2">Profile Not Found</h3>
+    <p class="text-gray-400">Your account is not linked to a driver profile.</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Notifications — FleetOps Pro{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block breadcrumb %}Communications → Notifications{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    {% if notifications %}
+    <div class="flex justify-end mb-4">
+        <form method="post" action="{% url 'notification_read_all' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-lg text-sm font-medium transition-colors">
+                Mark All as Read
+            </button>
+        </form>
+    </div>
+    {% endif %}
+
+    <div class="space-y-2">
+        {% for notif in notifications %}
+        <form method="post" action="{% url 'notification_read' notif.pk %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full text-left p-4 rounded-xl border transition-all hover:bg-white/[0.02]
+                {% if not notif.is_read %}bg-orange-500/5 border-l-4 border-orange-500 border-t border-r border-b border-t-border-dark border-r-border-dark border-b-border-dark{% else %}bg-card-dark border-border-dark{% endif %}">
+                <div class="flex items-start gap-3">
+                    <span class="text-lg mt-0.5">
+                        {% if notif.type == 'document_expiry' %}🔴
+                        {% elif notif.type == 'invoice_action' %}📄
+                        {% elif notif.type == 'new_message' %}💬
+                        {% elif notif.type == 'deduction' %}💰
+                        {% else %}⚙️{% endif %}
+                    </span>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between">
+                            <p class="text-sm font-medium {% if not notif.is_read %}text-white{% else %}text-gray-400{% endif %}">{{ notif.title }}</p>
+                            <span class="text-[10px] text-gray-600 ml-2 flex-shrink-0">{{ notif.created_at|timesince }} ago</span>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ notif.body }}</p>
+                        {% if not notif.is_read %}
+                        <span class="inline-block mt-1 text-[9px] text-orange-400 font-bold uppercase">Unread</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </button>
+        </form>
+        {% empty %}
+        <div class="bg-card-dark border border-border-dark rounded-2xl p-12 text-center">
+            <span class="text-4xl block mb-3">🔔</span>
+            <p class="text-gray-500">No notifications.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

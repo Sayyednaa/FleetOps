@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load role_tags %}
+{% block title %}Manage Drivers — FleetOps Pro{% endblock %}
+{% block page_title %}Manage Drivers{% endblock %}
+{% block breadcrumb %}{% if portal == 'admin' %}Admin{% elif portal == 'manager' %}Manager{% else %}Employee{% endif %} → Drivers{% endblock %}
+
+{% block content %}
+<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
+    <!-- Filters -->
+    <form method="get" class="flex flex-wrap items-center gap-3 flex-1">
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" name="q" value="{{ q }}" placeholder="Search name / phone..."
+                   class="pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm w-48">
+        </div>
+        <select name="company" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <option value="">All Companies</option>
+            {% for val, label in company_choices %}<option value="{{ val }}" {% if company == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <select name="contract" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <option value="">All Contracts</option>
+            {% for val, label in contract_choices %}<option value="{{ val }}" {% if contract == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <select name="vehicle" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <option value="">All Vehicles</option>
+            {% for val, label in vehicle_choices %}<option value="{{ val }}" {% if vehicle == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors">Filter</button>
+    </form>
+
+    {% if portal == 'admin' %}
+    <a href="{% url 'admin_driver_add' %}" class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Driver
+    </a>
+    {% elif portal == 'employee' %}
+    <a href="{% url 'employee_driver_add' %}" class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+        Add Driver
+    </a>
+    {% endif %}
+</div>
+
+<!-- Table -->
+<div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-border-dark">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contract</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vehicle</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-border-dark">
+                {% for driver in page_obj %}
+                <tr class="hover:bg-white/[0.02] transition-colors" x-data="{ expanded: false }">
+                    <td class="px-4 py-3 text-sm text-gray-500">{{ forloop.counter }}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                {{ driver.first_name.0 }}{{ driver.last_name.0 }}
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-1">
+                                    <span class="text-sm font-medium text-white">{{ driver.full_name }}</span>
+                                    {% if driver.has_expiry_warning %}<span class="text-red-400 text-xs" title="Document alert">⚠️</span>{% endif %}
+                                </div>
+                                <p class="text-xs text-gray-500">{{ driver.civil_id_number }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.phone }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.get_company_name_display }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.get_contract_type_display }}</td>
+                    <td class="px-4 py-3">
+                        <span class="text-xs px-2 py-1 rounded-full {% if driver.vehicle_type == 'car' %}bg-blue-500/20 text-blue-400{% elif driver.vehicle_type == 'bike' %}bg-orange-500/20 text-orange-400{% else %}bg-purple-500/20 text-purple-400{% endif %}">
+                            {% if driver.vehicle_type == 'car' %}🚗{% elif driver.vehicle_type == 'bike' %}🏍️{% else %}🏎️{% endif %} {{ driver.get_vehicle_type_display }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3">
+                        <span class="text-xs px-2 py-1 rounded-full font-semibold {% if driver.is_active %}bg-emerald-500/20 text-emerald-400{% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                            {% if driver.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-right">
+                        <div class="flex items-center justify-end gap-1">
+                            <!-- Expand docs -->
+                            <button @click="expanded = !expanded" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="View documents">
+                                <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                            </button>
+
+                            {% if portal == 'admin' or portal == 'manager' %}
+                            <!-- Edit -->
+                            <a href="{% if portal == 'admin' %}{% url 'admin_driver_edit' driver.pk %}{% else %}{% url 'manager_driver_edit' driver.pk %}{% endif %}" class="p-2 rounded-lg text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 transition-colors" title="Edit">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                            </a>
+                            <!-- Toggle -->
+                            <form method="post" action="{% if portal == 'admin' %}{% url 'admin_driver_toggle' driver.pk %}{% else %}{% url 'manager_driver_toggle' driver.pk %}{% endif %}">
+                                {% csrf_token %}
+                                <button type="submit" class="p-2 rounded-lg transition-colors {% if driver.is_active %}text-emerald-400 hover:bg-emerald-500/10{% else %}text-gray-400 hover:bg-gray-500/10{% endif %}" title="Toggle active">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                                </button>
+                            </form>
+                            <!-- Salary Slip -->
+                            <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% else %}{% url 'manager_salary_slip' driver.pk %}{% endif %}" class="p-2 rounded-lg text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors" title="Salary Slip" target="_blank">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                            </a>
+                            {% endif %}
+
+                            {% if portal == 'admin' %}
+                            <!-- Delete -->
+                            <form method="post" action="{% url 'admin_driver_delete' driver.pk %}" x-data @submit.prevent="if(confirm('Delete this driver?')) $el.submit()">
+                                {% csrf_token %}
+                                <button type="submit" class="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                <!-- Expanded document row -->
+                <tr x-show="expanded" x-transition class="bg-gray-900/50">
+                    <td colspan="8" class="px-6 py-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
+                            {% for doc in driver.get_expiring_documents %}
+                            <div class="text-center p-2 rounded-lg {% if doc.status == 'ok' %}bg-emerald-500/5{% elif doc.status == 'warning' %}bg-amber-500/5{% elif doc.status == 'expired' %}bg-red-500/5{% else %}bg-gray-500/5{% endif %}">
+                                <span class="text-lg block mb-1">{% if doc.status == 'ok' %}✅{% elif doc.status == 'warning' %}⚠️{% elif doc.status == 'expired' %}🔴{% else %}➖{% endif %}</span>
+                                <p class="text-[10px] font-semibold text-gray-300">{{ doc.label }}</p>
+                                <p class="text-[9px] {% if doc.status == 'ok' %}text-emerald-400{% elif doc.status == 'warning' %}text-amber-400{% elif doc.status == 'expired' %}text-red-400{% else %}text-gray-500{% endif %}">
+                                    {% if doc.status == 'ok' %}{{ doc.expiry|date:"M d" }}{% elif doc.status == 'warning' %}{{ doc.days_remaining }}d left{% elif doc.status == 'expired' %}Expired{% else %}Missing{% endif %}
+                                </p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="8" class="px-4 py-12 text-center text-gray-500">No drivers found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include 'components/pagination.html' %}
+{% endblock %}

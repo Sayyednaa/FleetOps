@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Compose Message — FleetOps Pro{% endblock %}
+{% block page_title %}Compose Message{% endblock %}
+{% block breadcrumb %}Messages → Compose{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-6 lg:p-8">
+        {% if form.errors %}
+        <div class="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm">{{ form.errors }}</div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Recipients -->
+            <div>
+                <label class="block text-sm font-medium text-gray-400 mb-2">To (select recipients)</label>
+                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 max-h-48 overflow-y-auto space-y-2">
+                    {% for checkbox in form.recipients %}
+                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
+                        {{ checkbox.tag }}
+                        <span class="text-sm text-gray-200">{{ checkbox.choice_label }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div><label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>{{ form.subject }}</div>
+            <div><label class="block text-sm font-medium text-gray-400 mb-1">Message</label>{{ form.body }}</div>
+            <div><label class="block text-sm font-medium text-gray-400 mb-1">Attachment (optional)</label>{{ form.attachment }}</div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-border-dark">
+                <a href="{% url 'message_inbox' %}" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors">Cancel</a>
+                <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                    Send Message
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

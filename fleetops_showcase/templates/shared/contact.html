@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Contact Directory — FleetOps Pro{% endblock %}
+{% block page_title %}Contact Directory{% endblock %}
+{% block breadcrumb %}Communications → Contact{% endblock %}
+
+{% block content %}
+<!-- Search -->
+<div class="max-w-md mb-6">
+    <form method="get">
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <input type="text" name="q" value="{{ q }}" placeholder="Search team members..."
+                   class="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm">
+        </div>
+    </form>
+</div>
+
+<!-- Team Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    {% for member in team %}
+    <div class="bg-card-dark border border-border-dark rounded-2xl p-5 hover:border-orange-500/30 transition-all duration-300 group">
+        <div class="flex flex-col items-center text-center">
+            <!-- Avatar -->
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xl font-bold shadow-lg mb-3 group-hover:shadow-orange-500/20 transition-shadow">
+                {{ member.first_name.0 }}{{ member.last_name.0 }}
+            </div>
+
+            <!-- Info -->
+            <h3 class="text-sm font-bold text-white mb-1">{{ member.get_full_name }}</h3>
+            <span class="inline-block px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full mb-2
+                {% if member.role == 'admin' %}bg-orange-500/20 text-orange-400
+                {% elif member.role == 'manager' %}bg-blue-500/20 text-blue-400
+                {% elif member.role == 'employee' %}bg-emerald-500/20 text-emerald-400
+                {% else %}bg-purple-500/20 text-purple-400{% endif %}">
+                {{ member.role }}
+            </span>
+            <p class="text-xs text-gray-500 mb-3">{{ member.get_position_display|default:"—" }}</p>
+
+            <!-- Contact Actions -->
+            <div class="flex items-center gap-2 w-full">
+                {% if member.phone %}
+                <a href="tel:{{ member.phone }}" class="flex-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 text-center transition-colors" title="Call">
+                    📞 {{ member.phone|truncatechars:15 }}
+                </a>
+                {% endif %}
+            </div>
+            <div class="flex items-center gap-2 w-full mt-2">
+                {% if member.email %}
+                <a href="mailto:{{ member.email }}" class="flex-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg text-xs text-gray-300 text-center transition-colors truncate" title="Email">
+                    ✉️ Email
+                </a>
+                {% endif %}
+                <a href="{% url 'message_compose' %}?to={{ member.pk }}" class="flex-1 px-3 py-2 bg-orange-500/10 hover:bg-orange-500/20 text-orange-400 rounded-lg text-xs text-center transition-colors font-medium">
+                    💬 Message
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full bg-card-dark border border-border-dark rounded-2xl p-12 text-center">
+        <p class="text-gray-500">No team members found.</p>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
