@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ('petrol_card_number', models.CharField(blank=True, max_length=50)),
                 ('employee_serial_number', models.CharField(blank=True, max_length=50)),
                 ('working_id', models.CharField(blank=True, max_length=50)),
-                ('company_name', models.CharField(choices=[('najmat', 'Najmat Alwesam'), ('speedy', 'Speedy'), ('other', 'Other')], default='najmat', max_length=20)),
+                ('company_name', models.CharField(choices=[('najmat', 'SAYYEDNAA LOGISTICS'), ('speedy', 'Speedy'), ('other', 'Other')], default='najmat', max_length=20)),
                 ('contract_type', models.CharField(choices=[('talabat', 'Talabat'), ('burger_king', 'Burger King'), ('pharmazone', 'Pharmazone'), ('other', 'Other')], default='talabat', max_length=20)),
                 ('position', models.CharField(blank=True, max_length=100)),
                 ('iban_number', models.CharField(blank=True, max_length=50)),

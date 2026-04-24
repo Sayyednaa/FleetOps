@@ -1,5 +1,5 @@
 """
-WSGI config for FleetOps Pro project.
+WSGI config for SAYYEDNAA LOGISTICS project.
 """
 import os
 from django.core.wsgi import get_wsgi_application

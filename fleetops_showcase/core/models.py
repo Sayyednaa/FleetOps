@@ -34,7 +34,7 @@ BANK_CHOICES = [
 ]
 
 COMPANY_CHOICES = [
-    ('najmat', 'Najmat Alwesam'),
+    ('najmat', 'SAYYEDNAA LOGISTICS'),
     ('speedy', 'Speedy'),
     ('other', 'Other'),
 ]
