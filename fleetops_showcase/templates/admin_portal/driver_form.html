@@ -101,6 +101,16 @@
                 </div>
             </div>
 
+            <!-- Password / Account Access -->
+            <div>
+                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🔒</span> Login Access</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Password {% if editing %}<span class="text-gray-600">(leave blank to keep)</span>{% endif %}</label>{{ form.password1 }}</div>
+                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>{{ form.password2 }}</div>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2 italic">Creating a driver automatically creates a login account with their email.</p>
+            </div>
+
             <!-- Document Upload -->
             <div>
                 <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📎</span> Document Upload</h3>

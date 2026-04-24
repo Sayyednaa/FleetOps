@@ -8,10 +8,10 @@ from core.models import (
 )
 
 class Command(BaseCommand):
-    help = 'Seed the database with FleetOps Pro showcase data'
+    help = 'Seed the database with SAYYEDNAA LOGISTICS showcase data'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.WARNING('Seeding FleetOps Pro data...'))
+        self.stdout.write(self.style.WARNING('Seeding SAYYEDNAA LOGISTICS data...'))
 
         if Profile.objects.exists():
             self.stdout.write(self.style.SUCCESS('Data already exists. Skipping seed.'))
@@ -125,7 +125,7 @@ class Command(BaseCommand):
         self.stdout.write('Creating messages...')
         msg = Message.objects.create(
             sender=admin_user,
-            subject='Welcome to FleetOps Pro',
+            subject='Welcome to SAYYEDNAA LOGISTICS',
             body='Welcome to the new system. Please ensure your documents are up to date.'
         )
         MessageRecipient.objects.create(message=msg, recipient=driver_user)
@@ -137,4 +137,4 @@ class Command(BaseCommand):
         Task.objects.create(user=admin_user, title='Approve driver leaves')
         Task.objects.create(user=manager_user, title='Check vehicle maintenance')
 
-        self.stdout.write(self.style.SUCCESS('FleetOps Pro data seeded successfully!'))
+        self.stdout.write(self.style.SUCCESS('SAYYEDNAA LOGISTICS data seeded successfully!'))

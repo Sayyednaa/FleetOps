@@ -89,6 +89,15 @@ class ProfileForm(forms.ModelForm):
 
 
 class DriverForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label='Password', required=False,
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Leave blank if already linked'})
+    )
+    password2 = forms.CharField(
+        label='Confirm Password', required=False,
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Confirm password'})
+    )
+
     class Meta:
         model = Driver
         fields = [
@@ -133,6 +142,43 @@ class DriverForm(forms.ModelForm):
             'basic_salary_wp': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001'}),
             'supporting_document': forms.FileInput(attrs={'class': TW_FILE}),
         }
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p1 != p2:
+            raise forms.ValidationError('Passwords do not match.')
+        return cleaned
+
+    def save(self, commit=True):
+        driver = super().save(commit=False)
+        email = self.cleaned_data['email']
+        
+        # Create or update profile
+        profile, created = Profile.objects.get_or_create(
+            email=email,
+            defaults={
+                'username': email,
+                'first_name': self.cleaned_data['first_name'],
+                'last_name': self.cleaned_data['last_name'],
+                'role': 'driver',
+            }
+        )
+        
+        p1 = self.cleaned_data.get('password1')
+        if p1:
+            profile.set_password(p1)
+            profile.save()
+        elif created:
+            # If created without password, set a default or handled by user later
+            # For now, we assume password is required for new drivers
+            pass
+
+        driver.profile = profile
+        if commit:
+            driver.save()
+        return driver
 
 
 class DriverInvoiceForm(forms.ModelForm):

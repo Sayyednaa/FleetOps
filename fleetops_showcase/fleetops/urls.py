@@ -3,13 +3,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
-from core.views import home_redirect, access_denied
+from core.views import home_view, access_denied
+from core import views
 
 urlpatterns = [
     path('admin-django/', admin.site.urls),
     
     # Auth
-    path('', home_redirect, name='home'),
+    path('', views.home_view, name='home'),
     path('login/', auth_views.LoginView.as_view(template_name='auth/login.html', redirect_authenticated_user=True), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('access-denied/', access_denied, name='access_denied'),

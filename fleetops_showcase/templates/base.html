@@ -4,13 +4,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}FleetOps Pro{% endblock %}</title>
-    <meta name="description" content="FleetOps Pro — Kuwait Delivery Operations Management">
+    <title>{% block title %}SAYYEDNAA LOGISTICS{% endblock %}</title>
+    <meta name="description" content="SAYYEDNAA LOGISTICS — Kuwait Delivery Operations Management">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Tajawal:wght@200;300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+      (function () {
+        var lng = localStorage.getItem("i18nextLng") || (window.navigator.language.startsWith('ar') ? 'ar' : 'en');
+        if (lng.startsWith("ar")) {
+          document.documentElement.dir = "rtl";
+          document.documentElement.lang = "ar";
+        } else {
+          document.documentElement.dir = "ltr";
+          document.documentElement.lang = "en";
+        }
+      })();
+    </script>
 
     <!-- Tailwind CSS v4 Browser -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
@@ -34,7 +47,7 @@
     </style>
 
     <style>
-        * { font-family: 'Inter', system-ui, sans-serif; }
+        * { font-family: 'Inter', 'Tajawal', system-ui, sans-serif; }
         body { overflow-x: hidden; }
 
         /* Scrollbar */
@@ -107,6 +120,7 @@
 
     <div class="flex min-h-screen">
         <!-- Sidebar -->
+        {% if request.user.is_authenticated %}
         <aside class="no-print fixed lg:sticky top-0 left-0 z-50 h-screen w-[280px] bg-sidebar-dark border-r border-border-dark flex flex-col sidebar-enter overflow-y-auto"
                :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:-translate-x-full'"
                x-cloak>
@@ -118,7 +132,7 @@
                         <span class="text-white text-xl">🚛</span>
                     </div>
                     <div>
-                        <h1 class="font-bold text-white text-lg tracking-tight">FleetOps Pro</h1>
+                        <h1 class="font-bold text-white text-lg tracking-tight">SAYYEDNAA LOGISTICS</h1>
                         <p class="text-[10px] text-gray-500 uppercase tracking-widest">Kuwait Operations</p>
                     </div>
                 </div>
@@ -253,8 +267,16 @@
                         Logout
                     </button>
                 </form>
+
+                <!-- Developer Footer -->
+                <div class="mt-6 pt-4 border-t border-border-dark/50 text-center">
+                    <a href="https://sayyednaa.github.io" target="_blank" class="text-[10px] text-gray-600 hover:text-orange-500 transition-colors duration-300 group">
+                        Made with <span class="text-red-500 group-hover:animate-pulse">💖</span> by <span class="font-bold text-gray-500 group-hover:text-orange-400">SAYYEDNAA</span>
+                    </a>
+                </div>
             </div>
         </aside>
+        {% endif %}
 
         <!-- Overlay for mobile -->
         <div x-show="sidebarOpen" @click="sidebarOpen = false"
@@ -263,6 +285,7 @@
         <!-- Main Content -->
         <main class="flex-1 min-w-0" :class="sidebarOpen ? 'lg:ml-0' : ''">
             <!-- Top Navbar -->
+            {% if request.user.is_authenticated %}
             <header class="no-print sticky top-0 z-30 bg-surface-dark/80 backdrop-blur-xl border-b border-border-dark">
                 <div class="flex items-center justify-between px-4 lg:px-6 h-16">
                     <div class="flex items-center gap-4">
@@ -296,9 +319,10 @@
                     </div>
                 </div>
             </header>
+            {% endif %}
 
             <!-- Page Content -->
-            <div class="p-4 lg:p-6 animate-fade-in">
+            <div class="{% if request.user.is_authenticated %}p-4 lg:p-6{% endif %} animate-fade-in">
                 {% block content %}{% endblock %}
             </div>
         </main>

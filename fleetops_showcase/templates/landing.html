@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% block title %}Najmat Alwesam | نجمة الوسام — Modern Delivery Services in Kuwait{% endblock %}
+
+{% block extra_css %}
+<!-- SEO Meta Tags -->
+<meta name="description" content="شركة نجمة الوسام - خدمة توصيل موثوقة في الكويت. نقدم خدمات توصيل الطلبات من المطاعم والمتاجر والصيدليات للأفراد والشركات في جميع أنحاء الكويت." />
+<meta name="keywords" content="توصيل, الكويت, خدمة توصيل, توصيل طلبات, توصيل طعام, نجمة الوسام, delivery, kuwait, food delivery" />
+<meta name="author" content="شركة نجمة الوسام" />
+<meta property="og:title" content="شركة نجمة الوسام للتوصيل" />
+<meta property="og:description" content="خدمة توصيل موثوقة في الكويت. نقدم خدمات توصيل الطلبات من المطاعم والمتاجر والصيدليات." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://najmatalwesam.com" />
+
+<style>
+    .glass-nav {
+        background: rgba(10, 10, 15, 0.7);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px border-border-dark;
+    }
+    .hero-gradient {
+        background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.15), transparent),
+                    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent);
+    }
+    .floating {
+        animation: floating 3s ease-in-out infinite;
+    }
+    @keyframes floating {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .logo-cloud img {
+        filter: grayscale(100%) invert(100%) opacity(0.5);
+        transition: all 0.3s ease;
+    }
+    .logo-cloud img:hover {
+        filter: grayscale(0%) invert(0%) opacity(1);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="min-h-screen hero-gradient" x-data="{ lang: 'en' }" x-init="lang = document.documentElement.lang">
+    <!-- Navbar -->
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-6 lg:px-12">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg">
+                <span class="text-white text-xl">🚛</span>
+            </div>
+            <h1 class="font-bold text-white text-xl tracking-tight">SAYYEDNAA LOGISTICS</h1>
+        </div>
+        <div class="flex items-center gap-4 lg:gap-6">
+            <button @click="localStorage.setItem('i18nextLng', lang === 'en' ? 'ar' : 'en'); window.location.reload();" 
+                    class="text-sm font-bold text-gray-400 hover:text-white transition-colors">
+                <span x-show="lang === 'en'">العربية</span>
+                <span x-show="lang === 'ar'">English</span>
+            </button>
+            <a href="{% url 'login' %}" class="px-6 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all shadow-lg shadow-orange-500/20">
+                Sign In
+            </a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="pt-32 pb-20 px-6 lg:px-12 max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+        <div class="space-y-8" :class="lang === 'ar' ? 'text-right' : 'text-left'">
+            <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-sm font-bold tracking-wider uppercase">
+                <span x-show="lang === 'en'">⚡ Trusted Delivery Partner</span>
+                <span x-show="lang === 'ar'">⚡ شريك التوصيل الموثوق</span>
+            </div>
+            <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
+                <template x-if="lang === 'en'">
+                    <span>SAYYEDNAA LOGISTICS <span class="text-orange-500">Delivering Excellence</span> in Kuwait</span>
+                </template>
+                <template x-if="lang === 'ar'">
+                    <span>نجمة الوسام <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
+                </template>
+            </h1>
+            <p class="text-xl text-gray-400 leading-relaxed max-w-xl">
+                <span x-show="lang === 'en'">Providing reliable delivery services for restaurants, pharmacies, and retail businesses across all Kuwait governorates.</span>
+                <span x-show="lang === 'ar'">تقديم خدمات توصيل موثوقة للمطاعم والصيدليات وشركات التجزئة في جميع محافظات الكويت.</span>
+            </p>
+            <div class="flex flex-wrap gap-4 pt-4">
+                <a href="#services" class="px-8 py-4 rounded-xl bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg transition-all shadow-xl shadow-orange-500/30 flex items-center gap-3">
+                    <span x-show="lang === 'en'">Our Services</span>
+                    <span x-show="lang === 'ar'">خدماتنا</span>
+                    <span>→</span>
+                </a>
+                <a href="{% url 'login' %}" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-lg transition-all">
+                    <span x-show="lang === 'en'">Portal Login</span>
+                    <span x-show="lang === 'ar'">دخول البوابة</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- Hero Visual -->
+        <div class="relative hidden lg:block">
+            <div class="absolute -inset-4 bg-orange-500/20 blur-3xl rounded-full"></div>
+            <img src="https://timeskuwait.com/news/wp-content/uploads/2023/04/1436263.jpg" alt="Kuwait Operations" class="relative rounded-3xl shadow-2xl floating border border-white/10">
+        </div>
+    </div>
+
+    <!-- Trusted By Section -->
+    <div class="py-16 bg-white/5 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mb-10" x-text="lang === 'en' ? 'Trusted by Industry Leaders' : 'موثوقون من قادة الصناعة'"></p>
+            <div class="flex flex-wrap justify-center items-center gap-12 lg:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all">
+                <span class="text-2xl font-black text-white tracking-tighter">PHARMAZONE</span>
+                <span class="text-2xl font-black text-white tracking-tighter">BURGER KING</span>
+                <span class="text-2xl font-black text-white tracking-tighter">TALABAT</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <div id="services" class="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
+        <div class="text-center space-y-4 mb-20">
+            <h2 class="text-4xl font-bold text-white" x-text="lang === 'en' ? 'Our Specialized Services' : 'خدماتنا المتخصصة'"></h2>
+            <p class="text-gray-400 max-w-2xl mx-auto text-lg" x-text="lang === 'en' ? 'Tailored logistics solutions designed to match the rapid pace of your business.' : 'حلول لوجستية مصممة خصيصاً لتناسب الوتيرة السريعة لأعمالك.'"></p>
+        </div>
+        
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Service 1 -->
+            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-orange-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 text-2xl mb-6">🍔</div>
+                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Restaurants & Food' : 'المطاعم والأغذية'"></h3>
+                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Hot, fresh deliveries at lightning speed.' : 'توصيل ساخن وطازج بسرعة البرق.'"></p>
+            </div>
+            <!-- Service 2 -->
+            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-blue-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl mb-6">💊</div>
+                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Pharmacies & Health' : 'الصيدليات والصحة'"></h3>
+                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Safe handling of essential medical supplies.' : 'التعامل الآمن مع الإمدادات الطبية الأساسية.'"></p>
+            </div>
+            <!-- Service 3 -->
+            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-emerald-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl mb-6">🛍️</div>
+                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Retail & Shops' : 'التجزئة والمحلات'"></h3>
+                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Same-day delivery for retail businesses.' : 'التوصيل في نفس اليوم لشركات التجزئة.'"></p>
+            </div>
+            <!-- Service 4 -->
+            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-purple-500/30 transition-all group">
+                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-2xl mb-6">📦</div>
+                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'B2B Logistics' : 'لوجستيات B2B'"></h3>
+                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Reliable distribution across all Kuwait governorates.' : 'توزيع موثوق في جميع محافظات الكويت.'"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Section -->
+    <div class="py-24 px-6 lg:px-12 bg-white/[0.02]">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16">
+                <h2 class="text-4xl font-bold text-white mb-4" x-text="lang === 'en' ? 'Delivering Excellence Daily' : 'نقدم التميز يومياً'"></h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
+                    <p class="text-5xl font-black text-orange-500 mb-2">10,000+</p>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Daily Orders' : 'طلب يومي'"></p>
+                </div>
+                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
+                    <p class="text-5xl font-black text-blue-500 mb-2">500+</p>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Active Fleet' : 'أسطول نشط'"></p>
+                </div>
+                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
+                    <p class="text-5xl font-black text-emerald-500 mb-2">&lt; 30m</p>
+                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Average Time' : 'متوسط الوقت'"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Testimonials -->
+    <div class="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
+        <p class="text-center text-orange-500 font-bold mb-4 uppercase tracking-widest text-xs" x-text="lang === 'en' ? 'Trusted by Kuwait\'s Best' : 'موثوقون من الأفضل في الكويت'"></p>
+        <div class="grid md:grid-cols-2 gap-8 mt-12">
+            <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
+                <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
+                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'Najmat Alwesam completely transformed our food delivery speed. Highly recommended!' : 'نجمة الوسام غيرت تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!'"></p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center font-bold text-orange-400">AM</div>
+                    <div>
+                        <p class="text-white font-bold">Ahmad Al-Mutairi</p>
+                        <p class="text-gray-500 text-xs" x-text="lang === 'en' ? 'Restaurant Owner' : 'صاحب مطعم'"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
+                <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
+                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'Their B2B service is flawless. We depend on them for our daily retail dispatching.' : 'خدمة B2B الخاصة بهم لا تشوبها شائبة. نحن نعتمد عليهم في توزيع التجزئة اليومي لدينا.'"></p>
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center font-bold text-blue-400">FS</div>
+                    <div>
+                        <p class="text-white font-bold">Fatima Saad</p>
+                        <p class="text-gray-500 text-xs" x-text="lang === 'en' ? 'Boutique Manager' : 'مديرة بوتيك'"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="py-24 px-6 lg:px-12 max-w-7xl mx-auto text-center">
+        <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-[3rem] p-12 lg:p-20 shadow-2xl shadow-orange-500/20">
+            <h2 class="text-4xl lg:text-6xl font-black text-white mb-6" x-text="lang === 'en' ? 'Ready to Dispatch?' : 'جاهز للإرسال؟'"></h2>
+            <p class="text-white/80 text-xl mb-10 max-w-2xl mx-auto" x-text="lang === 'en' ? 'Join hundreds of businesses that trust Najmat Alwesam.' : 'انضم إلى مئات الشركات التي تثق بنجمة الوسام.'"></p>
+            <a href="{% url 'login' %}" class="inline-flex items-center gap-3 px-10 py-5 bg-white text-orange-600 font-black text-xl rounded-2xl hover:scale-105 transition-transform">
+                <span x-show="lang === 'en'">Get Started</span>
+                <span x-show="lang === 'ar'">ابدأ الآن</span>
+                <span>→</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-border-dark px-6 lg:px-12">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-lg">🚛</div>
+                <span class="text-white font-bold tracking-tight">SAYYEDNAA LOGISTICS</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <p class="text-gray-500 text-sm">© 2026 Najmat Alwesam Kuwait. All rights reserved.</p>
+                <a href="https://sayyednaa.github.io" target="_blank" class="text-[10px] text-gray-600 hover:text-orange-500 transition-colors mt-2">
+                    Made with 💖 by <span class="font-bold">SAYYEDNAA</span>
+                </a>
+            </div>
+            <div class="flex gap-6 text-gray-400 text-sm">
+                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}
