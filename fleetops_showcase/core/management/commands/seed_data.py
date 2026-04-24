@@ -20,8 +20,8 @@ class Command(BaseCommand):
         # 1. Create Users
         self.stdout.write('Creating users...')
         admin_user = Profile.objects.create_superuser(
-            username='admin@fleetops.com',
-            email='admin@fleetops.com',
+            username='admin@sayyednaalogistics.com',
+            email='admin@sayyednaalogistics.com',
             password='admin123',
             first_name='Omar',
             last_name='Al-Rashidi',
@@ -30,8 +30,8 @@ class Command(BaseCommand):
         )
 
         manager_user = Profile.objects.create_user(
-            username='manager@fleetops.com',
-            email='manager@fleetops.com',
+            username='manager@sayyednaalogistics.com',
+            email='manager@sayyednaalogistics.com',
             password='manager123',
             first_name='Sara',
             last_name='Al-Mutairi',
@@ -40,8 +40,8 @@ class Command(BaseCommand):
         )
 
         employee_user = Profile.objects.create_user(
-            username='employee@fleetops.com',
-            email='employee@fleetops.com',
+            username='employee@sayyednaalogistics.com',
+            email='employee@sayyednaalogistics.com',
             password='employee123',
             first_name='Khalid',
             last_name='Al-Enezi',
@@ -50,8 +50,8 @@ class Command(BaseCommand):
         )
 
         driver_user = Profile.objects.create_user(
-            username='driver@fleetops.com',
-            email='driver@fleetops.com',
+            username='driver@sayyednaalogistics.com',
+            email='driver@sayyednaalogistics.com',
             password='driver123',
             first_name='Ahmed',
             last_name='Hassan',

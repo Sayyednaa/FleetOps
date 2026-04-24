@@ -1,4 +1,4 @@
-# FleetOps Pro — Phase 1 Showcase
+# SAYYEDNAA LOGISTICS — Phase 1 Showcase
 
 A complete, fully functional fleet management web application built with **pure Django** — no external database, no React, no REST API.
 
@@ -20,12 +20,12 @@ python manage.py runserver
 
 ## 🔑 Demo Accounts
 
-| Role     | Username              | Password    | Name             |
-|----------|-----------------------|-------------|------------------|
-| Admin    | admin@fleetops.com    | admin123    | Omar Al-Rashidi  |
-| Manager  | manager@fleetops.com  | manager123  | Sara Al-Mutairi  |
-| Employee | employee@fleetops.com | employee123 | Khalid Al-Enezi  |
-| Driver   | driver@fleetops.com   | driver123   | Ahmed Hassan     |
+| Role     | Username                         | Password    | Name             |
+|----------|----------------------------------|-------------|------------------|
+| Admin    | admin@sayyednaalogistics.com    | admin123    | Omar Al-Rashidi  |
+| Manager  | manager@sayyednaalogistics.com  | manager123  | Sara Al-Mutairi  |
+| Employee | employee@sayyednaalogistics.com | employee123 | Khalid Al-Enezi  |
+| Driver   | driver@sayyednaalogistics.com   | driver123   | Ahmed Hassan     |
 
 ## 📋 Features
 
