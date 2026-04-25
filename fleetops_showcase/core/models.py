@@ -262,6 +262,11 @@ class Deduction(models.Model):
     contracting_company = models.CharField(max_length=20, choices=CONTRACT_CHOICES)
     contractor_deduction_kd = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     company_deduction_kd = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    # New fields for installment plans
+    is_installment_plan = models.BooleanField(default=False)
+    total_installments = models.IntegerField(default=1)
+    
     pdf_proof = models.FileField(upload_to='deduction_pdfs/', null=True, blank=True)
     submitted_by = models.ForeignKey(
         Profile, on_delete=models.SET_NULL, null=True, related_name='submitted_deductions'
@@ -274,6 +279,44 @@ class Deduction(models.Model):
     def __str__(self):
         target = self.driver or self.employee
         return f"Deduction: {target} - {self.deduction_date}"
+
+    @property
+    def total_amount(self):
+        return self.contractor_deduction_kd + self.company_deduction_kd
+
+    @property
+    def paid_amount(self):
+        return sum(i.amount for i in self.installments.filter(status='paid'))
+
+    @property
+    def remaining_amount(self):
+        return self.total_amount - self.paid_amount
+
+
+class DeductionInstallment(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    deduction = models.ForeignKey(Deduction, on_delete=models.CASCADE, related_name='installments')
+    amount = models.DecimalField(max_digits=10, decimal_places=3)
+    due_date = models.DateField()
+    status = models.CharField(
+        max_length=20, 
+        choices=[('pending', 'Pending'), ('paid', 'Paid')], 
+        default='pending'
+    )
+    paid_at = models.DateTimeField(null=True, blank=True)
+    
+    # Digital Signature
+    signature_data = models.TextField(blank=True, null=True, help_text="Base64 signature data")
+    signature_image = models.ImageField(upload_to='signatures/', null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['due_date']
+
+    def __str__(self):
+        return f"Installment {self.amount} for {self.deduction}"
 
 
 # ─── Message / MessageRecipient ─────────────────────────────────────────────

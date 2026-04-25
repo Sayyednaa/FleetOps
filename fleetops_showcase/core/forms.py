@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from .models import (
-    Profile, Driver, DriverInvoice, Deduction, Message,
+    Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Message,
     ROLE_CHOICES, POSITION_CHOICES, BANK_CHOICES, COMPANY_CHOICES,
     CONTRACT_CHOICES, VEHICLE_CHOICES, Task,
 )
@@ -202,6 +202,7 @@ class DeductionForm(forms.ModelForm):
             'driver', 'employee', 'reason', 'deduction_date',
             'contracting_company', 'contractor_deduction_kd',
             'company_deduction_kd', 'pdf_proof',
+            'is_installment_plan', 'total_installments',
         ]
         widgets = {
             'driver': forms.Select(attrs={'class': TW_SELECT}),
@@ -212,6 +213,8 @@ class DeductionForm(forms.ModelForm):
             'contractor_deduction_kd': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001'}),
             'company_deduction_kd': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001'}),
             'pdf_proof': forms.FileInput(attrs={'class': TW_FILE}),
+            'is_installment_plan': forms.CheckboxInput(attrs={'class': TW_CHECKBOX}),
+            'total_installments': forms.NumberInput(attrs={'class': TW_INPUT, 'min': 1}),
         }
 
     def clean(self):
@@ -219,6 +222,16 @@ class DeductionForm(forms.ModelForm):
         if not cleaned.get('driver') and not cleaned.get('employee'):
             raise forms.ValidationError('At least one of Driver or Employee must be selected.')
         return cleaned
+
+
+class DeductionInstallmentForm(forms.ModelForm):
+    class Meta:
+        model = DeductionInstallment
+        fields = ['status', 'signature_image']
+        widgets = {
+            'status': forms.Select(attrs={'class': TW_SELECT}),
+            'signature_image': forms.FileInput(attrs={'class': TW_FILE}),
+        }
 
 
 class EmployeeDeductionForm(DeductionForm):

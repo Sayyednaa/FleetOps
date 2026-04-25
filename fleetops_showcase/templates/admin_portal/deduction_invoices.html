@@ -9,7 +9,10 @@
     <!-- Form -->
     <div class="xl:col-span-1">
         <div class="bg-card-dark border border-border-dark rounded-2xl p-6 sticky top-24">
-            <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📝</span> Add Deduction</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2"><span>📝</span> Add Deduction</h3>
+                <a href="{% url 'admin_pending_dues' %}" class="text-xs text-orange-500 hover:underline">View Pending Dues →</a>
+            </div>
             {% if form.errors %}
             <div class="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm">{{ form.errors }}</div>
             {% endif %}
@@ -24,9 +27,34 @@
                     <div><label class="block text-xs font-medium text-gray-400 mb-1">Contractor KD</label>{{ form.contractor_deduction_kd }}</div>
                     <div><label class="block text-xs font-medium text-gray-400 mb-1">Company KD</label>{{ form.company_deduction_kd }}</div>
                 </div>
+                <div class="p-3 bg-gray-800/50 rounded-xl border border-gray-700 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-medium text-gray-300">Installment Plan?</label>
+                        {{ form.is_installment_plan }}
+                    </div>
+                    <div x-show="is_installment" x-data="{ is_installment: false }" x-init="$watch('$refs.inst_check.checked', v => is_installment = v)">
+                        <!-- We'll use simple JS for toggle since Alpine might not be initialized same way here -->
+                    </div>
+                    <div id="installment_fields" class="hidden">
+                        <label class="block text-xs font-medium text-gray-400 mb-1">Total Installments (Months)</label>
+                        {{ form.total_installments }}
+                        <p class="text-[10px] text-gray-500 mt-1">Amount will be split equally across months.</p>
+                    </div>
+                </div>
                 <div><label class="block text-xs font-medium text-gray-400 mb-1">PDF Proof</label>{{ form.pdf_proof }}</div>
                 <button type="submit" class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors">Submit Deduction</button>
             </form>
+            
+            <script>
+                document.querySelector('input[name="is_installment_plan"]').addEventListener('change', function(e) {
+                    const fields = document.getElementById('installment_fields');
+                    if(e.target.checked) {
+                        fields.classList.remove('hidden');
+                    } else {
+                        fields.classList.add('hidden');
+                    }
+                });
+            </script>
         </div>
     </div>
 

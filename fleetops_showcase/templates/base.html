@@ -215,6 +215,15 @@
                 <a href="{% if is_admin %}{% url 'admin_deductions' %}{% else %}{% url 'manager_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🧾</span> Deduction Invoices
                 </a>
+                {% if is_admin %}
+                <a href="{% url 'admin_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>⏳</span> Pending Dues
+                </a>
+                {% elif is_manager %}
+                <a href="{% url 'manager_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'manager-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                    <span>⏳</span> Pending Dues
+                </a>
+                {% endif %}
                 {% endif %}
                 {% endif %}
 

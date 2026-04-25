@@ -14,4 +14,6 @@ urlpatterns = [
     path('drivers/<uuid:pk>/toggle-active/', views.DriverToggleActiveView.as_view(), name='admin_driver_toggle'),
     path('drivers/<uuid:pk>/salary-slip/', views.DriverSalarySlipView.as_view(), name='admin_salary_slip'),
     path('deductions/', views.DeductionListView.as_view(), name='admin_deductions'),
+    path('pending-dues/', views.PendingDuesView.as_view(), name='admin_pending_dues'),
+    path('pending-dues/<uuid:pk>/pay/', views.MarkInstallmentPaidView.as_view(), name='admin_mark_paid'),
 ]

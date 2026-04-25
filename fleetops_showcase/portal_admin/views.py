@@ -8,10 +8,10 @@ from django.db.models import Sum, Q, Count
 from django.core.paginator import Paginator
 from core.mixins import AdminRequiredMixin
 from core.models import (
-    Profile, Driver, DriverInvoice, Deduction, Notification, Task,
+    Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Notification, Task,
     ROLE_CHOICES, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
-from core.forms import ProfileForm, DriverForm, DeductionForm
+from core.forms import ProfileForm, DriverForm, DeductionForm, DeductionInstallmentForm
 from django.views import View
 
 
@@ -314,6 +314,39 @@ class DeductionListView(AdminRequiredMixin, View):
             deduction = form.save(commit=False)
             deduction.submitted_by = request.user
             deduction.save()
+
+            # Create installments if it's an installment plan
+            if deduction.is_installment_plan and deduction.total_installments > 1:
+                total_kd = deduction.total_amount
+                count = deduction.total_installments
+                base_amount = total_kd / count
+                
+                from datetime import timedelta
+                # Simple month increment: approx 30 days
+                for i in range(count):
+                    # For more accuracy, one could use relativedelta, but let's keep it simple for now
+                    # or just increment months manually.
+                    due_date = deduction.deduction_date
+                    # Logic to increment month
+                    month = (due_date.month + i - 1) % 12 + 1
+                    year = due_date.year + (due_date.month + i - 1) // 12
+                    actual_due_date = date(year, month, min(due_date.day, 28)) # Use 28 to avoid month overflow
+                    
+                    DeductionInstallment.objects.create(
+                        deduction=deduction,
+                        amount=base_amount,
+                        due_date=actual_due_date,
+                        status='pending'
+                    )
+            elif not deduction.is_installment_plan:
+                # Create a single installment for the full amount
+                DeductionInstallment.objects.create(
+                    deduction=deduction,
+                    amount=deduction.total_amount,
+                    due_date=deduction.deduction_date,
+                    status='pending'
+                )
+
             messages.success(request, 'Deduction recorded successfully.')
             return redirect('admin_deductions')
         deductions = Deduction.objects.select_related('driver', 'employee', 'submitted_by').all()
@@ -321,3 +354,48 @@ class DeductionListView(AdminRequiredMixin, View):
             'form': form,
             'deductions': deductions,
         })
+
+
+class PendingDuesView(AdminRequiredMixin, View):
+    def get(self, request):
+        installments = DeductionInstallment.objects.select_related(
+            'deduction__driver', 'deduction__employee'
+        ).order_by('status', 'due_date')
+        
+        # Filter logic if needed
+        q = request.GET.get('q', '')
+        if q:
+            installments = installments.filter(
+                Q(deduction__driver__first_name__icontains=q) |
+                Q(deduction__driver__last_name__icontains=q) |
+                Q(deduction__reason__icontains=q)
+            )
+
+        return render(request, 'admin_portal/pending_dues.html', {
+            'installments': installments,
+            'q': q,
+        })
+
+
+class MarkInstallmentPaidView(AdminRequiredMixin, View):
+    def post(self, request, pk):
+        installment = get_object_or_404(DeductionInstallment, pk=pk)
+        
+        # Check if marking as paid
+        if 'mark_paid' in request.POST:
+            installment.status = 'paid'
+            installment.paid_at = date.today()
+            
+            # Handle signature data (Base64)
+            sig_data = request.POST.get('signature_data')
+            if sig_data:
+                installment.signature_data = sig_data
+            
+            # Handle signature upload
+            if 'signature_image' in request.FILES:
+                installment.signature_image = request.FILES['signature_image']
+            
+            installment.save()
+            messages.success(request, f'Installment of {installment.amount} KD marked as paid.')
+        
+        return redirect('admin_pending_dues')
