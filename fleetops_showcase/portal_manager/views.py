@@ -12,6 +12,10 @@ from core.models import (
     Profile, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
 from core.forms import DriverForm, DeductionForm, DeductionInstallmentForm
+from portal_admin.views import (
+    DriverAddView, DriverEditView, DriverDeleteView, DriverToggleActiveView, 
+    DriverSalarySlipView, MarkInstallmentPaidView
+)
 from django.views import View
 from portal_admin.views import get_chart_data
 
@@ -199,20 +203,11 @@ class ManagerPendingDuesView(AdminManagerRequiredMixin, View):
         })
 
 
-class ManagerMarkInstallmentPaidView(AdminManagerRequiredMixin, View):
-    def post(self, request, pk):
-        from core.models import DeductionInstallment
-        installment = get_object_or_404(DeductionInstallment, pk=pk)
-        
-        if 'mark_paid' in request.POST:
-            installment.status = 'paid'
-            installment.paid_at = date.today()
-            sig_data = request.POST.get('signature_data')
-            if sig_data:
-                installment.signature_data = sig_data
-            if 'signature_image' in request.FILES:
-                installment.signature_image = request.FILES['signature_image']
-            installment.save()
-            messages.success(request, f'Installment of {installment.amount} KD marked as paid.')
-        
-        return redirect('manager_pending_dues')
+class ManagerMarkInstallmentPaidView(MarkInstallmentPaidView):
+    pass
+
+class ManagerDriverAddView(DriverAddView):
+    pass
+
+class ManagerDriverDeleteView(DriverDeleteView):
+    pass

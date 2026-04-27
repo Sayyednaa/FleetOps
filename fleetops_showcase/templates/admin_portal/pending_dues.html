@@ -13,7 +13,7 @@
         </div>
         
         <div class="flex items-center gap-3">
-            <a href="{% if portal == 'manager' %}{% url 'manager_deductions' %}{% else %}{% url 'admin_deductions' %}{% endif %}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl border border-gray-700 transition-all flex items-center gap-2">
+            <a href="{% if portal == 'admin' %}{% url 'admin_deductions' %}{% elif portal == 'manager' %}{% url 'manager_deductions' %}{% else %}{% url 'employee_deductions' %}{% endif %}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-xl border border-gray-700 transition-all flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                 New Deduction
             </a>
@@ -34,7 +34,7 @@
                 Search
             </button>
             {% if q %}
-            <a href="{% if portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'admin_pending_dues' %}{% endif %}" class="text-gray-400 hover:text-white transition-colors text-sm">Clear</a>
+            <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-gray-400 hover:text-white transition-colors text-sm">Clear</a>
             {% endif %}
         </form>
     </div>
@@ -69,14 +69,26 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10 shadow-lg">
-                                    {{ item.deduction.driver.first_name|default:item.deduction.employee.first_name|slice:":1" }}
+                                    {% if item.deduction.driver %}
+                                        {{ item.deduction.driver.first_name|slice:":1" }}
+                                    {% else %}
+                                        {{ item.deduction.employee.first_name|slice:":1" }}
+                                    {% endif %}
                                 </div>
                                 <div>
                                     <p class="text-white font-medium">
-                                        {{ item.deduction.driver.full_name|default:item.deduction.employee.get_full_name }}
+                                        {% if item.deduction.driver %}
+                                            {{ item.deduction.driver.full_name }}
+                                        {% else %}
+                                            {{ item.deduction.employee.get_full_name }}
+                                        {% endif %}
                                     </p>
                                     <p class="text-xs text-gray-500">
-                                        {{ item.deduction.driver.civil_id_number|default:"Employee" }}
+                                        {% if item.deduction.driver %}
+                                            {{ item.deduction.driver.civil_id_number }}
+                                        {% else %}
+                                            Employee
+                                        {% endif %}
                                     </p>
                                 </div>
                             </div>
@@ -108,8 +120,9 @@
                                 Deposit
                             </button>
                             {% else %}
-                            <button class="text-gray-500 cursor-not-allowed text-xs font-medium" disabled>
-                                Completed
+                            <button onclick="openViewModal('{{ item.signature_data|default:'' }}', '{% if item.signature_image %}{{ item.signature_image.url }}{% endif %}', '{{ item.paid_by.get_full_name|default:'Unknown' }}', '{{ item.paid_at|date:'d M Y' }}')"
+                                    class="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-lg text-xs font-bold transition-all">
+                                View
                             </button>
                             {% endif %}
                         </td>
@@ -186,6 +199,44 @@
     </div>
 </div>
 
+<!-- View Modal -->
+<div id="viewModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div class="bg-gray-900 border border-white/10 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl">
+        <div class="p-6 border-b border-white/10 flex justify-between items-center bg-white/5">
+            <h2 class="text-xl font-bold text-white">Deposit Details</h2>
+            <button onclick="closeViewModal()" class="text-gray-400 hover:text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        </div>
+        <div class="p-8 space-y-8">
+            <div class="space-y-2">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Deposited By</p>
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 font-bold">
+                        👤
+                    </div>
+                    <div>
+                        <p class="text-white font-bold" id="viewPaidBy">—</p>
+                        <p class="text-xs text-gray-500" id="viewPaidAt">—</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="space-y-2">
+                <p class="text-gray-400 text-xs font-bold uppercase tracking-wider">Digital Signature</p>
+                <div class="bg-white rounded-2xl p-4 border border-white/10 flex items-center justify-center min-h-[200px]">
+                    <img id="viewSignature" src="" class="max-w-full max-h-[200px] object-contain" alt="Signature">
+                    <p id="noSignature" class="text-gray-400 text-sm italic hidden">No signature recorded</p>
+                </div>
+            </div>
+
+            <button onclick="closeViewModal()" class="w-full py-3 bg-gray-800 hover:bg-gray-700 text-white font-bold rounded-xl transition-all">
+                Close
+            </button>
+        </div>
+    </div>
+</div>
+
 <script>
     const canvas = document.getElementById('signaturePad');
     const ctx = canvas.getContext('2d');
@@ -246,8 +297,9 @@
         const form = document.getElementById('paymentForm');
         const amountDisplay = document.getElementById('modalAmount');
         
-        // Fix path to match portal
-        const portalPrefix = "{{ portal }}" === "manager" ? "manager-portal" : "admin-portal";
+        let portalPrefix = "admin-portal";
+        if ("{{ portal }}" === "manager") portalPrefix = "manager-portal";
+        if ("{{ portal }}" === "employee") portalPrefix = "employee-portal";
         form.action = `/${portalPrefix}/pending-dues/${id}/pay/`;
         amountDisplay.innerText = `${amount} KD`;
         
@@ -258,6 +310,36 @@
     function closePaymentModal() {
         document.getElementById('paymentModal').classList.add('hidden');
         clearSignature();
+    }
+
+    function openViewModal(sigData, sigUrl, paidBy, paidAt) {
+        const modal = document.getElementById('viewModal');
+        const img = document.getElementById('viewSignature');
+        const none = document.getElementById('noSignature');
+        const paidByEl = document.getElementById('viewPaidBy');
+        const paidAtEl = document.getElementById('viewPaidAt');
+
+        paidByEl.innerText = paidBy;
+        paidAtEl.innerText = `Deposited on ${paidAt}`;
+
+        if (sigUrl) {
+            img.src = sigUrl;
+            img.classList.remove('hidden');
+            none.classList.add('hidden');
+        } else if (sigData) {
+            img.src = sigData;
+            img.classList.remove('hidden');
+            none.classList.add('hidden');
+        } else {
+            img.classList.add('hidden');
+            none.classList.remove('hidden');
+        }
+
+        modal.classList.remove('hidden');
+    }
+
+    function closeViewModal() {
+        document.getElementById('viewModal').classList.add('hidden');
     }
 </script>
 {% endblock %}

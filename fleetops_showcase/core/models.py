@@ -323,6 +323,9 @@ class DeductionInstallment(models.Model):
         default='pending'
     )
     paid_at = models.DateTimeField(null=True, blank=True)
+    paid_by = models.ForeignKey(
+        Profile, on_delete=models.SET_NULL, null=True, blank=True, related_name='recorded_payments'
+    )
     
     # Digital Signature
     signature_data = models.TextField(blank=True, null=True, help_text="Base64 signature data")

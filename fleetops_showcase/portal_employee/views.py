@@ -7,10 +7,14 @@ from django.db.models import Sum, Q
 from django.core.paginator import Paginator
 from core.mixins import StaffRequiredMixin
 from core.models import (
-    Driver, DriverInvoice, Notification, Task,
+    Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Notification, Task,
     COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
-from core.forms import DriverForm, EmployeeDeductionForm
+from core.forms import DriverForm, EmployeeDeductionForm, DeductionForm
+from portal_admin.views import (
+    DriverEditView, DriverDeleteView, DriverToggleActiveView, DriverSalarySlipView,
+    MarkInstallmentPaidView
+)
 from django.views import View
 
 
@@ -103,3 +107,49 @@ class EmployeeDeductionAddView(StaffRequiredMixin, View):
             messages.success(request, 'Deduction submitted successfully.')
             return redirect('employee_dashboard')
         return render(request, 'employee_portal/deduction_form.html', {'form': form})
+
+class EmployeeDeductionListView(StaffRequiredMixin, View):
+    def get(self, request):
+        form = EmployeeDeductionForm()
+        form.fields['driver'].queryset = Driver.objects.filter(is_active=True)
+        deductions = Deduction.objects.select_related('driver', 'employee', 'submitted_by').all()
+        return render(request, 'admin_portal/deduction_invoices.html', {
+            'form': form,
+            'deductions': deductions,
+            'portal': 'employee',
+        })
+
+class EmployeePendingDuesView(StaffRequiredMixin, View):
+    def get(self, request):
+        installments = DeductionInstallment.objects.select_related(
+            'deduction__driver', 'deduction__employee'
+        ).order_by('status', 'due_date')
+        
+        q = request.GET.get('q', '')
+        if q:
+            installments = installments.filter(
+                Q(deduction__driver__first_name__icontains=q) |
+                Q(deduction__driver__last_name__icontains=q) |
+                Q(deduction__reason__icontains=q)
+            )
+
+        return render(request, 'admin_portal/pending_dues.html', {
+            'installments': installments,
+            'q': q,
+            'portal': 'employee',
+        })
+
+class EmployeeDriverEditView(DriverEditView):
+    pass
+
+class EmployeeDriverDeleteView(DriverDeleteView):
+    pass
+
+class EmployeeDriverToggleView(DriverToggleActiveView):
+    pass
+
+class EmployeeSalarySlipView(DriverSalarySlipView):
+    pass
+
+class EmployeeMarkPaidView(MarkInstallmentPaidView):
+    pass

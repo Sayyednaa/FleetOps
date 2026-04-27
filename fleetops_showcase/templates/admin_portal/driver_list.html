@@ -5,59 +5,68 @@
 {% block breadcrumb %}{% if portal == 'admin' %}Admin{% elif portal == 'manager' %}Manager{% else %}Employee{% endif %} → Drivers{% endblock %}
 
 {% block content %}
-<div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6">
-    <!-- Filters -->
-    <form method="get" class="flex flex-wrap items-center gap-3 flex-1">
-        <div class="relative">
-            <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <input type="text" name="q" value="{{ q }}" placeholder="Search name / phone..."
-                   class="pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm w-48">
-        </div>
-        <select name="company" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option value="">All Companies</option>
-            {% for val, label in company_choices %}<option value="{{ val }}" {% if company == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
-        </select>
-        <select name="contract" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option value="">All Contracts</option>
-            {% for val, label in contract_choices %}<option value="{{ val }}" {% if contract == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
-        </select>
-        <select name="vehicle" class="px-3 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-orange-500">
-            <option value="">All Vehicles</option>
-            {% for val, label in vehicle_choices %}<option value="{{ val }}" {% if vehicle == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
-        </select>
-        <button type="submit" class="px-4 py-2.5 bg-gray-700 hover:bg-gray-600 text-white rounded-xl text-sm font-medium transition-colors">Filter</button>
-    </form>
+    <!-- Filters & Bulk Ops -->
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 mb-6 shadow-sm">
+        <div class="flex flex-col xl:flex-row gap-6 items-start xl:items-center justify-between">
+            <!-- Filter Form -->
+            <form method="get" class="flex flex-wrap items-center gap-3 flex-1">
+                <div class="relative group">
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-brand transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" name="q" value="{{ q }}" placeholder="Search name / phone..."
+                           class="pl-10 pr-4 py-2 bg-black/20 border border-app-border rounded-xl text-app-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand/50 text-sm w-64 transition-all">
+                </div>
+                <div class="flex items-center gap-2">
+                    <select name="company" class="px-3 py-2 bg-black/20 border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
+                        <option value="">All Companies</option>
+                        {% for val, label in company_choices %}<option value="{{ val }}" {% if company == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                    <select name="contract" class="px-3 py-2 bg-black/20 border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
+                        <option value="">All Contracts</option>
+                        {% for val, label in contract_choices %}<option value="{{ val }}" {% if contract == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                    <button type="submit" class="px-5 py-2 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand/10">Filter</button>
+                    {% if q or company or contract %}
+                    <a href="{% if portal == 'admin' %}{% url 'admin_driver_list' %}{% elif portal == 'manager' %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="text-xs text-gray-500 hover:text-app-text underline px-2">Clear</a>
+                    {% endif %}
+                </div>
+            </form>
 
-    {% if portal == 'admin' %}
-    <a href="{% url 'admin_driver_add' %}" class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Add Driver
-    </a>
-    {% elif portal == 'employee' %}
-    <a href="{% url 'employee_driver_add' %}" class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-        Add Driver
-    {% endif %}
-</div>
+            <div class="flex items-center gap-4">
+                {% if portal == 'admin' %}
+                <a href="{% url 'admin_driver_add' %}" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Add Driver
+                </a>
+                {% elif portal == 'employee' %}
+                <a href="{% url 'employee_driver_add' %}" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Add Driver
+                </a>
+                {% endif %}
 
-<!-- Bulk Operations -->
-<div class="flex flex-wrap gap-4 items-center justify-end bg-app-card p-4 rounded-2xl shadow-sm border border-app-border border-dashed mb-6">
-    <div class="flex-1">
-        <h3 class="text-sm font-bold text-app-text uppercase tracking-wider">Bulk Operations</h3>
-        <p class="text-[10px] text-app-text-muted">Import multiple drivers at once using an Excel file.</p>
-    </div>
-    <form method="post" action="{% url 'bulk_upload' 'driver' %}" enctype="multipart/form-data" class="flex items-center gap-2">
-        {% csrf_token %}
-        <label for="excel-upload-driver" class="cursor-pointer group">
-            <div class="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-xl text-xs font-bold transition-all">
-                <span>📁</span> Select Excel
+                <!-- Bulk Section -->
+            <div class="flex items-center gap-4 pl-6 border-l border-app-border/30">
+                <div class="hidden sm:block text-right">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Bulk Import</p>
+                    <p class="text-[9px] text-gray-600">.xlsx / .xls files</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <form method="post" action="{% url 'bulk_upload' 'driver' %}" enctype="multipart/form-data" class="flex items-center">
+                        {% csrf_token %}
+                        <label for="excel-upload-driver" class="cursor-pointer">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 hover:bg-emerald-500 text-emerald-500 hover:text-white border border-emerald-500/30 rounded-xl text-xs font-bold transition-all">
+                                <span>📁</span> Upload Excel
+                            </div>
+                            <input id="excel-upload-driver" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
+                        </label>
+                    </form>
+                    <a href="{% url 'template_download' 'driver' %}" class="flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/10 dark:hover:bg-white/10 text-app-text-muted hover:text-app-text border border-app-border rounded-xl text-xs font-bold transition-all" title="Download Template">
+                        <span>⬇️</span>
+                    </a>
+                </div>
             </div>
-            <input id="excel-upload-driver" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
-        </label>
-        <a href="{% url 'template_download' 'driver' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 text-app-text border border-app-border rounded-xl text-xs font-bold transition-all">
-            <span>⬇️</span> Download Template
-        </a>
-    </form>
+        </div>
+    </div>
 </div>
 
 <!-- Table -->
@@ -112,27 +121,27 @@
                                 <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
 
-                            {% if portal == 'admin' or portal == 'manager' %}
+                            {% if portal == 'admin' or portal == 'manager' or portal == 'employee' %}
                             <!-- Edit -->
-                            <a href="{% if portal == 'admin' %}{% url 'admin_driver_edit' driver.pk %}{% else %}{% url 'manager_driver_edit' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-brand hover:bg-brand/10 transition-colors" title="Edit">
+                            <a href="{% if portal == 'admin' %}{% url 'admin_driver_edit' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_driver_edit' driver.pk %}{% else %}{% url 'employee_driver_edit' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-brand hover:bg-brand/10 transition-colors" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
                             <!-- Toggle -->
-                            <form method="post" action="{% if portal == 'admin' %}{% url 'admin_driver_toggle' driver.pk %}{% else %}{% url 'manager_driver_toggle' driver.pk %}{% endif %}">
+                            <form method="post" action="{% if portal == 'admin' %}{% url 'admin_driver_toggle' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_driver_toggle' driver.pk %}{% else %}{% url 'employee_driver_toggle' driver.pk %}{% endif %}">
                                 {% csrf_token %}
                                 <button type="submit" class="p-2 rounded-lg transition-colors {% if driver.is_active %}text-emerald-600 hover:bg-emerald-500/10{% else %}text-app-text-muted hover:bg-black/5 dark:hover:bg-white/5{% endif %}" title="Toggle active">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                 </button>
                             </form>
                             <!-- Salary Slip -->
-                            <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% else %}{% url 'manager_salary_slip' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors" title="Salary Slip" target="_blank">
+                            <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_salary_slip' driver.pk %}{% else %}{% url 'employee_salary_slip' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors" title="Salary Slip" target="_blank">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             </a>
                             {% endif %}
 
-                            {% if portal == 'admin' %}
+                            {% if portal == 'admin' or portal == 'manager' or portal == 'employee' %}
                             <!-- Delete -->
-                            <form method="post" action="{% url 'admin_driver_delete' driver.pk %}" x-data @submit.prevent="if(confirm('Delete this driver?')) $el.submit()">
+                            <form method="post" action="{% if portal == 'admin' %}{% url 'admin_driver_delete' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_driver_delete' driver.pk %}{% else %}{% url 'employee_driver_delete' driver.pk %}{% endif %}" x-data @submit.prevent="if(confirm('Delete this driver?')) $el.submit()">
                                 {% csrf_token %}
                                 <button type="submit" class="p-2 rounded-lg text-app-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors" title="Delete">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>

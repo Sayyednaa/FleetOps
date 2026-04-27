@@ -101,7 +101,7 @@ class AdminDashboardView(StaffRequiredMixin, View):
         })
 
 
-class TeamListView(StaffRequiredMixin, View):
+class TeamListView(AdminManagerRequiredMixin, View):
     def get(self, request):
         qs = Profile.objects.exclude(role='driver')
         q = request.GET.get('q', '')
@@ -125,7 +125,7 @@ class TeamListView(StaffRequiredMixin, View):
         })
 
 
-class TeamAddView(StaffRequiredMixin, View):
+class TeamAddView(AdminManagerRequiredMixin, View):
     def get(self, request):
         form = ProfileForm()
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
@@ -222,7 +222,7 @@ class DriverAddView(StaffRequiredMixin, View):
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False})
 
 
-class DriverEditView(AdminManagerRequiredMixin, View):
+class DriverEditView(StaffRequiredMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         form = DriverForm(instance=driver)
@@ -238,7 +238,7 @@ class DriverEditView(AdminManagerRequiredMixin, View):
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': True, 'driver': driver})
 
 
-class DriverDeleteView(AdminManagerRequiredMixin, View):
+class DriverDeleteView(StaffRequiredMixin, View):
     def post(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         name = driver.full_name
@@ -247,7 +247,7 @@ class DriverDeleteView(AdminManagerRequiredMixin, View):
         return redirect('admin_driver_list')
 
 
-class DriverToggleActiveView(AdminManagerRequiredMixin, View):
+class DriverToggleActiveView(StaffRequiredMixin, View):
     def post(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         driver.is_active = not driver.is_active
@@ -381,7 +381,7 @@ class PendingDuesView(StaffRequiredMixin, View):
         })
 
 
-class MarkInstallmentPaidView(AccountantRequiredMixin, View):
+class MarkInstallmentPaidView(StaffRequiredMixin, View):
     def post(self, request, pk):
         installment = get_object_or_404(DeductionInstallment, pk=pk)
         
@@ -389,6 +389,7 @@ class MarkInstallmentPaidView(AccountantRequiredMixin, View):
         if 'mark_paid' in request.POST:
             installment.status = 'paid'
             installment.paid_at = date.today()
+            installment.paid_by = request.user
             
             # Handle signature data (Base64)
             sig_data = request.POST.get('signature_data')

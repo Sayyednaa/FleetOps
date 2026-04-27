@@ -170,7 +170,7 @@ class InvoiceDeleteView(StaffRequiredMixin, View):
         return redirect('/shared/invoices/')
 
 
-class InvoiceArchiveActionView(AdminManagerRequiredMixin, View):
+class InvoiceArchiveActionView(StaffRequiredMixin, View):
     def post(self, request):
         month_str = request.POST.get('month', '')
         try:

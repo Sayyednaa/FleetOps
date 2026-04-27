@@ -32,32 +32,40 @@
     </div>
 
     <!-- Actions Bar -->
-    <div class="flex flex-wrap gap-4 items-center justify-end bg-app-card p-4 rounded-2xl shadow-sm border border-app-border border-dashed">
-        <form method="post" action="{% url 'invoice_reset' %}" onsubmit="return confirm('Are you sure you want to RESET ALL totals for {{ target_date_iso }}? This cannot be undone.')">
-            {% csrf_token %}
-            <input type="hidden" name="date" value="{{ target_date_iso }}">
-            <input type="hidden" name="all" value="true">
-            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-xl text-sm font-semibold transition-all shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-refresh-cw"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
-                Reset All
-            </button>
-        </form>
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 mb-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
+            <div class="flex items-center gap-3">
+                <form method="post" action="{% url 'invoice_reset' %}" onsubmit="return confirm('Are you sure you want to RESET ALL totals for {{ target_date_iso }}? This cannot be undone.')">
+                    {% csrf_token %}
+                    <input type="hidden" name="date" value="{{ target_date_iso }}">
+                    <input type="hidden" name="all" value="true">
+                    <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
+                        Reset All
+                    </button>
+                </form>
+            </div>
 
-        <form method="post" action="{% url 'bulk_upload' 'invoice' %}" enctype="multipart/form-data" class="flex items-center gap-2">
-            {% csrf_token %}
-            <label for="excel-upload-invoice" class="cursor-pointer group">
-                <div class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-all shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-up"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"></path><path d="M14 2v5a1 1 0 0 0 1 1h5"></path><path d="M12 12v6"></path><path d="m15 15-3-3-3 3"></path></svg>
-                    Upload Excel
+            <div class="flex items-center gap-4">
+                <div class="hidden md:block text-right">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Excel Import</p>
                 </div>
-                <input id="excel-upload-invoice" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
-            </label>
-        </form>
-
-        <a href="{% url 'template_download' 'invoice' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-app-card hover:bg-gray-100 dark:hover:bg-white/5 text-app-text border border-app-border rounded-xl text-sm font-semibold transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-download"><path d="M12 15V3"></path><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5"></path></svg>
-            Template
-        </a>
+                <div class="flex items-center gap-2">
+                    <form method="post" action="{% url 'bulk_upload' 'invoice' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <label for="excel-upload-invoice" class="cursor-pointer">
+                            <div class="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-xl text-xs font-bold transition-all">
+                                <span>📁</span> Upload Excel
+                            </div>
+                            <input id="excel-upload-invoice" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
+                        </label>
+                    </form>
+                    <a href="{% url 'template_download' 'invoice' %}" class="flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/10 dark:hover:bg-white/10 text-app-text-muted hover:text-app-text border border-app-border rounded-xl text-xs font-bold transition-all" title="Download Template">
+                        <span>⬇️</span>
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Drivers Table -->
