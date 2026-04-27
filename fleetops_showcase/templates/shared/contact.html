@@ -26,9 +26,13 @@
         {% for member in team %}
         <div class="bg-app-card border border-app-border rounded-2xl p-4 hover:border-orange-500/50 transition-all group flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-sm">
             <div class="flex items-center gap-4 flex-1">
+                {% if member.avatar %}
+                <img src="{{ member.avatar.url }}" class="w-14 h-14 rounded-2xl object-cover shadow-inner border border-app-border" alt="{{ member.get_full_name }}">
+                {% else %}
                 <div class="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 text-xl font-bold shadow-inner">
                     {{ member.first_name.0 }}{{ member.last_name.0 }}
                 </div>
+                {% endif %}
                 <div>
                     <h3 class="font-bold text-app-text text-lg">{{ member.get_full_name }}</h3>
                     <div class="flex flex-wrap items-center gap-2 mt-1">

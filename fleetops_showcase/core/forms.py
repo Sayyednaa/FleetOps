@@ -52,7 +52,7 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'first_name', 'last_name', 'email', 'phone', 'identification_number', 'passport',
+            'first_name', 'last_name', 'email', 'phone', 'avatar', 'identification_number', 'passport',
             'contract_expiry_date', 'base_salary_kd', 'iban_number', 'bank_name',
             'role', 'position', 'supporting_document',
         ]
@@ -69,6 +69,7 @@ class ProfileForm(forms.ModelForm):
             'bank_name': forms.Select(attrs={'class': TW_SELECT}),
             'position': forms.Select(attrs={'class': TW_SELECT}),
             'supporting_document': forms.FileInput(attrs={'class': TW_FILE}),
+            'avatar': forms.FileInput(attrs={'class': TW_FILE}),
         }
 
     def clean(self):
@@ -103,13 +104,14 @@ class ProfileSelfUpdateForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'email', 'phone', 'position']
+        fields = ['first_name', 'last_name', 'email', 'phone', 'position', 'avatar']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': TW_INPUT}),
             'last_name': forms.TextInput(attrs={'class': TW_INPUT}),
             'email': forms.EmailInput(attrs={'class': TW_INPUT}),
             'phone': forms.TextInput(attrs={'class': TW_INPUT}),
             'position': forms.Select(attrs={'class': TW_SELECT}),
+            'avatar': forms.FileInput(attrs={'class': TW_FILE}),
         }
 
     def clean(self):
@@ -292,9 +294,9 @@ class EmployeeDeductionForm(DeductionForm):
 
 
 class MessageForm(forms.ModelForm):
-    recipients = forms.ModelMultipleChoiceField(
+    recipient = forms.ModelChoiceField(
         queryset=Profile.objects.all(),
-        widget=forms.SelectMultiple(attrs={'class': TW_SELECT, 'style': 'height: 150px;'}),
+        widget=forms.Select(attrs={'class': TW_SELECT}),
         label='To',
     )
 

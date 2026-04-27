@@ -13,11 +13,10 @@
         <form method="post" enctype="multipart/form-data" class="space-y-5">
             {% csrf_token %}
 
-            <!-- Recipients -->
+            <!-- Recipient -->
             <div>
-                <label class="block text-xs font-bold text-app-text-muted uppercase mb-2">Recipients</label>
-                {{ form.recipients }}
-                <p class="text-[10px] text-app-text-muted mt-1 italic">Hold Ctrl (Cmd) to select multiple recipients.</p>
+                <label class="block text-xs font-bold text-app-text-muted uppercase mb-2">Recipient</label>
+                {{ form.recipient }}
             </div>
 
             <div><label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>{{ form.subject }}</div>

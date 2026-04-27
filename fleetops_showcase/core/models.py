@@ -93,6 +93,7 @@ class Profile(AbstractUser):
     iban_number = models.CharField(max_length=50, blank=True)
     bank_name = models.CharField(max_length=30, choices=BANK_CHOICES, default='nbk')
     supporting_document = models.FileField(upload_to='profile_docs/', null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

@@ -68,9 +68,13 @@
                     <td class="px-4 py-3 text-sm text-gray-500">{{ forloop.counter }}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
+                            {% if member.avatar %}
+                            <img src="{{ member.avatar.url }}" class="w-9 h-9 rounded-full object-cover flex-shrink-0 border border-border-dark" alt="{{ member.get_full_name }}">
+                            {% else %}
                             <div class="w-9 h-9 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                 {{ member.first_name.0 }}{{ member.last_name.0 }}
                             </div>
+                            {% endif %}
                             <div>
                                 <p class="text-sm font-medium text-white">{{ member.get_full_name }}</p>
                                 <p class="text-xs text-gray-500">{{ member.email }}</p>
@@ -90,6 +94,9 @@
                     <td class="px-4 py-3 text-sm text-gray-300">{{ member.contract_expiry_date|date:"M d, Y"|default:"—" }}</td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-1">
+                            <a href="{% url 'message_compose' %}?to={{ member.pk }}" class="p-2 rounded-lg text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors" title="Send Message">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </a>
                             <a href="{% url 'admin_team_edit' member.pk %}" class="p-2 rounded-lg text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 transition-colors" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>

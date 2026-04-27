@@ -35,9 +35,13 @@
             {% if not mr.is_read %}bg-orange-500/5 border-l-4 border-orange-500 border-t border-r border-b border-t-border-dark border-r-border-dark border-b-border-dark{% else %}bg-card-dark border-border-dark{% endif %}">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
+                    {% if mr.message.sender.avatar %}
+                    <img src="{{ mr.message.sender.avatar.url }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-border-dark" alt="{{ mr.message.sender.get_full_name }}">
+                    {% else %}
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                         {{ mr.message.sender.first_name.0 }}{{ mr.message.sender.last_name.0 }}
                     </div>
+                    {% endif %}
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
                             <span class="text-sm font-medium {% if not mr.is_read %}text-white{% else %}text-gray-400{% endif %}">{{ mr.message.sender.get_full_name }}</span>

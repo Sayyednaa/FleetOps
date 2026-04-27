@@ -315,11 +315,17 @@ class MessageReadView(AnyAuthenticatedMixin, View):
 
 class MessageComposeView(StaffRequiredMixin, View):
     def get(self, request):
-        form = MessageForm()
-        pre_recipient = request.GET.get('to', '')
+        pre_recipient_id = request.GET.get('to')
+        initial = {}
+        if pre_recipient_id:
+            try:
+                initial['recipient'] = Profile.objects.get(pk=pre_recipient_id)
+            except (Profile.DoesNotExist, ValueError):
+                pass
+        
+        form = MessageForm(initial=initial)
         return render(request, 'shared/messages_compose.html', {
             'form': form,
-            'pre_recipient': pre_recipient,
         })
 
     def post(self, request):
@@ -328,8 +334,10 @@ class MessageComposeView(StaffRequiredMixin, View):
             msg = form.save(commit=False)
             msg.sender = request.user
             msg.save()
-            for recipient in form.cleaned_data['recipients']:
-                MessageRecipient.objects.create(message=msg, recipient=recipient)
+            
+            recipient = form.cleaned_data['recipient']
+            MessageRecipient.objects.create(message=msg, recipient=recipient)
+            
             django_messages.success(request, 'Message sent successfully.')
             return redirect('/shared/messages/')
         return render(request, 'shared/messages_compose.html', {'form': form})
