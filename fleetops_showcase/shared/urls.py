@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     # Invoices
     path('invoices/', views.InvoiceListView.as_view(), name='invoice_list'),
+    path('invoices/bulk-save/', views.InvoiceBulkSaveView.as_view(), name='invoice_bulk_save'),
+    path('invoices/reset/', views.InvoiceResetView.as_view(), name='invoice_reset'),
     path('invoices/add/', views.InvoiceAddView.as_view(), name='invoice_add'),
     path('invoices/<uuid:pk>/edit/', views.InvoiceEditView.as_view(), name='invoice_edit'),
     path('invoices/<uuid:pk>/delete/', views.InvoiceDeleteView.as_view(), name='invoice_delete'),
@@ -30,6 +32,18 @@ urlpatterns = [
 
     # Tasks
     path('tasks/add/', views.TaskAddView.as_view(), name='task_add'),
+    path('tasks/assign/', views.TaskAssignView.as_view(), name='task_assign'),
     path('tasks/<uuid:pk>/toggle/', views.TaskToggleView.as_view(), name='task_toggle'),
     path('tasks/<uuid:pk>/delete/', views.TaskDeleteView.as_view(), name='task_delete'),
+
+    # Archive Extras
+    path('archive/company-files/', views.CompanyFileListView.as_view(), name='company_files'),
+    path('archive/company-files/<uuid:pk>/edit/', views.CompanyFileUpdateView.as_view(), name='company_file_edit'),
+    path('archive/company-files/<uuid:pk>/delete/', views.CompanyFileDeleteView.as_view(), name='company_file_delete'),
+    path('archive/deactivated-drivers/', views.DeactivatedDriversView.as_view(), name='deactivated_drivers'),
+
+    # Bulk Operations
+    path('bulk/template/<str:model_type>/', views.TemplateDownloadView.as_view(), name='template_download'),
+    path('bulk/upload/<str:model_type>/', views.BulkUploadView.as_view(), name='bulk_upload'),
+    path('profile/', views.ProfileView.as_view(), name='profile'),
 ]

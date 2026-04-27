@@ -19,12 +19,17 @@ class AdminRequiredMixin(RoleRequiredMixin):
     allowed_roles = ['admin']
 
 
+class AccountantRequiredMixin(RoleRequiredMixin):
+    allowed_roles = ['admin', 'accountant']
+
+
 class AdminManagerRequiredMixin(RoleRequiredMixin):
     allowed_roles = ['admin', 'manager']
 
 
 class StaffRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ['admin', 'manager', 'employee']
+    """Access for all office roles."""
+    allowed_roles = ['admin', 'manager', 'employee', 'accountant']
 
 
 class DriverRequiredMixin(RoleRequiredMixin):

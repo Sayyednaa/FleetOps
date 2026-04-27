@@ -15,15 +15,9 @@
 
             <!-- Recipients -->
             <div>
-                <label class="block text-sm font-medium text-gray-400 mb-2">To (select recipients)</label>
-                <div class="bg-gray-800 border border-gray-700 rounded-xl p-3 max-h-48 overflow-y-auto space-y-2">
-                    {% for checkbox in form.recipients %}
-                    <label class="flex items-center gap-3 p-2 rounded-lg hover:bg-white/5 cursor-pointer transition-colors">
-                        {{ checkbox.tag }}
-                        <span class="text-sm text-gray-200">{{ checkbox.choice_label }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
+                <label class="block text-xs font-bold text-app-text-muted uppercase mb-2">Recipients</label>
+                {{ form.recipients }}
+                <p class="text-[10px] text-app-text-muted mt-1 italic">Hold Ctrl (Cmd) to select multiple recipients.</p>
             </div>
 
             <div><label class="block text-sm font-medium text-gray-400 mb-1">Subject</label>{{ form.subject }}</div>

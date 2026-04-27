@@ -10,11 +10,14 @@ from django.utils import timezone
 from core.mixins import AnyAuthenticatedMixin, StaffRequiredMixin, AdminManagerRequiredMixin
 from core.models import (
     Driver, DriverInvoice, InvoiceArchive, Notification,
-    Message, MessageRecipient, Profile, Task,
+    Message, MessageRecipient, Profile, Task, CompanyFile,
     COMPANY_CHOICES, CONTRACT_CHOICES,
 )
-from core.forms import DriverInvoiceForm, MessageForm, TaskForm
-from core.excel_utils import export_invoices_excel, export_archive_excel
+from core.forms import DriverInvoiceForm, MessageForm, TaskForm, CompanyFileForm, ProfileSelfUpdateForm, TaskAssignmentForm
+from core.excel_utils import (
+    export_invoices_excel, export_archive_excel, 
+    generate_excel_template, import_from_excel
+)
 from django.views import View
 
 
@@ -48,50 +51,77 @@ def _next_month(year, month):
 
 class InvoiceListView(StaffRequiredMixin, View):
     def get(self, request):
-        year, month = _parse_month(request)
-        invoices = DriverInvoice.objects.filter(
-            specified_date__year=year, specified_date__month=month,
-        ).select_related('driver', 'created_by').order_by('driver__first_name', 'specified_date')
+        target_date_str = request.GET.get('date', date.today().isoformat())
+        try:
+            target_date = date.fromisoformat(target_date_str)
+        except ValueError:
+            target_date = date.today()
 
-        # Group by driver
-        driver_groups = {}
-        for inv in invoices:
-            did = str(inv.driver_id)
-            if did not in driver_groups:
-                driver_groups[did] = {
-                    'driver': inv.driver,
-                    'invoices': [],
-                    'total_cash': Decimal('0'),
-                    'total_main': 0,
-                    'total_additional': 0,
-                    'total_hours': Decimal('0'),
-                }
-            driver_groups[did]['invoices'].append(inv)
-            driver_groups[did]['total_cash'] += inv.cash
-            driver_groups[did]['total_main'] += inv.main_orders
-            driver_groups[did]['total_additional'] += inv.additional_orders
-            driver_groups[did]['total_hours'] += inv.hours
-
-        grand = invoices.aggregate(
-            cash=Sum('cash'), main=Sum('main_orders'),
-            additional=Sum('additional_orders'), hours=Sum('hours'),
-        )
-
-        form = DriverInvoiceForm()
-        form.fields['driver'].queryset = Driver.objects.filter(is_active=True)
-
+        drivers = Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        
+        # Prefetch invoices for this date
+        invoices = DriverInvoice.objects.filter(specified_date=target_date)
+        invoice_map = {inv.driver_id: inv for inv in invoices}
+        
+        for driver in drivers:
+            driver.existing_invoice = invoice_map.get(driver.id)
+        
         return render(request, 'shared/driver_invoices.html', {
-            'driver_groups': driver_groups.values(),
-            'grand_cash': grand['cash'] or Decimal('0'),
-            'grand_main': grand['main'] or 0,
-            'grand_additional': grand['additional'] or 0,
-            'grand_hours': grand['hours'] or Decimal('0'),
-            'month_label': _month_label(year, month),
-            'current_month': f"{year}-{month:02d}",
-            'prev_month': _prev_month(year, month),
-            'next_month': _next_month(year, month),
-            'form': form,
+            'drivers': drivers,
+            'target_date': target_date,
+            'target_date_iso': target_date.isoformat(),
+            'portal': 'admin' if request.user.role == 'admin' else 'manager',
         })
+
+
+class InvoiceBulkSaveView(StaffRequiredMixin, View):
+    def post(self, request):
+        driver_id = request.POST.get('driver_id')
+        target_date_str = request.POST.get('date')
+        
+        cash_delta = Decimal(request.POST.get('cash', '0'))
+        main_delta = int(request.POST.get('main_orders', '0'))
+        additional_delta = int(request.POST.get('additional_orders', '0'))
+        hours_delta = Decimal(request.POST.get('hours', '0'))
+
+        driver = get_object_or_404(Driver, id=driver_id)
+        
+        with transaction.atomic():
+            invoice, created = DriverInvoice.objects.get_or_create(
+                driver=driver,
+                specified_date=target_date_str,
+                defaults={'created_by': request.user}
+            )
+            
+            invoice.cash = cash_delta
+            invoice.main_orders = main_delta
+            invoice.additional_orders = additional_delta
+            invoice.hours = hours_delta
+            invoice.save()
+
+        django_messages.success(request, f'Updated totals for {driver.full_name}.')
+        return redirect(f'/shared/invoices/?date={target_date_str}')
+
+
+class InvoiceResetView(StaffRequiredMixin, View):
+    def post(self, request):
+        driver_id = request.POST.get('driver_id')
+        target_date_str = request.POST.get('date')
+        all_reset = request.POST.get('all') == 'true'
+
+        if all_reset:
+            DriverInvoice.objects.filter(specified_date=target_date_str).update(
+                cash=0, main_orders=0, additional_orders=0, hours=0
+            )
+            django_messages.success(request, f'Reset all totals for {target_date_str}.')
+        else:
+            driver = get_object_or_404(Driver, id=driver_id)
+            DriverInvoice.objects.filter(driver=driver, specified_date=target_date_str).update(
+                cash=0, main_orders=0, additional_orders=0, hours=0
+            )
+            django_messages.success(request, f'Reset totals for {driver.full_name}.')
+
+        return redirect(f'/shared/invoices/?date={target_date_str}')
 
 
 class InvoiceAddView(StaffRequiredMixin, View):
@@ -326,8 +356,22 @@ class TaskAddView(AnyAuthenticatedMixin, View):
         return redirect(redirect_url)
 
 
+class TaskAssignView(AdminManagerRequiredMixin, View):
+    def post(self, request):
+        form = TaskAssignmentForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.assigned_by = request.user
+            task.save()
+            django_messages.success(request, f'Task assigned to {task.user.get_full_name()}.')
+        else:
+            django_messages.error(request, 'Error assigning task.')
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
 class TaskToggleView(AnyAuthenticatedMixin, View):
     def post(self, request, pk):
+        # Allow user to toggle their own tasks
         task = get_object_or_404(Task, pk=pk, user=request.user)
         if task.status == 'pending':
             task.status = 'completed'
@@ -341,6 +385,102 @@ class TaskToggleView(AnyAuthenticatedMixin, View):
 
 class TaskDeleteView(AnyAuthenticatedMixin, View):
     def post(self, request, pk):
+        # ONLY allow deleting if the user created it (self-task) or is manager/admin
         task = get_object_or_404(Task, pk=pk, user=request.user)
-        task.delete()
+        
+        # If it was assigned by someone else, employee cannot delete it
+        if task.assigned_by and task.assigned_by != request.user and request.user.role == 'employee':
+            django_messages.error(request, "You cannot delete tasks assigned by others.")
+        else:
+            task.delete()
+            django_messages.success(request, "Task removed.")
+            
         return redirect(request.META.get('HTTP_REFERER', '/'))
+
+
+# ─── Company Files Archive ───────────────────────────────────────────────────
+
+class CompanyFileListView(StaffRequiredMixin, View):
+    def get(self, request):
+        qs = CompanyFile.objects.all()
+        q = request.GET.get('q', '')
+        if q:
+            qs = qs.filter(Q(title__icontains=q) | Q(description__icontains=q) | Q(category__icontains=q))
+        
+        form = CompanyFileForm()
+        return render(request, 'shared/company_files.html', {
+            'files': qs,
+            'q': q,
+            'form': form
+        })
+
+    def post(self, request):
+        form = CompanyFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            cfile = form.save(commit=False)
+            cfile.uploaded_by = request.user.profile if hasattr(request.user, 'profile') else None
+            cfile.save()
+            django_messages.success(request, 'Company file uploaded successfully.')
+        return redirect('company_files')
+
+
+class CompanyFileUpdateView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        cfile = get_object_or_404(CompanyFile, pk=pk)
+        form = CompanyFileForm(request.POST, request.FILES, instance=cfile)
+        if form.is_valid():
+            form.save()
+            django_messages.success(request, 'Company file updated.')
+        return redirect('company_files')
+
+
+class CompanyFileDeleteView(StaffRequiredMixin, View):
+    def post(self, request, pk):
+        cfile = get_object_or_404(CompanyFile, pk=pk)
+        cfile.delete()
+        django_messages.success(request, 'Company file deleted.')
+        return redirect('company_files')
+
+
+# ─── Deactivated Drivers ────────────────────────────────────────────────────
+
+class DeactivatedDriversView(StaffRequiredMixin, View):
+    def get(self, request):
+        drivers = Driver.objects.filter(is_active=False).order_by('first_name')
+        return render(request, 'shared/deactivated_drivers.html', {'drivers': drivers})
+
+
+# ─── Bulk Upload & Templates ────────────────────────────────────────────────
+
+class TemplateDownloadView(StaffRequiredMixin, View):
+    def get(self, request, model_type):
+        return generate_excel_template(model_type)
+
+
+class BulkUploadView(StaffRequiredMixin, View):
+    def post(self, request, model_type):
+        file = request.FILES.get('excel_file')
+        if not file:
+            django_messages.error(request, 'No file uploaded.')
+            return redirect(request.META.get('HTTP_REFERER', '/'))
+        
+        count, errors = import_from_excel(file, model_type, request.user)
+        if count > 0:
+            django_messages.success(request, f'Successfully imported {count} records.')
+        if errors:
+            for err in errors:
+                django_messages.error(request, err)
+        
+        return redirect(request.META.get('HTTP_REFERER', '/'))
+class ProfileView(AnyAuthenticatedMixin, View):
+    def get(self, request):
+        form = ProfileSelfUpdateForm(instance=request.user)
+        return render(request, 'shared/profile.html', {'form': form})
+
+    def post(self, request):
+        form = ProfileSelfUpdateForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            django_messages.success(request, 'Profile updated successfully.')
+            return redirect('profile')
+        return render(request, 'shared/profile.html', {'form': form})

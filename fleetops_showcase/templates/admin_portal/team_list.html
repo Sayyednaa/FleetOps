@@ -19,6 +19,26 @@
     </a>
 </div>
 
+<!-- Bulk Operations -->
+<div class="flex flex-wrap gap-4 items-center justify-end bg-app-card border border-app-border rounded-2xl p-4 shadow-sm border-dashed mb-6">
+    <div class="flex-1">
+        <h3 class="text-sm font-bold text-app-text uppercase tracking-wider">Bulk Operations</h3>
+        <p class="text-[10px] text-app-text-muted">Import multiple team members at once using an Excel file.</p>
+    </div>
+    <form method="post" action="{% url 'bulk_upload' 'team' %}" enctype="multipart/form-data" class="flex items-center gap-2">
+        {% csrf_token %}
+        <label for="excel-upload-team" class="cursor-pointer group">
+            <div class="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-xl text-xs font-bold transition-all">
+                <span>📁</span> Select Excel
+            </div>
+            <input id="excel-upload-team" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
+        </label>
+        <a href="{% url 'template_download' 'team' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 text-app-text border border-app-border rounded-xl text-xs font-bold transition-all">
+            <span>⬇️</span> Download Template
+        </a>
+    </form>
+</div>
+
 <!-- Table -->
 <div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden">
     <div class="overflow-x-auto">

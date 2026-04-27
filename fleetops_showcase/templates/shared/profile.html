@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile — Najmat Alwesam{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block breadcrumb %}Account Settings → Profile{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-app-card border border-app-border rounded-3xl overflow-hidden shadow-xl">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-orange-500 to-amber-600 p-8 text-white">
+            <div class="flex items-center gap-6">
+                <div class="w-24 h-24 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center text-4xl font-bold border border-white/30 shadow-lg">
+                    {{ user.first_name.0 }}{{ user.last_name.0 }}
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black uppercase tracking-tight">{{ user.get_full_name }}</h2>
+                    <p class="text-white/80 font-medium flex items-center gap-2 mt-1">
+                        <span class="px-2 py-0.5 bg-black/20 rounded-md text-xs uppercase tracking-widest">{{ user.role }}</span>
+                        <span>•</span>
+                        <span>{{ user.position }}</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="p-8 lg:p-12 space-y-8">
+            {% csrf_token %}
+            
+            {% if form.errors %}
+            <div class="p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-sm animate-in fade-in slide-in-from-top-1">
+                <p class="font-bold mb-1">Please fix the following errors:</p>
+                {{ form.errors }}
+            </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Personal Info -->
+                <div class="space-y-6">
+                    <h3 class="text-sm font-bold text-app-text-muted uppercase tracking-widest border-b border-app-border pb-2">Personal Information</h3>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-app-text uppercase tracking-wider">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-app-text uppercase tracking-wider">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-app-text uppercase tracking-wider">Email Address</label>
+                        {{ form.email }}
+                    </div>
+
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-app-text uppercase tracking-wider">Phone Number</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+
+                <!-- Security & Role -->
+                <div class="space-y-6">
+                    <h3 class="text-sm font-bold text-app-text-muted uppercase tracking-widest border-b border-app-border pb-2">Security & Position</h3>
+                    
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-app-text uppercase tracking-wider">Job Title</label>
+                        {{ form.position }}
+                    </div>
+
+                    <div class="p-6 bg-app-bg border border-app-border rounded-2xl space-y-4">
+                        <p class="text-xs font-bold text-app-text-muted uppercase mb-2">Change Password</p>
+                        
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold text-app-text uppercase">New Password</label>
+                            {{ form.password1 }}
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="block text-[10px] font-bold text-app-text uppercase">Confirm New Password</label>
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 bg-blue-500/5 border border-blue-500/20 rounded-2xl">
+                        <p class="text-[10px] text-blue-500/80 leading-relaxed">
+                            <strong>Note:</strong> Your system role (<span class="font-bold">{{ user.role|upper }}</span>) can only be changed by a System Administrator. If your role needs updating, please contact support.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 flex justify-end">
+                <button type="submit" class="px-10 py-4 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold shadow-xl shadow-orange-500/30 transition-all hover:-translate-y-1 active:translate-y-0">
+                    Save Profile Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

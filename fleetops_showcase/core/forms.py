@@ -3,18 +3,17 @@ from django.contrib.auth.forms import AuthenticationForm
 from .models import (
     Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Message,
     ROLE_CHOICES, POSITION_CHOICES, BANK_CHOICES, COMPANY_CHOICES,
-    CONTRACT_CHOICES, VEHICLE_CHOICES, Task,
+    CONTRACT_CHOICES, VEHICLE_CHOICES, Task, CompanyFile,
 )
 
 
-# ─── Tailwind form widget helper ────────────────────────────────────────────
-
-TW_INPUT = 'w-full px-4 py-2.5 bg-gray-800 border border-gray-700 rounded-lg text-gray-100 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors'
-TW_SELECT = TW_INPUT
+# ─── Tailwind form widget helper (Najmat Style) ──────────────────────────────
+TW_INPUT = 'block w-full rounded-md border border-app-border bg-app-bg py-2 px-3 text-app-text sm:text-sm sm:leading-6 transition-colors shadow-sm outline-none focus:ring-2 focus:ring-brand/20 focus:border-brand placeholder-app-text-muted disabled:opacity-60'
+TW_SELECT = TW_INPUT + ' cursor-pointer'
 TW_TEXTAREA = TW_INPUT + ' min-h-[100px]'
-TW_FILE = 'w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-orange-600 file:text-white file:cursor-pointer hover:file:bg-orange-700 bg-gray-800 border border-gray-700 rounded-lg py-2 px-3'
+TW_FILE = 'block w-full text-sm text-app-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 border border-app-border rounded-md bg-app-bg'
 TW_DATE = TW_INPUT
-TW_CHECKBOX = 'w-4 h-4 rounded bg-gray-800 border-gray-600 text-orange-500 focus:ring-orange-500'
+TW_CHECKBOX = 'w-4 h-4 rounded border-app-border text-brand focus:ring-brand'
 
 
 class LoginForm(AuthenticationForm):
@@ -37,34 +36,38 @@ class LoginForm(AuthenticationForm):
 class ProfileForm(forms.ModelForm):
     password1 = forms.CharField(
         label='Password', required=False,
-        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Leave blank to keep current'})
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Password'})
     )
     password2 = forms.CharField(
         label='Confirm Password', required=False,
-        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Confirm password'})
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Confirm Password'})
+    )
+
+    role = forms.ChoiceField(
+        choices=[('manager', 'Manager'), ('employee', 'Employee'), ('accountant', 'Accountant')],
+        widget=forms.Select(attrs={'class': TW_SELECT}),
+        initial='manager'
     )
 
     class Meta:
         model = Profile
         fields = [
-            'first_name', 'last_name', 'email', 'phone', 'role', 'position',
-            'identification_number', 'passport', 'contract_expiry_date',
-            'base_salary_kd', 'iban_number', 'bank_name', 'avatar', 'supporting_document',
+            'first_name', 'last_name', 'email', 'phone', 'identification_number', 'passport',
+            'contract_expiry_date', 'base_salary_kd', 'iban_number', 'bank_name',
+            'role', 'position', 'supporting_document',
         ]
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'First name'}),
-            'last_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Last name'}),
-            'email': forms.EmailInput(attrs={'class': TW_INPUT, 'placeholder': 'Email'}),
-            'phone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Phone'}),
-            'role': forms.Select(attrs={'class': TW_SELECT}),
-            'position': forms.Select(attrs={'class': TW_SELECT}),
-            'identification_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'ID Number'}),
+            'first_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': TW_INPUT, 'placeholder': 'Email Address'}),
+            'phone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Phone Number'}),
+            'identification_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Identification Number'}),
             'passport': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Passport'}),
             'contract_expiry_date': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'base_salary_kd': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001'}),
-            'iban_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'IBAN'}),
+            'base_salary_kd': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': 'Base Salary (KD)'}),
+            'iban_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'IBAN Number'}),
             'bank_name': forms.Select(attrs={'class': TW_SELECT}),
-            'avatar': forms.FileInput(attrs={'class': TW_FILE}),
+            'position': forms.Select(attrs={'class': TW_SELECT}),
             'supporting_document': forms.FileInput(attrs={'class': TW_FILE}),
         }
 
@@ -80,6 +83,45 @@ class ProfileForm(forms.ModelForm):
         user = super().save(commit=False)
         if not user.username:
             user.username = self.cleaned_data['email']
+        p1 = self.cleaned_data.get('password1')
+        if p1:
+            user.set_password(p1)
+        if commit:
+            user.save()
+        return user
+
+
+class ProfileSelfUpdateForm(forms.ModelForm):
+    password1 = forms.CharField(
+        label='New Password', required=False,
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'New Password (Leave blank to keep current)'})
+    )
+    password2 = forms.CharField(
+        label='Confirm New Password', required=False,
+        widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Confirm New Password'})
+    )
+
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name', 'email', 'phone', 'position']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': TW_INPUT}),
+            'last_name': forms.TextInput(attrs={'class': TW_INPUT}),
+            'email': forms.EmailInput(attrs={'class': TW_INPUT}),
+            'phone': forms.TextInput(attrs={'class': TW_INPUT}),
+            'position': forms.Select(attrs={'class': TW_SELECT}),
+        }
+
+    def clean(self):
+        cleaned = super().clean()
+        p1 = cleaned.get('password1')
+        p2 = cleaned.get('password2')
+        if p1 and p1 != p2:
+            raise forms.ValidationError('Passwords do not match.')
+        return cleaned
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
         p1 = self.cleaned_data.get('password1')
         if p1:
             user.set_password(p1)
@@ -104,42 +146,41 @@ class DriverForm(forms.ModelForm):
             'first_name', 'last_name', 'email', 'phone',
             'civil_id_number', 'civil_id_expiry', 'passport_number', 'passport_expiry',
             'working_permit_expiry', 'driver_license_expiry',
-            'health_insurance_expiry', 'criminal_certificate_expiry',
-            'vehicle_registration', 'vehicle_registration_expiry',
-            'vehicle_plate_number', 'vehicle_name', 'vehicle_type',
-            'zone', 'petrol_card_number', 'employee_serial_number', 'working_id',
-            'company_name', 'contract_type', 'position',
+            'vehicle_registration', 'vehicle_registration_expiry', 'vehicle_plate_number', 'vehicle_name',
+            'zone', 'petrol_card_number', 'health_insurance_expiry', 'criminal_certificate_expiry',
+            'employee_serial_number', 'company_name', 'working_id', 'contract_type',
+            'position', 'vehicle_type',
             'iban_number', 'bank_name', 'basic_salary_wp',
             'supporting_document',
         ]
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': TW_INPUT}),
-            'last_name': forms.TextInput(attrs={'class': TW_INPUT}),
-            'email': forms.EmailInput(attrs={'class': TW_INPUT}),
-            'phone': forms.TextInput(attrs={'class': TW_INPUT}),
-            'civil_id_number': forms.TextInput(attrs={'class': TW_INPUT}),
+            'first_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': TW_INPUT, 'placeholder': 'Email Address (Optional)'}),
+            'phone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Phone Number'}),
+            'civil_id_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Civil ID Number'}),
             'civil_id_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'passport_number': forms.TextInput(attrs={'class': TW_INPUT}),
+            'passport_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Passport Number'}),
             'passport_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'working_permit_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'driver_license_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
+            'vehicle_registration': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Registration'}),
+            'vehicle_registration_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
+            'vehicle_plate_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Plate Number'}),
+            'vehicle_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Name'}),
+            'zone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Zone/Working Area'}),
+            'petrol_card_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Petrol Card / Sticker Number'}),
             'health_insurance_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'criminal_certificate_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'vehicle_registration': forms.TextInput(attrs={'class': TW_INPUT}),
-            'vehicle_registration_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'vehicle_plate_number': forms.TextInput(attrs={'class': TW_INPUT}),
-            'vehicle_name': forms.TextInput(attrs={'class': TW_INPUT}),
-            'vehicle_type': forms.Select(attrs={'class': TW_SELECT}),
-            'zone': forms.TextInput(attrs={'class': TW_INPUT}),
-            'petrol_card_number': forms.TextInput(attrs={'class': TW_INPUT}),
-            'employee_serial_number': forms.TextInput(attrs={'class': TW_INPUT}),
-            'working_id': forms.TextInput(attrs={'class': TW_INPUT}),
+            'employee_serial_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Employee Serial Number'}),
             'company_name': forms.Select(attrs={'class': TW_SELECT}),
+            'working_id': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Working ID'}),
             'contract_type': forms.Select(attrs={'class': TW_SELECT}),
-            'position': forms.TextInput(attrs={'class': TW_INPUT}),
-            'iban_number': forms.TextInput(attrs={'class': TW_INPUT}),
+            'position': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Position / Job Title'}),
+            'vehicle_type': forms.Select(attrs={'class': TW_SELECT}),
+            'iban_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'IBAN Number'}),
             'bank_name': forms.Select(attrs={'class': TW_SELECT}),
-            'basic_salary_wp': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001'}),
+            'basic_salary_wp': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': 'Basic Salary (WP)'}),
             'supporting_document': forms.FileInput(attrs={'class': TW_FILE}),
         }
 
@@ -253,7 +294,7 @@ class EmployeeDeductionForm(DeductionForm):
 class MessageForm(forms.ModelForm):
     recipients = forms.ModelMultipleChoiceField(
         queryset=Profile.objects.all(),
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'text-orange-500'}),
+        widget=forms.SelectMultiple(attrs={'class': TW_SELECT, 'style': 'height: 150px;'}),
         label='To',
     )
 
@@ -276,4 +317,30 @@ class TaskForm(forms.ModelForm):
                 'class': TW_INPUT,
                 'placeholder': 'Add a new task...',
             }),
+        }
+
+class TaskAssignmentForm(forms.ModelForm):
+    class Meta:
+        model = Task
+        fields = ['user', 'title']
+        widgets = {
+            'user': forms.Select(attrs={'class': TW_SELECT}),
+            'title': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Task description...'}),
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Only allow assigning to staff (exclude drivers and superusers maybe)
+        self.fields['user'].queryset = Profile.objects.exclude(role='driver').order_by('first_name')
+        self.fields['user'].label = "Assign To"
+
+class CompanyFileForm(forms.ModelForm):
+    class Meta:
+        model = CompanyFile
+        fields = ['title', 'file', 'description', 'category']
+        widgets = {
+            'title': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'File Title'}),
+            'file': forms.FileInput(attrs={'class': TW_FILE}),
+            'description': forms.Textarea(attrs={'class': TW_TEXTAREA, 'placeholder': 'Optional description...'}),
+            'category': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Category (e.g. Legal, HR)'}),
         }

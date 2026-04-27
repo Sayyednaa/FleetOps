@@ -37,78 +37,95 @@
     <a href="{% url 'employee_driver_add' %}" class="px-5 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
         Add Driver
-    </a>
     {% endif %}
 </div>
 
+<!-- Bulk Operations -->
+<div class="flex flex-wrap gap-4 items-center justify-end bg-app-card p-4 rounded-2xl shadow-sm border border-app-border border-dashed mb-6">
+    <div class="flex-1">
+        <h3 class="text-sm font-bold text-app-text uppercase tracking-wider">Bulk Operations</h3>
+        <p class="text-[10px] text-app-text-muted">Import multiple drivers at once using an Excel file.</p>
+    </div>
+    <form method="post" action="{% url 'bulk_upload' 'driver' %}" enctype="multipart/form-data" class="flex items-center gap-2">
+        {% csrf_token %}
+        <label for="excel-upload-driver" class="cursor-pointer group">
+            <div class="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-xl text-xs font-bold transition-all">
+                <span>📁</span> Select Excel
+            </div>
+            <input id="excel-upload-driver" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
+        </label>
+        <a href="{% url 'template_download' 'driver' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 text-app-text border border-app-border rounded-xl text-xs font-bold transition-all">
+            <span>⬇️</span> Download Template
+        </a>
+    </form>
+</div>
+
 <!-- Table -->
-<div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden">
+<div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
         <table class="w-full">
             <thead>
-                <tr class="border-b border-border-dark">
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Phone</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Company</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Contract</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Vehicle</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                    <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>
+                <tr class="border-b border-app-border">
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">#</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Name</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Company</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Contract</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Vehicle</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Status</th>
+                    <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-border-dark">
+            <tbody class="divide-y divide-app-border">
                 {% for driver in page_obj %}
-                <tr class="hover:bg-white/[0.02] transition-colors" x-data="{ expanded: false }">
-                    <td class="px-4 py-3 text-sm text-gray-500">{{ forloop.counter }}</td>
+                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors" x-data="{ expanded: false }">
+                    <td class="px-4 py-3 text-sm text-app-text-muted">{{ forloop.counter }}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
-                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                            <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                 {{ driver.first_name.0 }}{{ driver.last_name.0 }}
                             </div>
                             <div>
                                 <div class="flex items-center gap-1">
-                                    <span class="text-sm font-medium text-white">{{ driver.full_name }}</span>
-                                    {% if driver.has_expiry_warning %}<span class="text-red-400 text-xs" title="Document alert">⚠️</span>{% endif %}
+                                    <span class="text-sm font-medium text-app-text">{{ driver.full_name }}</span>
+                                    {% if driver.has_expiry_warning %}<span class="text-red-500 text-xs" title="Document alert">⚠️</span>{% endif %}
                                 </div>
-                                <p class="text-xs text-gray-500">{{ driver.civil_id_number }}</p>
+                                <p class="text-xs text-app-text-muted">{{ driver.civil_id_number }}</p>
                             </div>
                         </div>
                     </td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.phone }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.get_company_name_display }}</td>
-                    <td class="px-4 py-3 text-sm text-gray-300">{{ driver.get_contract_type_display }}</td>
+                    <td class="px-4 py-3 text-sm text-app-text">{{ driver.get_company_name_display }}</td>
+                    <td class="px-4 py-3 text-sm text-app-text">{{ driver.get_contract_type_display }}</td>
                     <td class="px-4 py-3">
-                        <span class="text-xs px-2 py-1 rounded-full {% if driver.vehicle_type == 'car' %}bg-blue-500/20 text-blue-400{% elif driver.vehicle_type == 'bike' %}bg-orange-500/20 text-orange-400{% else %}bg-purple-500/20 text-purple-400{% endif %}">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full {% if driver.vehicle_type == 'car' %}bg-blue-500/10 text-blue-500{% elif driver.vehicle_type == 'bike' %}bg-brand/10 text-brand{% else %}bg-purple-500/10 text-purple-500{% endif %}">
                             {% if driver.vehicle_type == 'car' %}🚗{% elif driver.vehicle_type == 'bike' %}🏍️{% else %}🏎️{% endif %} {{ driver.get_vehicle_type_display }}
                         </span>
                     </td>
                     <td class="px-4 py-3">
-                        <span class="text-xs px-2 py-1 rounded-full font-semibold {% if driver.is_active %}bg-emerald-500/20 text-emerald-400{% else %}bg-gray-500/20 text-gray-400{% endif %}">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full {% if driver.is_active %}bg-emerald-500/10 text-emerald-600{% else %}bg-gray-500/10 text-gray-500{% endif %}">
                             {% if driver.is_active %}Active{% else %}Inactive{% endif %}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-1">
                             <!-- Expand docs -->
-                            <button @click="expanded = !expanded" class="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors" title="View documents">
+                            <button @click="expanded = !expanded" class="p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="View documents">
                                 <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
 
                             {% if portal == 'admin' or portal == 'manager' %}
                             <!-- Edit -->
-                            <a href="{% if portal == 'admin' %}{% url 'admin_driver_edit' driver.pk %}{% else %}{% url 'manager_driver_edit' driver.pk %}{% endif %}" class="p-2 rounded-lg text-gray-400 hover:text-orange-400 hover:bg-orange-500/10 transition-colors" title="Edit">
+                            <a href="{% if portal == 'admin' %}{% url 'admin_driver_edit' driver.pk %}{% else %}{% url 'manager_driver_edit' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-brand hover:bg-brand/10 transition-colors" title="Edit">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                             </a>
                             <!-- Toggle -->
                             <form method="post" action="{% if portal == 'admin' %}{% url 'admin_driver_toggle' driver.pk %}{% else %}{% url 'manager_driver_toggle' driver.pk %}{% endif %}">
                                 {% csrf_token %}
-                                <button type="submit" class="p-2 rounded-lg transition-colors {% if driver.is_active %}text-emerald-400 hover:bg-emerald-500/10{% else %}text-gray-400 hover:bg-gray-500/10{% endif %}" title="Toggle active">
+                                <button type="submit" class="p-2 rounded-lg transition-colors {% if driver.is_active %}text-emerald-600 hover:bg-emerald-500/10{% else %}text-app-text-muted hover:bg-black/5 dark:hover:bg-white/5{% endif %}" title="Toggle active">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                 </button>
                             </form>
                             <!-- Salary Slip -->
-                            <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% else %}{% url 'manager_salary_slip' driver.pk %}{% endif %}" class="p-2 rounded-lg text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors" title="Salary Slip" target="_blank">
+                            <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% else %}{% url 'manager_salary_slip' driver.pk %}{% endif %}" class="p-2 rounded-lg text-app-text-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors" title="Salary Slip" target="_blank">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
                             </a>
                             {% endif %}
@@ -117,7 +134,7 @@
                             <!-- Delete -->
                             <form method="post" action="{% url 'admin_driver_delete' driver.pk %}" x-data @submit.prevent="if(confirm('Delete this driver?')) $el.submit()">
                                 {% csrf_token %}
-                                <button type="submit" class="p-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-colors" title="Delete">
+                                <button type="submit" class="p-2 rounded-lg text-app-text-muted hover:text-red-500 hover:bg-red-500/10 transition-colors" title="Delete">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                                 </button>
                             </form>
@@ -126,14 +143,14 @@
                     </td>
                 </tr>
                 <!-- Expanded document row -->
-                <tr x-show="expanded" x-transition class="bg-gray-900/50">
+                <tr x-show="expanded" x-transition class="bg-black/5 dark:bg-white/5">
                     <td colspan="8" class="px-6 py-4">
                         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
                             {% for doc in driver.get_expiring_documents %}
                             <div class="text-center p-2 rounded-lg {% if doc.status == 'ok' %}bg-emerald-500/5{% elif doc.status == 'warning' %}bg-amber-500/5{% elif doc.status == 'expired' %}bg-red-500/5{% else %}bg-gray-500/5{% endif %}">
                                 <span class="text-lg block mb-1">{% if doc.status == 'ok' %}✅{% elif doc.status == 'warning' %}⚠️{% elif doc.status == 'expired' %}🔴{% else %}➖{% endif %}</span>
-                                <p class="text-[10px] font-semibold text-gray-300">{{ doc.label }}</p>
-                                <p class="text-[9px] {% if doc.status == 'ok' %}text-emerald-400{% elif doc.status == 'warning' %}text-amber-400{% elif doc.status == 'expired' %}text-red-400{% else %}text-gray-500{% endif %}">
+                                <p class="text-[10px] font-semibold text-app-text">{{ doc.label }}</p>
+                                <p class="text-[9px] {% if doc.status == 'ok' %}text-emerald-500{% elif doc.status == 'warning' %}text-amber-500{% elif doc.status == 'expired' %}text-red-500{% else %}text-app-text-muted{% endif %}">
                                     {% if doc.status == 'ok' %}{{ doc.expiry|date:"M d" }}{% elif doc.status == 'warning' %}{{ doc.days_remaining }}d left{% elif doc.status == 'expired' %}Expired{% else %}Missing{% endif %}
                                 </p>
                             </div>
@@ -142,7 +159,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="8" class="px-4 py-12 text-center text-gray-500">No drivers found.</td></tr>
+                <tr><td colspan="8" class="px-4 py-12 text-center text-app-text-muted">No drivers found.</td></tr>
                 {% endfor %}
             </tbody>
         </table>

@@ -6,12 +6,15 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Sum, Q, Count
 from django.core.paginator import Paginator
-from core.mixins import AdminRequiredMixin
+from core.mixins import (
+    AdminRequiredMixin, StaffRequiredMixin, 
+    AdminManagerRequiredMixin, AccountantRequiredMixin
+)
 from core.models import (
     Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Notification, Task,
     ROLE_CHOICES, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
-from core.forms import ProfileForm, DriverForm, DeductionForm, DeductionInstallmentForm
+from core.forms import ProfileForm, DriverForm, DeductionForm, DeductionInstallmentForm, TaskAssignmentForm
 from django.views import View
 
 
@@ -59,7 +62,7 @@ def get_chart_data():
     })
 
 
-class AdminDashboardView(AdminRequiredMixin, View):
+class AdminDashboardView(StaffRequiredMixin, View):
     def get(self, request):
         today = date.today()
         month_invoices = DriverInvoice.objects.filter(
@@ -94,10 +97,11 @@ class AdminDashboardView(AdminRequiredMixin, View):
             'recent_notifs': recent_notifs,
             'active_drivers': active_drivers.count(),
             'expiring_docs': expiring_count,
+            'task_assign_form': TaskAssignmentForm(),
         })
 
 
-class TeamListView(AdminRequiredMixin, View):
+class TeamListView(StaffRequiredMixin, View):
     def get(self, request):
         qs = Profile.objects.exclude(role='driver')
         q = request.GET.get('q', '')
@@ -121,7 +125,7 @@ class TeamListView(AdminRequiredMixin, View):
         })
 
 
-class TeamAddView(AdminRequiredMixin, View):
+class TeamAddView(StaffRequiredMixin, View):
     def get(self, request):
         form = ProfileForm()
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
@@ -140,7 +144,7 @@ class TeamAddView(AdminRequiredMixin, View):
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
 
 
-class TeamEditView(AdminRequiredMixin, View):
+class TeamEditView(AdminManagerRequiredMixin, View):
     def get(self, request, pk):
         member = get_object_or_404(Profile, pk=pk)
         form = ProfileForm(instance=member)
@@ -160,7 +164,7 @@ class TeamEditView(AdminRequiredMixin, View):
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': True, 'member': member})
 
 
-class TeamDeleteView(AdminRequiredMixin, View):
+class TeamDeleteView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         member = get_object_or_404(Profile, pk=pk)
         name = member.get_full_name()
@@ -169,7 +173,7 @@ class TeamDeleteView(AdminRequiredMixin, View):
         return redirect('admin_team_list')
 
 
-class DriverListView(AdminRequiredMixin, View):
+class DriverListView(StaffRequiredMixin, View):
     def get(self, request):
         qs = Driver.objects.all()
         q = request.GET.get('q', '')
@@ -202,7 +206,7 @@ class DriverListView(AdminRequiredMixin, View):
         })
 
 
-class DriverAddView(AdminRequiredMixin, View):
+class DriverAddView(StaffRequiredMixin, View):
     def get(self, request):
         form = DriverForm()
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False})
@@ -218,7 +222,7 @@ class DriverAddView(AdminRequiredMixin, View):
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False})
 
 
-class DriverEditView(AdminRequiredMixin, View):
+class DriverEditView(AdminManagerRequiredMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         form = DriverForm(instance=driver)
@@ -234,7 +238,7 @@ class DriverEditView(AdminRequiredMixin, View):
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': True, 'driver': driver})
 
 
-class DriverDeleteView(AdminRequiredMixin, View):
+class DriverDeleteView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         name = driver.full_name
@@ -243,7 +247,7 @@ class DriverDeleteView(AdminRequiredMixin, View):
         return redirect('admin_driver_list')
 
 
-class DriverToggleActiveView(AdminRequiredMixin, View):
+class DriverToggleActiveView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         driver.is_active = not driver.is_active
@@ -253,7 +257,7 @@ class DriverToggleActiveView(AdminRequiredMixin, View):
         return redirect('admin_driver_list')
 
 
-class DriverSalarySlipView(AdminRequiredMixin, View):
+class DriverSalarySlipView(StaffRequiredMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         today = date.today()
@@ -295,7 +299,7 @@ class DriverSalarySlipView(AdminRequiredMixin, View):
         })
 
 
-class DeductionListView(AdminRequiredMixin, View):
+class DeductionListView(StaffRequiredMixin, View):
     def get(self, request):
         form = DeductionForm()
         form.fields['driver'].queryset = Driver.objects.filter(is_active=True)
@@ -356,7 +360,7 @@ class DeductionListView(AdminRequiredMixin, View):
         })
 
 
-class PendingDuesView(AdminRequiredMixin, View):
+class PendingDuesView(StaffRequiredMixin, View):
     def get(self, request):
         installments = DeductionInstallment.objects.select_related(
             'deduction__driver', 'deduction__employee'
@@ -377,7 +381,7 @@ class PendingDuesView(AdminRequiredMixin, View):
         })
 
 
-class MarkInstallmentPaidView(AdminRequiredMixin, View):
+class MarkInstallmentPaidView(AccountantRequiredMixin, View):
     def post(self, request, pk):
         installment = get_object_or_404(DeductionInstallment, pk=pk)
         

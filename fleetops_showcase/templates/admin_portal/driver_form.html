@@ -1,19 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Driver — SAYYEDNAA LOGISTICS{% endblock %}
+{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Driver — Najmat Alwesam{% endblock %}
 {% block page_title %}{% if editing %}Edit Driver{% else %}Add New Driver{% endif %}{% endblock %}
 {% block breadcrumb %}{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% else %}Admin{% endif %} → Drivers → {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto">
     {% if editing %}
-    <div class="flex justify-end mb-4">
+    <div class="flex justify-end mb-6">
         {% if portal == 'admin' %}
-        <a href="{% url 'admin_salary_slip' driver.pk %}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+        <a href="{% url 'admin_salary_slip' driver.pk %}" target="_blank" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             Generate Salary Slip
         </a>
         {% elif portal == 'manager' %}
-        <a href="{% url 'manager_salary_slip' driver.pk %}" target="_blank" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2">
+        <a href="{% url 'manager_salary_slip' driver.pk %}" target="_blank" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
             Generate Salary Slip
         </a>
@@ -21,116 +21,223 @@
     </div>
     {% endif %}
 
-    <div class="bg-card-dark border border-border-dark rounded-2xl p-6 lg:p-8">
-        {% if form.errors %}
-        <div class="mb-6 p-4 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm">
-            <p class="font-semibold mb-1">Please fix the errors below:</p>
-            {{ form.errors }}
+    <div class="bg-app-card rounded-2xl shadow-sm border border-app-border overflow-hidden animate-fade-in">
+        <div class="p-6 lg:p-10">
+            <div class="mb-10">
+                <h2 class="text-2xl font-bold text-app-text">{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}</h2>
+                <p class="text-sm text-app-text-muted mt-2">{% if editing %}Modify the existing driver record and their vehicle/contract details.{% else %}Create a new driver and assign their vehicle/contract details.{% endif %}</p>
+            </div>
+
+            {% if form.errors %}
+            <div class="mb-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-600 dark:text-red-400 text-sm">
+                <p class="font-bold mb-2">Please correct the following errors:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    {% for field, errors in form.errors.items %}
+                    <li><span class="font-semibold">{{ field|title }}:</span> {{ errors|join:", " }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="space-y-10">
+                {% csrf_token %}
+
+                <!-- Section: Personal Information -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-app-text border-b border-app-border pb-2">Personal Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-app-text-muted">First Name</label>
+                            {{ form.first_name }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Last Name</label>
+                            {{ form.last_name }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Address (Optional)</label>
+                            {{ form.email }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Phone Number</label>
+                            {{ form.phone }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: IDs and Passports -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/10 pb-2">Identification Documents</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Civil ID Number</label>
+                            {{ form.civil_id_number }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Civil ID Expiry Date</label>
+                            {{ form.civil_id_expiry }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Passport Number</label>
+                            {{ form.passport_number }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Passport Expiry Date</label>
+                            {{ form.passport_expiry }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Work Compliance -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/10 pb-2">Compliance & Security</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Working Permit Expiry</label>
+                            {{ form.working_permit_expiry }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Driver License Expiry</label>
+                            {{ form.driver_license_expiry }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Health Insurance Expiry</label>
+                            {{ form.health_insurance_expiry }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Criminal Certificate Expiry</label>
+                            {{ form.criminal_certificate_expiry }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Vehicle Information -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/10 pb-2">Vehicle Information</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Registration</label>
+                            {{ form.vehicle_registration }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Registration Expiry</label>
+                            {{ form.vehicle_registration_expiry }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Plate Number</label>
+                            {{ form.vehicle_plate_number }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Name</label>
+                            {{ form.vehicle_name }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Vehicle Type</label>
+                            {{ form.vehicle_type }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Petrol Card / Sticker Number</label>
+                            {{ form.petrol_card_number }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Work Assignment -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/10 pb-2">Work Assignment</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Zone / Working Area</label>
+                            {{ form.zone }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Employee Serial Number</label>
+                            {{ form.employee_serial_number }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Working ID</label>
+                            {{ form.working_id }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Position / Job Title</label>
+                            {{ form.position }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name</label>
+                            {{ form.company_name }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Contract Type</label>
+                            {{ form.contract_type }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: Financial & Documents -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white border-b border-gray-100 dark:border-white/10 pb-2">Financial & Documents</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">IBAN Number</label>
+                            {{ form.iban_number }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Bank Name</label>
+                            {{ form.bank_name }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Basic Salary (WP)</label>
+                            {{ form.basic_salary_wp }}
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5 mt-4">
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Password {% if editing %}<span class="text-[10px] opacity-50">(leave blank to keep)</span>{% endif %}</label>
+                            {{ form.password1 }}
+                        </div>
+                        <div class="space-y-1.5">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Confirm Password</label>
+                            {{ form.password2 }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section: File Upload -->
+                <div class="space-y-6">
+                    <h3 class="text-lg font-bold text-app-text border-b border-app-border pb-2">Supporting Documents</h3>
+                    <div class="space-y-4">
+                        <div class="relative group">
+                            <div class="border-2 border-dashed border-app-border rounded-xl p-8 text-center group-hover:border-brand/50 transition-all bg-black/5 dark:bg-white/[0.02]">
+                                <div class="mx-auto h-12 w-12 text-gray-400 group-hover:text-orange-500 transition-colors mb-4">
+                                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                    </svg>
+                                </div>
+                                <div class="text-sm text-gray-600 dark:text-gray-400">
+                                    {{ form.supporting_document }}
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Max file size: 10MB. Supported formats: PDF, PNG, JPG</p>
+                                
+                                {% if editing and driver.supporting_document %}
+                                <div class="mt-4 p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg inline-flex items-center gap-2">
+                                    <span class="text-xs font-medium text-orange-700 dark:text-orange-400">Current:</span>
+                                    <a href="{{ driver.supporting_document.url }}" target="_blank" class="text-xs font-bold text-orange-600 dark:text-orange-400 hover:underline">View Attached File</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex items-center justify-end gap-4 pt-8 border-t border-app-border">
+                    <a href="javascript:history.back()" class="px-6 py-2.5 text-sm font-medium text-app-text-muted hover:text-app-text transition-colors">Cancel</a>
+                    <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-8 rounded-lg transition-all shadow-md hover:shadow-orange-600/20 active:transform active:scale-95">
+                        {% if editing %}Update Driver Record{% else %}Confirm & Add Driver{% endif %}
+                    </button>
+                </div>
+            </form>
         </div>
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data" class="space-y-8">
-            {% csrf_token %}
-
-            <!-- Personal Info -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>👤</span> Personal Information</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">First Name *</label>{{ form.first_name }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Last Name *</label>{{ form.last_name }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Email</label>{{ form.email }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Phone *</label>{{ form.phone }}</div>
-                </div>
-            </div>
-
-            <!-- Identity Documents -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🪪</span> Identity Documents</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Civil ID Number *</label>{{ form.civil_id_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Civil ID Expiry</label>{{ form.civil_id_expiry }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Passport Number</label>{{ form.passport_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Passport Expiry</label>{{ form.passport_expiry }}</div>
-                </div>
-            </div>
-
-            <!-- Work Compliance -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📋</span> Work Compliance</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Working Permit Expiry</label>{{ form.working_permit_expiry }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Driver License Expiry</label>{{ form.driver_license_expiry }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Health Insurance Expiry</label>{{ form.health_insurance_expiry }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Criminal Certificate Expiry</label>{{ form.criminal_certificate_expiry }}</div>
-                </div>
-            </div>
-
-            <!-- Vehicle -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🚗</span> Vehicle Details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Vehicle Plate Number</label>{{ form.vehicle_plate_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Vehicle Name</label>{{ form.vehicle_name }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Vehicle Type</label>{{ form.vehicle_type }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Vehicle Registration</label>{{ form.vehicle_registration }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Vehicle Registration Expiry</label>{{ form.vehicle_registration_expiry }}</div>
-                </div>
-            </div>
-
-            <!-- Work Assignment -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📍</span> Work Assignment</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Zone</label>{{ form.zone }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Petrol Card Number</label>{{ form.petrol_card_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Employee Serial Number</label>{{ form.employee_serial_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Working ID</label>{{ form.working_id }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Company Name</label>{{ form.company_name }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Contract Type</label>{{ form.contract_type }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Position</label>{{ form.position }}</div>
-                </div>
-            </div>
-
-            <!-- Financial -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>💰</span> Financial</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">IBAN Number</label>{{ form.iban_number }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Bank Name</label>{{ form.bank_name }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Basic Salary WP (KD)</label>{{ form.basic_salary_wp }}</div>
-                </div>
-            </div>
-
-            <!-- Password / Account Access -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>🔒</span> Login Access</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Password {% if editing %}<span class="text-gray-600">(leave blank to keep)</span>{% endif %}</label>{{ form.password1 }}</div>
-                    <div><label class="block text-sm font-medium text-gray-400 mb-1">Confirm Password</label>{{ form.password2 }}</div>
-                </div>
-                <p class="text-[10px] text-gray-500 mt-2 italic">Creating a driver automatically creates a login account with their email.</p>
-            </div>
-
-            <!-- Document Upload -->
-            <div>
-                <h3 class="text-lg font-bold text-white mb-4 flex items-center gap-2"><span>📎</span> Document Upload</h3>
-                <div>
-                    <label class="block text-sm font-medium text-gray-400 mb-1">Supporting Document</label>
-                    {{ form.supporting_document }}
-                    {% if editing and driver.supporting_document %}
-                    <p class="text-xs text-gray-500 mt-1">Current: <a href="{{ driver.supporting_document.url }}" target="_blank" class="text-orange-400 hover:underline">View Current File</a></p>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center justify-end gap-3 pt-4 border-t border-border-dark">
-                <a href="javascript:history.back()" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors">Cancel</a>
-                <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors shadow-lg shadow-orange-500/20">
-                    {% if editing %}Update{% else %}Add{% endif %} Driver
-                </button>
-            </div>
-        </form>
     </div>
 </div>
 {% endblock %}

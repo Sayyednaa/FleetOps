@@ -9,17 +9,35 @@ ROLE_CHOICES = [
     ('admin', 'Admin'),
     ('manager', 'Manager'),
     ('employee', 'Employee'),
+    ('accountant', 'Accountant Department'),
     ('driver', 'Driver'),
 ]
 
 POSITION_CHOICES = [
-    ('car_driver', 'Car Driver'),
-    ('bike_driver', 'Bike Driver'),
-    ('supervisor', 'Supervisor'),
-    ('representative', 'Representative'),
-    ('administrative', 'Administrative'),
-    ('hp_manager', 'HP Manager'),
-    ('accountant', 'Accountant'),
+    ('Administrative', 'Administrative'),
+    ('Engineer', 'Engineer'),
+    ('Accountant', 'Accountant'),
+    ('Representative', 'Representative'),
+    ('MarketingManager', 'Marketing Manager'),
+    ('SalesManager', 'Sales Manager'),
+    ('HRManager', 'HR Manager'),
+    ('ProjectManager', 'Project Manager'),
+    ('ProductManager', 'Product Manager'),
+    ('BusinessAnalyst', 'Business Analyst'),
+    ('SoftwareEngineer', 'Software Engineer'),
+    ('WebDeveloper', 'Web Developer'),
+    ('GraphicDesigner', 'Graphic Designer'),
+    ('ContentWriter', 'Content Writer'),
+    ('CustomerSupportRepresentative', 'Customer Support Representative'),
+    ('DataAnalyst', 'Data Analyst'),
+    ('OperationsManager', 'Operations Manager'),
+    ('AdminAssistant', 'Admin Assistant'),
+    ('TeamLeader', 'Team Leader'),
+    ('MarketingSpecialist', 'Marketing Specialist'),
+    ('LegalAdvisor', 'Legal Advisor'),
+    ('ITSupportSpecialist', 'IT Support Specialist'),
+    ('Receptionist', 'Receptionist'),
+    ('Intern', 'Intern'),
 ]
 
 BANK_CHOICES = [
@@ -34,7 +52,7 @@ BANK_CHOICES = [
 ]
 
 COMPANY_CHOICES = [
-    ('najmat', 'SAYYEDNAA LOGISTICS'),
+    ('najmat', 'Najmat Alwesam'),
     ('speedy', 'Speedy'),
     ('other', 'Other'),
 ]
@@ -65,16 +83,15 @@ NOTIFICATION_TYPE_CHOICES = [
 
 class Profile(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='employee')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='manager')
     phone = models.CharField(max_length=20, blank=True)
-    position = models.CharField(max_length=30, choices=POSITION_CHOICES, blank=True)
+    position = models.CharField(max_length=50, choices=POSITION_CHOICES, default='Administrative')
     identification_number = models.CharField(max_length=50, blank=True)
     passport = models.CharField(max_length=50, blank=True)
     contract_expiry_date = models.DateField(null=True, blank=True)
     base_salary_kd = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     iban_number = models.CharField(max_length=50, blank=True)
-    bank_name = models.CharField(max_length=30, choices=BANK_CHOICES, blank=True)
-    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
+    bank_name = models.CharField(max_length=30, choices=BANK_CHOICES, default='nbk')
     supporting_document = models.FileField(upload_to='profile_docs/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -113,16 +130,16 @@ class Driver(models.Model):
     vehicle_registration_expiry = models.DateField(null=True, blank=True)
     vehicle_plate_number = models.CharField(max_length=30, blank=True)
     vehicle_name = models.CharField(max_length=100, blank=True)
-    vehicle_type = models.CharField(max_length=20, choices=VEHICLE_CHOICES, default='bike')
+    vehicle_type = models.CharField(max_length=20, choices=VEHICLE_CHOICES, default='car')
 
     # Work Assignment
     zone = models.CharField(max_length=100, blank=True)
     petrol_card_number = models.CharField(max_length=50, blank=True)
     employee_serial_number = models.CharField(max_length=50, blank=True)
     working_id = models.CharField(max_length=50, blank=True)
-    company_name = models.CharField(max_length=20, choices=COMPANY_CHOICES, default='najmat')
+    company_name = models.CharField(max_length=50, choices=COMPANY_CHOICES, default='najmat')
     contract_type = models.CharField(max_length=20, choices=CONTRACT_CHOICES, default='talabat')
-    position = models.CharField(max_length=100, blank=True)
+    position = models.CharField(max_length=100, default='Car Driver')
 
     # Financial
     iban_number = models.CharField(max_length=50, blank=True)
@@ -211,6 +228,7 @@ class DriverInvoice(models.Model):
     class Meta:
         ordering = ['-specified_date']
         indexes = [models.Index(fields=['driver', 'specified_date'])]
+        unique_together = ('driver', 'specified_date')
 
     def __str__(self):
         return f"{self.driver} - {self.specified_date}"
@@ -376,7 +394,8 @@ class Notification(models.Model):
 
 class Task(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='tasks')
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='tasks', verbose_name='Assigned To')
+    assigned_by = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, related_name='assigned_tasks')
     title = models.CharField(max_length=200)
     status = models.CharField(
         max_length=20,
@@ -392,3 +411,21 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.status})"
+
+# ─── CompanyFile ────────────────────────────────────────────────────────────
+
+class CompanyFile(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=200)
+    file = models.FileField(upload_to='company_files/')
+    description = models.TextField(blank=True)
+    category = models.CharField(max_length=100, blank=True)
+    uploaded_by = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title

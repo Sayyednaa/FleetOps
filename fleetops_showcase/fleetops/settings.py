@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'portal_employee',
     'portal_driver',
     'shared',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -93,13 +94,45 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# WhiteNoise storage to compress and cache static files
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# Media files configuration
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Supabase Storage Configuration (S3 Compatible)
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID', default='')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY', default='')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME', default='')
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
+AWS_S3_ENDPOINT_URL = env('AWS_S3_ENDPOINT_URL', default='')
+AWS_S3_CUSTOM_DOMAIN = env('AWS_S3_CUSTOM_DOMAIN', default='')
+
+# S3 specific settings
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+AWS_S3_VERIFY = True
+
+# Storage configuration
+if AWS_STORAGE_BUCKET_NAME:
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -115,6 +148,11 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = env.bool('SECURE_SSL_REDIRECT', default=True)
     SESSION_COOKIE_SECURE = env.bool('SESSION_COOKIE_SECURE', default=True)
     CSRF_COOKIE_SECURE = env.bool('CSRF_COOKIE_SECURE', default=True)
+    
+    # HttpOnly flags to prevent JS access to sensitive cookies
+    SESSION_COOKIE_HTTPONLY = True
+    CSRF_COOKIE_HTTPONLY = True
+
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load kwd_filters %}
+
+{% block title %}Deactivated Drivers — Najmat Alwesam{% endblock %}
+{% block page_title %}Deactivated Drivers{% endblock %}
+{% block breadcrumb %}Archive → Deactivated Drivers{% endblock %}
+
+{% block content %}
+<div class="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+    <div class="flex items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold tracking-tight text-app-text uppercase">Deactivated Drivers</h2>
+            <p class="text-sm text-app-text-muted mt-1">Viewing drivers who are currently inactive in the system.</p>
+        </div>
+    </div>
+
+    <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs uppercase bg-gray-50 dark:bg-white/5 text-gray-500 border-b border-app-border">
+                    <tr>
+                        <th class="px-6 py-4 font-bold">Driver Name</th>
+                        <th class="px-6 py-4 font-bold">Phone Number</th>
+                        <th class="px-6 py-4 font-bold">Company</th>
+                        <th class="px-6 py-4 font-bold">Contract</th>
+                        <th class="px-6 py-4 font-bold">Last Active</th>
+                        <th class="px-6 py-4 text-center font-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-app-border">
+                    {% for driver in drivers %}
+                    <tr class="transition-colors hover:bg-black/5 dark:hover:bg-white/5">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400 font-bold text-[10px]">
+                                    {{ driver.first_name.0 }}{{ driver.last_name.0 }}
+                                </div>
+                                <span class="font-bold text-app-text uppercase">{{ driver.full_name }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-app-text-muted">{{ driver.phone }}</td>
+                        <td class="px-6 py-4"><span class="px-2 py-1 bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase rounded-full">{{ driver.get_company_name_display }}</span></td>
+                        <td class="px-6 py-4 text-app-text-muted">{{ driver.get_contract_type_display }}</td>
+                        <td class="px-6 py-4 text-app-text-muted">{{ driver.updated_at|date:"M d, Y" }}</td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-2">
+                                <form method="post" action="{% url 'admin_driver_toggle' driver.pk %}">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-4 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-[10px] font-bold uppercase transition-all shadow-sm">
+                                        Activate
+                                    </button>
+                                </form>
+                                <a href="{% url 'admin_driver_edit' driver.pk %}" class="p-2 bg-app-bg border border-app-border rounded-lg text-app-text-muted hover:text-orange-500 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-20 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="text-5xl opacity-20">🚫</span>
+                                <h3 class="text-lg font-bold text-app-text">No deactivated drivers</h3>
+                                <p class="text-app-text-muted">All drivers are currently active in the system.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
