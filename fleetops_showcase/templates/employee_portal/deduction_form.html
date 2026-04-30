@@ -6,13 +6,13 @@
 {% block content %}
 <div class="max-w-2xl mx-auto">
     <div class="bg-card-dark border border-border-dark rounded-2xl p-6 lg:p-8">
-        <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><span>📝</span> Submit Driver Deduction</h3>
+        <h3 class="text-lg font-bold text-white mb-6 flex items-center gap-2"><span>📝</span> Submit {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %} Deduction</h3>
         {% if form.errors %}
         <div class="mb-4 p-3 bg-red-900/30 border border-red-800 rounded-xl text-red-300 text-sm">{{ form.errors }}</div>
         {% endif %}
         <form method="post" enctype="multipart/form-data" class="space-y-5">
             {% csrf_token %}
-            <div><label class="block text-sm font-medium text-gray-400 mb-1">Driver *</label>{{ form.driver }}</div>
+            <div><label class="block text-sm font-medium text-gray-400 mb-1">{% if portal == 'accountant' %}Rider / Employee{% else %}Driver{% endif %} *</label>{{ form.driver }}</div>
             <div><label class="block text-sm font-medium text-gray-400 mb-1">Reason *</label>{{ form.reason }}</div>
             <div><label class="block text-sm font-medium text-gray-400 mb-1">Date *</label>{{ form.deduction_date }}</div>
             <div><label class="block text-sm font-medium text-gray-400 mb-1">Contracting Company *</label>{{ form.contracting_company }}</div>

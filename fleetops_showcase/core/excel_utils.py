@@ -81,6 +81,74 @@ def export_archive_excel(queryset, label='archive'):
     wb.save(response)
     return response
 
+def export_talabat_excel(queryset, label='talabat'):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Salary {label}"
+
+    headers = [
+        'Rider ID', 'Name', 'Total Orders', 'Total Salary KD', 'Deduction KD', 'Net Salary KD'
+    ]
+    orange_fill = PatternFill(start_color="F97316", end_color="F97316", fill_type="solid")
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = orange_fill
+        cell.alignment = Alignment(horizontal='center')
+
+    for row_idx, record in enumerate(queryset, 2):
+        ws.cell(row=row_idx, column=1, value=record.driver.employee_serial_number)
+        ws.cell(row=row_idx, column=2, value=f"{record.driver.first_name} {record.driver.last_name}")
+        ws.cell(row=row_idx, column=3, value=record.total_orders)
+        ws.cell(row=row_idx, column=4, value=float(record.total_salary))
+        ws.cell(row=row_idx, column=5, value=float(record.deduction))
+        ws.cell(row=row_idx, column=6, value=float(record.net_salary))
+
+    for col in ws.columns:
+        max_length = max(len(str(cell.value or '')) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = max(15, max_length + 2)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="salary_{label}.xlsx"'
+    wb.save(response)
+    return response
+
+def export_contract_excel(queryset, label='contract'):
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = f"Salary {label}"
+
+    headers = [
+        'Name', 'Total Salary KD', 'Absent Days', 'Deduction KD', 'Net Salary KD', 'Remark'
+    ]
+    orange_fill = PatternFill(start_color="F97316", end_color="F97316", fill_type="solid")
+    for col_idx, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col_idx, value=header)
+        cell.font = Font(bold=True, color="FFFFFF")
+        cell.fill = orange_fill
+        cell.alignment = Alignment(horizontal='center')
+
+    for row_idx, record in enumerate(queryset, 2):
+        ws.cell(row=row_idx, column=1, value=record.name)
+        ws.cell(row=row_idx, column=2, value=float(record.total_salary))
+        ws.cell(row=row_idx, column=3, value=record.absent)
+        ws.cell(row=row_idx, column=4, value=float(record.deduction))
+        ws.cell(row=row_idx, column=5, value=float(record.net_salary))
+        ws.cell(row=row_idx, column=6, value=record.remark)
+
+    for col in ws.columns:
+        max_length = max(len(str(cell.value or '')) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = max(15, max_length + 2)
+
+    response = HttpResponse(
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    response['Content-Disposition'] = f'attachment; filename="salary_{label}.xlsx"'
+    wb.save(response)
+    return response
+
 def generate_excel_template(model_type):
     """Generate a template .xlsx file for bulk upload."""
     wb = openpyxl.Workbook()
@@ -107,6 +175,17 @@ def generate_excel_template(model_type):
     elif model_type == 'invoice':
         headers = [
             'NO.', 'Name', 'Phone', 'Cash', 'Main Orders', 'Addl. Orders', 'Hours', 'Work Date'
+        ]
+    elif model_type == 'talabat_salary':
+        headers = [
+            'Rider ID', 'Batch 1 Orders', 'Batch 1 Amount', 'Batch 2 Orders', 'Batch 2 Amount',
+            'Batch 3 Orders', 'Batch 3 Amount', 'Batch 4 Orders', 'Batch 4 Amount',
+            'Batch 5 Orders', 'Batch 5 Amount', 'Batch 6 Orders', 'Batch 6 Amount',
+            'Batch 7 Orders', 'Batch 7 Amount', 'Deduction'
+        ]
+    elif model_type == 'contract_salary':
+        headers = [
+            'Name', 'Contract Type', 'Month', 'Total Salary', 'Absent Days', 'Deduction', 'Remark'
         ]
     else:
         headers = ['Data']
@@ -199,6 +278,52 @@ def import_from_excel(file, model_type, user):
                         'hours': Decimal(str(data.get('Hours', 0) or 0)),
                         'created_by': user.profile if hasattr(user, 'profile') else None
                     }
+                )
+            elif model_type == 'talabat_salary':
+                from .models import TalabatSalaryDetail
+                rider_id = str(data.get('Rider ID', '')).strip()
+                if not rider_id:
+                    errors.append(f"Row {row_idx}: Missing Rider ID.")
+                    continue
+                try:
+                    driver = Driver.objects.get(employee_serial_number=rider_id)
+                except Driver.DoesNotExist:
+                    errors.append(f"Row {row_idx}: Driver with ID {rider_id} not found.")
+                    continue
+                
+                TalabatSalaryDetail.objects.create(
+                    driver=driver,
+                    batch_1_orders=int(data.get('Batch 1 Orders', 0) or 0),
+                    batch_1_amount=Decimal(str(data.get('Batch 1 Amount', 0) or 0)),
+                    batch_2_orders=int(data.get('Batch 2 Orders', 0) or 0),
+                    batch_2_amount=Decimal(str(data.get('Batch 2 Amount', 0) or 0)),
+                    batch_3_orders=int(data.get('Batch 3 Orders', 0) or 0),
+                    batch_3_amount=Decimal(str(data.get('Batch 3 Amount', 0) or 0)),
+                    batch_4_orders=int(data.get('Batch 4 Orders', 0) or 0),
+                    batch_4_amount=Decimal(str(data.get('Batch 4 Amount', 0) or 0)),
+                    batch_5_orders=int(data.get('Batch 5 Orders', 0) or 0),
+                    batch_5_amount=Decimal(str(data.get('Batch 5 Amount', 0) or 0)),
+                    batch_6_orders=int(data.get('Batch 6 Orders', 0) or 0),
+                    batch_6_amount=Decimal(str(data.get('Batch 6 Amount', 0) or 0)),
+                    batch_7_orders=int(data.get('Batch 7 Orders', 0) or 0),
+                    batch_7_amount=Decimal(str(data.get('Batch 7 Amount', 0) or 0)),
+                    deduction=Decimal(str(data.get('Deduction', 0) or 0))
+                )
+            elif model_type == 'contract_salary':
+                from .models import ContractSalaryDetail
+                name = str(data.get('Name', '')).strip()
+                if not name:
+                    errors.append(f"Row {row_idx}: Missing Name.")
+                    continue
+                
+                ContractSalaryDetail.objects.create(
+                    name=name,
+                    contract_type=data.get('Contract Type', 'other'),
+                    month=data.get('Month', date.today().replace(day=1)),
+                    total_salary=Decimal(str(data.get('Total Salary', 0) or 0)),
+                    absent=int(data.get('Absent Days', 0) or 0),
+                    deduction=Decimal(str(data.get('Deduction', 0) or 0)),
+                    remark=str(data.get('Remark', ''))
                 )
             count += 1
         except Exception as e:

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Driver — Najmat Alwesam{% endblock %}
-{% block page_title %}{% if editing %}Edit Driver{% else %}Add New Driver{% endif %}{% endblock %}
-{% block breadcrumb %}{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% else %}Admin{% endif %} → Drivers → {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
+{% block title %}{% if editing %}Edit{% else %}Add{% endif %} {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %} — Najmat Alwesam{% endblock %}
+{% block page_title %}{% if editing %}Edit {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %}{% else %}Add New {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %}{% endif %}{% endblock %}
+{% block breadcrumb %}{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% elif portal == 'accountant' %}Accountant{% else %}Admin{% endif %} → {% if portal == 'accountant' %}Riders{% else %}Drivers{% endif %} → {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
 
 {% block content %}
 <div class="max-w-5xl mx-auto">
@@ -24,8 +24,8 @@
     <div class="bg-app-card rounded-2xl shadow-sm border border-app-border overflow-hidden animate-fade-in">
         <div class="p-6 lg:p-10">
             <div class="mb-10">
-                <h2 class="text-2xl font-bold text-app-text">{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}</h2>
-                <p class="text-sm text-app-text-muted mt-2">{% if editing %}Modify the existing driver record and their vehicle/contract details.{% else %}Create a new driver and assign their vehicle/contract details.{% endif %}</p>
+                <h2 class="text-2xl font-bold text-app-text">{% if editing %}Update {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %} Details{% else %}Add New {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %}{% endif %}</h2>
+                <p class="text-sm text-app-text-muted mt-2">{% if editing %}Modify the existing {% if portal == 'accountant' %}rider{% else %}driver{% endif %} record and their vehicle/contract details.{% else %}Create a new {% if portal == 'accountant' %}rider{% else %}driver{% endif %} and assign their vehicle/contract details.{% endif %}</p>
             </div>
 
             {% if form.errors %}
@@ -233,7 +233,7 @@
                 <div class="flex items-center justify-end gap-4 pt-8 border-t border-app-border">
                     <a href="javascript:history.back()" class="px-6 py-2.5 text-sm font-medium text-app-text-muted hover:text-app-text transition-colors">Cancel</a>
                     <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-2.5 px-8 rounded-lg transition-all shadow-md hover:shadow-orange-600/20 active:transform active:scale-95">
-                        {% if editing %}Update Driver Record{% else %}Confirm & Add Driver{% endif %}
+                        {% if editing %}Update {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %} Record{% else %}Confirm & Add {% if portal == 'accountant' %}Rider{% else %}Driver{% endif %}{% endif %}
                     </button>
                 </div>
             </form>

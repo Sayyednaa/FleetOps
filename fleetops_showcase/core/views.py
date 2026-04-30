@@ -15,6 +15,8 @@ def home_view(request):
             return redirect('manager_dashboard')
         elif role == 'employee':
             return redirect('employee_dashboard')
+        elif role == 'accountant':
+            return redirect('accountant_dashboard')
         elif role == 'driver':
             return redirect('driver_dashboard')
     

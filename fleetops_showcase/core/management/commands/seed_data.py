@@ -17,17 +17,8 @@ class Command(BaseCommand):
             self.stdout.write(self.style.SUCCESS('Data already exists. Skipping seed.'))
             return
 
-        # 1. Create Users
+        # 1. Create Users (Manager, Employee, Accountant only)
         self.stdout.write('Creating users...')
-        admin_user = Profile.objects.create_superuser(
-            username='admin@sayyednaalogistics.com',
-            email='admin@sayyednaalogistics.com',
-            password='admin123',
-            first_name='Omar',
-            last_name='Al-Rashidi',
-            role='admin',
-            position='general_manager'
-        )
 
         manager_user = Profile.objects.create_user(
             username='manager@sayyednaalogistics.com',
@@ -36,7 +27,7 @@ class Command(BaseCommand):
             first_name='Sara',
             last_name='Al-Mutairi',
             role='manager',
-            position='operation_manager'
+            position='OperationsManager'
         )
 
         employee_user = Profile.objects.create_user(
@@ -46,51 +37,93 @@ class Command(BaseCommand):
             first_name='Khalid',
             last_name='Al-Enezi',
             role='employee',
-            position='dispatcher'
+            position='Administrative'
         )
 
-        driver_user = Profile.objects.create_user(
-            username='driver@sayyednaalogistics.com',
-            email='driver@sayyednaalogistics.com',
-            password='driver123',
-            first_name='Ahmed',
-            last_name='Hassan',
-            role='driver'
+        accountant_user = Profile.objects.create_user(
+            username='accountant@sayyednaalogistics.com',
+            email='accountant@sayyednaalogistics.com',
+            password='accountant123',
+            first_name='Fatima',
+            last_name='Al-Sabah',
+            role='accountant',
+            position='Accountant'
         )
 
-        # 2. Create Drivers
+        # 2. Create Drivers with proper contract_type values
         self.stdout.write('Creating drivers...')
         drivers = []
         today = timezone.now().date()
-        
-        # Ahmed (the linked driver)
-        ahmed = Driver.objects.create(
-            profile=driver_user,
-            first_name='Ahmed', last_name='Hassan',
-            phone='96590001001', civil_id_number='290010100011',
-            company_name='najmat', contract_type='article_18',
-            vehicle_type='bike', zone='Kuwait City',
-            civil_id_expiry=today + timedelta(days=200),
-            driver_license_expiry=today + timedelta(days=15),
-            is_active=True
-        )
-        drivers.append(ahmed)
 
-        # Some more drivers
-        names = [
-            ('John', 'Doe', 'car', 'talabat'),
-            ('Mohamed', 'Ali', 'bike', 'deliveroo'),
-            ('Suresh', 'Kumar', 'bike', 'najmat'),
-            ('Ali', 'Reza', 'car', 'talabat'),
+        # Talabat drivers
+        talabat_drivers = [
+            ('Ahmed', 'Hassan', 'bike', 'Kuwait City'),
+            ('John', 'Doe', 'car', 'Salmiya'),
+            ('Ali', 'Reza', 'car', 'Hawally'),
+            ('Omar', 'Nabil', 'bike', 'Farwaniya'),
+            ('Hassan', 'Mahmoud', 'bike', 'Jahra'),
         ]
-        for f, l, v, c in names:
+        for f, l, v, z in talabat_drivers:
+            d = Driver.objects.create(
+                first_name=f, last_name=l,
+                phone=f'965{random.randint(10000000, 99999999)}',
+                civil_id_number=f'290{random.randint(100000000, 999999999)}',
+                company_name='najmat', contract_type='talabat',
+                vehicle_type=v, zone=z,
+                civil_id_expiry=today + timedelta(days=random.randint(30, 300)),
+                driver_license_expiry=today + timedelta(days=random.randint(15, 200)),
+                is_active=True
+            )
+            drivers.append(d)
+
+        # Pharma Zone drivers
+        pharma_drivers = [
+            ('Mohamed', 'Ali', 'bike', 'Salmiya'),
+            ('Yusuf', 'Ibrahim', 'car', 'Kuwait City'),
+            ('Rashid', 'Khalil', 'bike', 'Hawally'),
+        ]
+        for f, l, v, z in pharma_drivers:
             d = Driver.objects.create(
                 first_name=f, last_name=l,
                 phone=f'965{random.randint(10000000, 99999999)}',
                 civil_id_number=f'280{random.randint(100000000, 999999999)}',
-                company_name=c, contract_type='article_18',
-                vehicle_type=v, zone='Salmiya',
-                civil_id_expiry=today + timedelta(days=random.randint(-10, 300)),
+                company_name='najmat', contract_type='pharmazone',
+                vehicle_type=v, zone=z,
+                civil_id_expiry=today + timedelta(days=random.randint(30, 300)),
+                is_active=True
+            )
+            drivers.append(d)
+
+        # Burger King drivers
+        bk_drivers = [
+            ('Suresh', 'Kumar', 'bike', 'Farwaniya'),
+            ('Tariq', 'Zaman', 'car', 'Jahra'),
+        ]
+        for f, l, v, z in bk_drivers:
+            d = Driver.objects.create(
+                first_name=f, last_name=l,
+                phone=f'965{random.randint(10000000, 99999999)}',
+                civil_id_number=f'281{random.randint(100000000, 999999999)}',
+                company_name='najmat', contract_type='burger_king',
+                vehicle_type=v, zone=z,
+                civil_id_expiry=today + timedelta(days=random.randint(30, 300)),
+                is_active=True
+            )
+            drivers.append(d)
+
+        # Other contract drivers
+        other_drivers = [
+            ('Imran', 'Sheikh', 'car', 'Kuwait City'),
+            ('Naveed', 'Akhtar', 'bike', 'Salmiya'),
+        ]
+        for f, l, v, z in other_drivers:
+            d = Driver.objects.create(
+                first_name=f, last_name=l,
+                phone=f'965{random.randint(10000000, 99999999)}',
+                civil_id_number=f'282{random.randint(100000000, 999999999)}',
+                company_name='najmat', contract_type='other',
+                vehicle_type=v, zone=z,
+                civil_id_expiry=today + timedelta(days=random.randint(30, 300)),
                 is_active=True
             )
             drivers.append(d)
@@ -107,13 +140,13 @@ class Command(BaseCommand):
                     main_orders=random.randint(10, 20),
                     additional_orders=random.randint(0, 5),
                     hours=Decimal(random.randint(8, 12)),
-                    created_by=admin_user
+                    created_by=manager_user
                 )
 
         # 4. Create Deductions
         self.stdout.write('Creating deductions...')
         Deduction.objects.create(
-            driver=ahmed,
+            driver=drivers[0],
             reason='Speeding Ticket #123',
             deduction_date=today - timedelta(days=5),
             contracting_company='talabat',
@@ -124,17 +157,18 @@ class Command(BaseCommand):
         # 5. Create Messages
         self.stdout.write('Creating messages...')
         msg = Message.objects.create(
-            sender=admin_user,
+            sender=manager_user,
             subject='Welcome to SAYYEDNAA LOGISTICS',
             body='Welcome to the new system. Please ensure your documents are up to date.'
         )
-        MessageRecipient.objects.create(message=msg, recipient=driver_user)
-        MessageRecipient.objects.create(message=msg, recipient=manager_user)
+        MessageRecipient.objects.create(message=msg, recipient=employee_user)
+        MessageRecipient.objects.create(message=msg, recipient=accountant_user)
 
         # 6. Create Tasks
         self.stdout.write('Creating tasks...')
-        Task.objects.create(user=admin_user, title='Review monthly reports')
-        Task.objects.create(user=admin_user, title='Approve driver leaves')
-        Task.objects.create(user=manager_user, title='Check vehicle maintenance')
+        Task.objects.create(user=manager_user, title='Review monthly reports')
+        Task.objects.create(user=manager_user, title='Approve driver leaves')
+        Task.objects.create(user=employee_user, title='Check vehicle maintenance')
+        Task.objects.create(user=accountant_user, title='Prepare salary sheets')
 
         self.stdout.write(self.style.SUCCESS('SAYYEDNAA LOGISTICS data seeded successfully!'))

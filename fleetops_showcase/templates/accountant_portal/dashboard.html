@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Accountant Dashboard - SAYYEDNAA{% endblock %}
+{% block page_title %}Accountant Dashboard{% endblock %}
+{% block breadcrumb %}Accountant / Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Header -->
+    <div class="bg-gradient-to-r from-brand to-amber-600 rounded-2xl p-6 lg:p-8 text-white shadow-lg shadow-brand/20 relative overflow-hidden">
+        <div class="relative z-10">
+            <h2 class="text-2xl lg:text-3xl font-bold mb-2">Welcome back, {{ request.user.first_name }}! 👋</h2>
+            <p class="text-white/80 max-w-2xl text-sm lg:text-base">Here's an overview of the active drivers and contracts you are managing.</p>
+        </div>
+        <div class="absolute -right-10 -top-10 text-9xl opacity-10">📊</div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Talabat -->
+        <div class="bg-app-card rounded-2xl p-6 border border-app-border shadow-sm hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-orange-500/10 text-orange-500 flex items-center justify-center text-2xl">🍔</div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Active</span>
+            </div>
+            <h3 class="text-2xl font-bold text-app-text mb-1">{{ talabat_count }}</h3>
+            <p class="text-sm font-medium text-app-text-muted">Talabat Drivers</p>
+        </div>
+
+        <!-- Pharma Zone -->
+        <div class="bg-app-card rounded-2xl p-6 border border-app-border shadow-sm hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl">💊</div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Active</span>
+            </div>
+            <h3 class="text-2xl font-bold text-app-text mb-1">{{ pharmazone_count }}</h3>
+            <p class="text-sm font-medium text-app-text-muted">Pharma Zone Drivers</p>
+        </div>
+
+        <!-- Burger King -->
+        <div class="bg-app-card rounded-2xl p-6 border border-app-border shadow-sm hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center text-2xl">🍟</div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Active</span>
+            </div>
+            <h3 class="text-2xl font-bold text-app-text mb-1">{{ burgerking_count }}</h3>
+            <p class="text-sm font-medium text-app-text-muted">Burger King Drivers</p>
+        </div>
+
+        <!-- Other -->
+        <div class="bg-app-card rounded-2xl p-6 border border-app-border shadow-sm hover:shadow-lg transition-all duration-300">
+            <div class="flex items-center justify-between mb-4">
+                <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center text-2xl">📄</div>
+                <span class="text-xs font-bold text-emerald-500 bg-emerald-500/10 px-2 py-1 rounded-full">Active</span>
+            </div>
+            <h3 class="text-2xl font-bold text-app-text mb-1">{{ other_count }}</h3>
+            <p class="text-sm font-medium text-app-text-muted">Other Contracts</p>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Quick Actions -->
+        <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-app-text">Quick Actions</h3>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="{% url 'accountant_driver_add' %}" class="flex items-center gap-4 p-4 rounded-xl border border-app-border hover:bg-app-bg hover:border-brand/30 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-brand/10 text-brand flex items-center justify-center group-hover:scale-110 transition-transform">📝</div>
+                    <div>
+                        <h4 class="font-bold text-sm text-app-text">Add New Driver</h4>
+                        <p class="text-xs text-app-text-muted">Register a new rider</p>
+                    </div>
+                </a>
+                <a href="{% url 'accountant_deduction_add' %}" class="flex items-center gap-4 p-4 rounded-xl border border-app-border hover:bg-app-bg hover:border-orange-500/30 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-orange-500/10 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform">🧾</div>
+                    <div>
+                        <h4 class="font-bold text-sm text-app-text">Add Deduction</h4>
+                        <p class="text-xs text-app-text-muted">Record a new deduction</p>
+                    </div>
+                </a>
+                <a href="{% url 'accountant_monthly_details' %}" class="flex items-center gap-4 p-4 rounded-xl border border-app-border hover:bg-app-bg hover:border-blue-500/30 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform">📊</div>
+                    <div>
+                        <h4 class="font-bold text-sm text-app-text">Upload Monthly Report</h4>
+                        <p class="text-xs text-app-text-muted">Add P&L statement</p>
+                    </div>
+                </a>
+                <a href="{% url 'accountant_talabat' %}" class="flex items-center gap-4 p-4 rounded-xl border border-app-border hover:bg-app-bg hover:border-emerald-500/30 transition-all group">
+                    <div class="w-10 h-10 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform">🍔</div>
+                    <div>
+                        <h4 class="font-bold text-sm text-app-text">Talabat Data Entry</h4>
+                        <p class="text-xs text-app-text-muted">Manage Talabat salaries</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Monthly Reports -->
+        <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6 flex flex-col h-full">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-app-text">Recent Monthly Reports</h3>
+                <a href="{% url 'accountant_monthly_details' %}" class="text-xs font-bold text-brand hover:text-brand-hover">View All</a>
+            </div>
+            <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+                {% for report in recent_reports %}
+                <div class="flex items-center justify-between p-4 rounded-xl border border-app-border/50 hover:bg-app-bg transition-colors">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                        <div>
+                            <p class="text-sm font-bold text-app-text">{{ report.company_name }} - {{ report.contract_name }}</p>
+                            <p class="text-xs text-app-text-muted">{{ report.month|date:"M Y" }}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold {% if report.profit_loss >= 0 %}text-emerald-500{% else %}text-red-500{% endif %}">
+                            {{ report.profit_loss }} KD
+                        </p>
+                        {% if report.report_pdf %}
+                        <a href="{{ report.report_pdf.url }}" target="_blank" class="text-[10px] font-bold text-blue-500 hover:underline">Download</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-8 text-app-text-muted">
+                    <p class="text-sm">No monthly reports found.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

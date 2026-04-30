@@ -20,6 +20,7 @@ urlpatterns = [
     path('manager-portal/', include('portal_manager.urls')),
     path('employee-portal/', include('portal_employee.urls')),
     path('driver-portal/', include('portal_driver.urls')),
+    path('accountant-portal/', include('portal_accountant.urls')),
 
     # Shared
     path('shared/', include('shared.urls')),

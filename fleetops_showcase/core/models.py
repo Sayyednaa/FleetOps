@@ -431,5 +431,102 @@ class CompanyFile(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+
+# ─── Accountant Portal Models ───────────────────────────────────────────────
+
+class TalabatSalaryDetail(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    driver = models.ForeignKey(Driver, on_delete=models.CASCADE, related_name='talabat_salaries')
+    month = models.DateField()
+    
+    # Batch 1 to 7
+    batch_1_orders = models.IntegerField(default=0)
+    batch_1_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_2_orders = models.IntegerField(default=0)
+    batch_2_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_3_orders = models.IntegerField(default=0)
+    batch_3_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_4_orders = models.IntegerField(default=0)
+    batch_4_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_5_orders = models.IntegerField(default=0)
+    batch_5_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_6_orders = models.IntegerField(default=0)
+    batch_6_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    batch_7_orders = models.IntegerField(default=0)
+    batch_7_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    
+    deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-month', 'driver__first_name']
+        unique_together = ('driver', 'month')
+
+    @property
+    def total_orders(self):
+        return (
+            self.batch_1_orders + self.batch_2_orders + self.batch_3_orders +
+            self.batch_4_orders + self.batch_5_orders + self.batch_6_orders + self.batch_7_orders
+        )
+
+    @property
+    def total_amount(self):
+        return (
+            self.batch_1_amount + self.batch_2_amount + self.batch_3_amount +
+            self.batch_4_amount + self.batch_5_amount + self.batch_6_amount + self.batch_7_amount
+        )
+
+    @property
+    def net_salary(self):
+        return self.total_amount - self.deduction
+
     def __str__(self):
-        return self.title
+        return f"Talabat Salary: {self.driver} - {self.month.strftime('%B %Y')}"
+
+
+class ContractSalaryDetail(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    contract_type = models.CharField(max_length=20, choices=CONTRACT_CHOICES)
+    name = models.CharField(max_length=200)
+    total_salary = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    absent = models.IntegerField(default=0)
+    deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    remark = models.TextField(blank=True)
+    month = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-month', 'name']
+
+    @property
+    def net_salary(self):
+        return self.total_salary - self.deduction
+
+    def __str__(self):
+        return f"{self.get_contract_type_display()} Salary: {self.name} - {self.month.strftime('%B %Y')}"
+
+
+class MonthlyProfitLoss(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    company_name = models.CharField(max_length=200)
+    contract_name = models.CharField(max_length=200)
+    expense = models.DecimalField(max_digits=15, decimal_places=3, default=0)
+    profit_loss = models.DecimalField(max_digits=15, decimal_places=3, default=0)
+    month = models.DateField()
+    report_pdf = models.FileField(upload_to='monthly_reports/', null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-month', 'company_name']
+
+    def __str__(self):
+        return f"P&L: {self.company_name} - {self.contract_name} ({self.month.strftime('%B %Y')})"
