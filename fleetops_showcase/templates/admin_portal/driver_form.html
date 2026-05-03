@@ -68,9 +68,12 @@
                             <label class="block text-xs font-bold text-app-text uppercase">Profile Avatar (Selfie)*</label>
                             {{ form.photo_selfie }}
                             {% if editing and driver.photo_selfie %}
-                            <div class="mt-2 flex items-center gap-3 p-2 bg-black/5 dark:bg-white/5 rounded-xl border border-app-border">
-                                <img src="{{ driver.photo_selfie.url }}" class="w-10 h-10 rounded-lg object-cover">
-                                <span class="text-[10px] text-app-text-muted">Current Avatar</span>
+                            <div class="mt-2 flex items-center justify-between p-2 bg-black/5 dark:bg-white/5 rounded-xl border border-app-border">
+                                <div class="flex items-center gap-3">
+                                    <img src="{{ driver.photo_selfie.url }}" class="w-10 h-10 rounded-lg object-cover">
+                                    <span class="text-[10px] text-app-text-muted">Current Avatar</span>
+                                </div>
+                                <a href="{{ driver.photo_selfie.url }}" target="_blank" class="px-2 py-1 bg-brand/10 text-brand rounded-lg text-[9px] font-bold hover:bg-brand hover:text-white transition-all">View Full</a>
                             </div>
                             {% endif %}
                         </div>
@@ -197,21 +200,22 @@
                     init() {
                         // Check for existing files if editing
                         {% if editing %}
-                            {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: 'Civil ID', filename: 'Current File'});{% endif %}
-                            {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: 'Passport', filename: 'Current File'});{% endif %}
-                            {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: 'Work Permit', filename: 'Current File'});{% endif %}
-                            {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: 'Driving License', filename: 'Current File'});{% endif %}
-                            {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: 'Health Card', filename: 'Current File'});{% endif %}
-                            {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: 'Vehicle RC', filename: 'Current File'});{% endif %}
-                            {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: 'PCC (Criminal)', filename: 'Current File'});{% endif %}
-                            {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: 'Other Docs', filename: 'Current File'});{% endif %}
+                            {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: 'Civil ID', filename: 'Current File', url: '{{ driver.civil_id_file.url }}'});{% endif %}
+                            {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: 'Passport', filename: 'Current File', url: '{{ driver.passport_file.url }}'});{% endif %}
+                            {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: 'Work Permit', filename: 'Current File', url: '{{ driver.work_permit_file.url }}'});{% endif %}
+                            {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: 'Driving License', filename: 'Current File', url: '{{ driver.driving_license_file.url }}'});{% endif %}
+                            {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: 'Health Card', filename: 'Current File', url: '{{ driver.health_card_file.url }}'});{% endif %}
+                            {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: 'Vehicle RC', filename: 'Current File', url: '{{ driver.vehicle_rc_file.url }}'});{% endif %}
+                            {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: 'PCC (Criminal)', filename: 'Current File', url: '{{ driver.criminal_pcc_file.url }}'});{% endif %}
+                            {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: 'Other Docs', filename: 'Current File', url: '{{ driver.other_docs_file.url }}'});{% endif %}
                         {% endif %}
                     },
                     onFileChange(id, label, e) {
                         const file = e.target.files[0];
                         if (file) {
                             this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
-                            this.stagedFiles.push({id: id, label: label, filename: file.name});
+                            const url = URL.createObjectURL(file);
+                            this.stagedFiles.push({id: id, label: label, filename: file.name, url: url});
                             this.activeDoc = '';
                         }
                     },
@@ -278,9 +282,16 @@
                                                 <p class="text-[10px] text-app-text-muted truncate max-w-[150px]" x-text="file.filename"></p>
                                             </div>
                                         </div>
-                                        <button type="button" @click="removeFile(file.id)" class="p-2 text-app-text-muted hover:text-red-500 transition-colors">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                        </button>
+                                        <div class="flex items-center gap-2">
+                                            <template x-if="file.url">
+                                                <a :href="file.url" target="_blank" class="p-2 text-brand hover:text-brand-hover transition-colors" title="View Document">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                                </a>
+                                            </template>
+                                            <button type="button" @click="removeFile(file.id)" class="p-2 text-app-text-muted hover:text-red-500 transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                            </button>
+                                        </div>
                                     </div>
                                 </template>
                             </div>

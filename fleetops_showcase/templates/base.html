@@ -363,6 +363,8 @@
                 <div class="flex items-center gap-3 mb-3">
                     {% if request.user.avatar %}
                     <img src="{{ request.user.avatar.url }}" class="w-10 h-10 rounded-full object-cover shadow-lg border border-app-border" alt="{{ request.user.get_full_name }}">
+                    {% elif request.user.driver_profile and request.user.driver_profile.photo_selfie %}
+                    <img src="{{ request.user.driver_profile.photo_selfie.url }}" class="w-10 h-10 rounded-full object-cover shadow-lg border border-app-border" alt="{{ request.user.get_full_name }}">
                     {% else %}
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-brand/20">
                         {{ request.user.first_name.0 }}{{ request.user.last_name.0 }}
@@ -428,6 +430,8 @@
                         <div class="hidden sm:flex items-center gap-2 ml-2 pl-2 border-l border-app-border relative cursor-pointer" x-data="{ userDropdown: false }" @mouseenter="userDropdown = true" @mouseleave="userDropdown = false">
                             {% if request.user.avatar %}
                             <img src="{{ request.user.avatar.url }}" class="w-8 h-8 rounded-full object-cover border border-app-border" alt="{{ request.user.get_full_name }}">
+                            {% elif request.user.driver_profile and request.user.driver_profile.photo_selfie %}
+                            <img src="{{ request.user.driver_profile.photo_selfie.url }}" class="w-8 h-8 rounded-full object-cover border border-app-border" alt="{{ request.user.get_full_name }}">
                             {% else %}
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-brand/20">
                                 {{ request.user.first_name.0 }}{{ request.user.last_name.0 }}

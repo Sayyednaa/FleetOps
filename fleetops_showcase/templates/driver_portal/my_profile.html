@@ -10,8 +10,12 @@
     <!-- Header -->
     <div class="bg-gradient-to-r from-orange-500/10 to-transparent border border-orange-500/20 rounded-2xl p-6 flex items-center justify-between">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-                {{ driver.full_name.0 }}
+            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-white text-2xl font-bold shadow-lg overflow-hidden border-2 border-white/20">
+                {% if driver.photo_selfie %}
+                    <img src="{{ driver.photo_selfie.url }}" class="w-full h-full object-cover">
+                {% else %}
+                    {{ driver.full_name.0 }}
+                {% endif %}
             </div>
             <div>
                 <h2 class="text-2xl font-bold text-white">{{ driver.full_name }}</h2>
