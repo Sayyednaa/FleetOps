@@ -9,6 +9,9 @@ urlpatterns = [
     path('other-contract/', views.AccountantOtherContractView.as_view(), name='accountant_other_contract'),
     path('monthly-details/', views.AccountantMonthlyDetailsView.as_view(), name='accountant_monthly_details'),
     
+    path('salary-slips/', views.AccountantSalarySlipListView.as_view(), name='accountant_salary_slip_list'),
+    path('salary-slips/<uuid:pk>/', views.AccountantSalarySlipView.as_view(), name='accountant_salary_slip'),
+    
     # Forms
     path('driver-add/', views.AccountantDriverAddView.as_view(), name='accountant_driver_add'),
     path('deduction-add/', views.AccountantDeductionAddView.as_view(), name='accountant_deduction_add'),

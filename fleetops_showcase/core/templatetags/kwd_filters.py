@@ -61,3 +61,10 @@ def amount_in_words(value):
         return " ".join(words) + " Only"
     except (TypeError, ValueError):
         return ""
+@register.filter
+def subtract(value, arg):
+    """Subtract arg from value."""
+    try:
+        return Decimal(str(value)) - Decimal(str(arg))
+    except (InvalidOperation, TypeError, ValueError):
+        return value

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load kwd_filters %}
+
+{% block title %}Salary Slips — Accountant Portal{% endblock %}
+{% block page_title %}Driver Salary Slips{% endblock %}
+{% block breadcrumb %}Accountant → Salary Slips{% endblock %}
+
+{% block content %}
+<div class="space-y-6 animate-in fade-in zoom-in-95 duration-300">
+    <!-- Search Bar -->
+    <div class="bg-app-card border border-app-border rounded-2xl p-4 shadow-sm">
+        <form method="get" class="flex flex-col sm:flex-row gap-4 items-center">
+            <div class="relative flex-1 w-full">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                </span>
+                <input type="text" name="q" value="{{ request.GET.q|default:'' }}" 
+                       placeholder="Search by Name, Work ID or Phone..." 
+                       class="block w-full pl-10 pr-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-app-text focus:ring-2 focus:ring-brand/20 focus:border-brand transition-all outline-none text-sm">
+            </div>
+            <button type="submit" class="w-full sm:w-auto px-6 py-2.5 bg-brand text-white font-bold rounded-xl shadow-lg shadow-brand/20 hover:bg-brand/90 transition-all active:scale-95">
+                Search
+            </button>
+            {% if request.GET.q %}
+            <a href="{% url 'accountant_salary_slip_list' %}" class="text-xs font-bold text-red-500 hover:underline uppercase tracking-widest">Clear Search</a>
+            {% endif %}
+        </form>
+    </div>
+
+    <!-- Drivers Table -->
+    <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm text-left">
+                <thead class="text-xs uppercase bg-gray-50 dark:bg-white/5 text-gray-500 border-b border-app-border">
+                    <tr>
+                        <th class="px-6 py-4 font-bold">Rider Name</th>
+                        <th class="px-6 py-4 font-bold">Work ID</th>
+                        <th class="px-6 py-4 font-bold">Phone</th>
+                        <th class="px-6 py-4 font-bold">Contract</th>
+                        <th class="px-6 py-4 text-center font-bold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-app-border">
+                    {% for driver in drivers %}
+                    <tr class="transition-colors hover:bg-black/5 dark:hover:bg-white/5">
+                        <td class="px-6 py-4">
+                            <div class="font-bold text-app-text uppercase">{{ driver.full_name }}</div>
+                            <div class="text-[10px] text-app-text-muted">Joined {{ driver.created_at|date:"M Y" }}</div>
+                        </td>
+                        <td class="px-6 py-4 text-app-text-muted font-medium">{{ driver.working_id|default:"—" }}</td>
+                        <td class="px-6 py-4 text-app-text-muted">{{ driver.phone }}</td>
+                        <td class="px-6 py-4">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider
+                                {% if driver.contract_type == 'talabat' %}bg-orange-500/10 text-orange-400
+                                {% elif driver.contract_type == 'pharmazone' %}bg-blue-500/10 text-blue-400
+                                {% else %}bg-gray-500/10 text-gray-400{% endif %}">
+                                {{ driver.get_contract_type_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center justify-center gap-3">
+                                <a href="{% url 'accountant_salary_slip' driver.pk %}?date={{ today|date:'Y-m-d' }}" 
+                                   target="_blank" title="Print Today's Slip"
+                                   class="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white border border-orange-500/30 rounded-lg text-xs font-bold transition-all">
+                                    <span>🖨️</span> Today
+                                </a>
+                                <div x-data="{ showRange: false }" class="relative">
+                                    <button @click="showRange = !showRange" 
+                                            class="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all">
+                                        <span>📅</span> Range
+                                    </button>
+                                    
+                                    <!-- Range Dropdown -->
+                                    <div x-show="showRange" @click.away="showRange = false" 
+                                         class="absolute right-0 mt-2 w-64 bg-app-card border border-app-border rounded-xl shadow-xl p-4 z-50">
+                                        <form method="get" action="{% url 'accountant_salary_slip' driver.pk %}" target="_blank">
+                                            <div class="space-y-3">
+                                                <div>
+                                                    <label class="text-[10px] font-bold text-gray-500 uppercase">Start Date</label>
+                                                    <input type="date" name="start_date" required class="w-full mt-1 bg-app-bg border border-app-border rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <div>
+                                                    <label class="text-[10px] font-bold text-gray-500 uppercase">End Date</label>
+                                                    <input type="date" name="end_date" required class="w-full mt-1 bg-app-bg border border-app-border rounded-lg px-3 py-1.5 text-xs">
+                                                </div>
+                                                <button type="submit" class="w-full py-2 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-600/20">
+                                                    Print Report
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-20 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <span class="text-4xl">👥</span>
+                                <p class="text-app-text-muted font-medium">No riders found matching your search.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

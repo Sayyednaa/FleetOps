@@ -307,3 +307,21 @@ def accountant_upload_excel(request, model_type):
                 
     # redirect back to previous page
     return redirect(request.META.get('HTTP_REFERER', 'accountant_dashboard'))
+
+
+class AccountantSalarySlipListView(AccountantMixin, ListView):
+    model = Driver
+    template_name = 'accountant_portal/salary_slips.html'
+    context_object_name = 'drivers'
+
+    def get_queryset(self):
+        qs = Driver.objects.filter(is_active=True)
+        q = self.request.GET.get('q', '')
+        if q:
+            qs = qs.filter(full_name__icontains=q) | qs.filter(working_id__icontains=q) | qs.filter(phone__icontains=q)
+        return qs.order_by('full_name')
+
+
+from portal_admin.views import DriverSalarySlipView
+class AccountantSalarySlipView(DriverSalarySlipView):
+    pass

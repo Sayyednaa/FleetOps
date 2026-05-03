@@ -339,6 +339,9 @@
                 <a href="{% url 'accountant_monthly_details' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'monthly-details' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📊</span> Monthly Details
                 </a>
+                <a href="{% url 'accountant_salary_slip_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'salary-slips' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
+                    <span>💳</span> Salary Slips
+                </a>
                 {% endif %}
 
                 <!-- COMMUNICATIONS -->

@@ -2,6 +2,7 @@
 import json
 from datetime import date
 from decimal import Decimal
+from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Sum, Q
@@ -119,42 +120,65 @@ class ManagerSalarySlipView(AdminManagerRequiredMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         
-        # Get month/year from query params or default to current
-        year_str = request.GET.get('year')
-        month_str = request.GET.get('month')
-        
-        if year_str and month_str:
-            try:
-                target_year = int(year_str)
-                target_month = int(month_str)
-                target_date = date(target_year, target_month, 1)
-            except (ValueError, TypeError):
-                target_date = date.today()
-        else:
-            target_date = date.today()
+        # Check for range params first
+        start_date_str = request.GET.get('start_date')
+        end_date_str = request.GET.get('end_date')
+        date_str = request.GET.get('date')
 
-        invoices = DriverInvoice.objects.filter(
-            driver=driver,
-            specified_date__year=target_date.year,
-            specified_date__month=target_date.month,
-        )
-        totals = invoices.aggregate(cash=Sum('cash'), main=Sum('main_orders'), additional=Sum('additional_orders'), hours=Sum('hours'))
-        deductions = Deduction.objects.filter(
-            driver=driver,
-            deduction_date__year=target_date.year,
-            deduction_date__month=target_date.month,
-        )
+        if start_date_str and end_date_str:
+            try:
+                start_date = date.fromisoformat(start_date_str)
+                end_date = date.fromisoformat(end_date_str)
+                is_range = True
+            except (ValueError, TypeError):
+                start_date = end_date = date.today()
+                is_range = False
+        elif date_str:
+            try:
+                start_date = end_date = date.fromisoformat(date_str)
+                is_range = False
+            except (ValueError, TypeError):
+                start_date = end_date = date.today()
+                is_range = False
+        else:
+            start_date = end_date = date.today()
+            is_range = False
+
+        if is_range:
+            invoices = DriverInvoice.objects.filter(driver=driver, specified_date__range=[start_date, end_date])
+            totals = invoices.aggregate(
+                cash=Sum('cash'),
+                main=Sum('main_orders'),
+                additional=Sum('additional_orders'),
+                hours=Sum('hours')
+            )
+            invoice = {
+                'cash': totals['cash'] or 0,
+                'main_orders': totals['main'] or 0,
+                'additional_orders': totals['additional'] or 0,
+                'hours': totals['hours'] or 0,
+                'is_range': True,
+                'start_date': start_date,
+                'end_date': end_date,
+            }
+            # Range Deductions
+            deductions = Deduction.objects.filter(driver=driver, deduction_date__range=[start_date, end_date])
+        else:
+            invoice = DriverInvoice.objects.filter(driver=driver, specified_date=start_date).first()
+            deductions = Deduction.objects.filter(driver=driver, deduction_date=start_date)
+
         total_deductions = deductions.aggregate(total=Sum('contractor_deduction_kd'))['total'] or Decimal('0.000')
-        cash = totals['cash'] or Decimal('0.000')
-        return render(request, 'pdf/salary_slip.html', {
-            'driver': driver, 'cash': cash,
-            'main_orders': totals['main'] or 0, 'additional_orders': totals['additional'] or 0,
-            'total_orders': (totals['main'] or 0) + (totals['additional'] or 0),
-            'hours': totals['hours'] or Decimal('0.00'),
-            'deductions': deductions, 'total_deductions': total_deductions,
-            'net_payable': cash - total_deductions,
-            'month_label': target_date.strftime('%B %Y'), 'generated_date': date.today(),
-            'target_date': target_date,
+
+        return render(request, 'pdf/daily_slip.html', {
+            'driver': driver,
+            'invoice': invoice,
+            'target_date': start_date,
+            'start_date': start_date,
+            'end_date': end_date,
+            'is_range': is_range,
+            'deductions': deductions,
+            'total_deductions': total_deductions,
+            'generated_date': timezone.now(),
         })
 
 

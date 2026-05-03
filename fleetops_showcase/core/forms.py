@@ -272,12 +272,16 @@ class DriverForm(forms.ModelForm):
 
 
 class DriverInvoiceForm(forms.ModelForm):
+    cash = forms.DecimalField(
+        required=False,
+        widget=forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': '0.000'})
+    )
+
     class Meta:
         model = DriverInvoice
         fields = ['driver', 'cash', 'main_orders', 'additional_orders', 'hours', 'specified_date']
         widgets = {
             'driver': forms.Select(attrs={'class': TW_SELECT}),
-            'cash': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': '0.000'}),
             'main_orders': forms.NumberInput(attrs={'class': TW_INPUT, 'placeholder': '0'}),
             'additional_orders': forms.NumberInput(attrs={'class': TW_INPUT, 'placeholder': '0'}),
             'hours': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.01', 'placeholder': '0.00'}),
