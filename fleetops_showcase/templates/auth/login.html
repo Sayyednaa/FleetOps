@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
     <title>Sign In — NAJMAT ALWESAM</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +19,7 @@
         .gradient-bg { background: linear-gradient(-45deg, #0a0a0f, #111118, #1a0f0a, #0a0a0f); background-size: 400% 400%; animation: gradient-shift 8s ease infinite; }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center p-4" x-data="{ showPass: false, showDemo: false }">
+<body class="gradient-bg min-h-screen flex items-center justify-center p-4" x-data="{ showPass: false, showDemo: false, lang: localStorage.getItem('i18nextLng') || (window.navigator.language.startsWith('ar') ? 'ar' : 'en') }">
 
     <!-- Decorative elements -->
     <div class="fixed top-20 left-20 w-72 h-72 bg-orange-500/5 rounded-full blur-3xl"></div>
@@ -27,11 +28,17 @@
     <div class="w-full max-w-md relative">
         <!-- Logo -->
         <div class="text-center mb-8 float-anim">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-orange-500 to-orange-700 shadow-2xl shadow-orange-500/20 mb-4">
-                <span class="text-4xl">🚛</span>
+            <div class="inline-flex items-center justify-center w-24 h-24 mb-4">
+                <img src="{% static 'img/logo.png' %}" class="w-full h-full object-contain" alt="Logo">
             </div>
-            <h1 class="text-3xl font-extrabold text-white tracking-tight">NAJMAT ALWESAM</h1>
-            <p class="text-gray-500 text-sm mt-1">Kuwait Delivery Operations</p>
+            <h1 class="text-3xl font-extrabold text-white tracking-tight">
+                <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
+                <span x-show="lang === 'ar'">نجمة الوسام</span>
+            </h1>
+            <p class="text-gray-500 text-sm mt-1">
+                <span x-show="lang === 'en'">Kuwait Delivery Operations</span>
+                <span x-show="lang === 'ar'">عمليات التوصيل في الكويت</span>
+            </p>
         </div>
 
         <!-- Login Card -->
@@ -116,7 +123,10 @@
         </div>
 
         <div class="text-center mt-6">
-            <p class="text-gray-600 text-xs mb-1">© 2026 NAJMAT ALWESAM — Kuwait Operations</p>
+            <p class="text-gray-600 text-xs mb-1">
+                <span x-show="lang === 'en'">© 2026 NAJMAT ALWESAM — Kuwait Operations</span>
+                <span x-show="lang === 'ar'">© 2026 نجمة الوسام — عمليات الكويت</span>
+            </p>
 
         </div>
     </div>

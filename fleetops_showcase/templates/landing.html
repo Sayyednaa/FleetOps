@@ -1,5 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}NAJMAT ALWESAM | NAJMAT ALWESAM — Modern Delivery Services in Kuwait{% endblock %}
+{% load static %}
+{% block title %}
+    <span x-show="lang === 'en'">NAJMAT ALWESAM | Modern Delivery Services in Kuwait</span>
+    <span x-show="lang === 'ar'">نجمة الوسام | خدمات توصيل حديثة في الكويت</span>
+{% endblock %}
 
 {% block extra_css %}
 <!-- SEO Meta Tags -->
@@ -43,10 +47,11 @@
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-6 lg:px-12">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg">
-                <span class="text-white text-xl">🚛</span>
-            </div>
-            <h1 class="font-bold text-white text-xl tracking-tight">NAJMAT ALWESAM</h1>
+            <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-contain" alt="Logo">
+            <h1 class="font-bold text-white text-xl tracking-tight">
+                <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
+                <span x-show="lang === 'ar'">نجمة الوسام</span>
+            </h1>
         </div>
         <div class="flex items-center gap-4 lg:gap-6">
             <button @click="localStorage.setItem('i18nextLng', lang === 'en' ? 'ar' : 'en'); window.location.reload();" 
@@ -72,7 +77,7 @@
                     <span>NAJMAT ALWESAM <span class="text-orange-500">Delivering Excellence</span> in Kuwait</span>
                 </template>
                 <template x-if="lang === 'ar'">
-                    <span>NAJMAT ALWESAM <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
+                    <span>نجمة الوسام <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
                 </template>
             </h1>
             <p class="text-xl text-gray-400 leading-relaxed max-w-xl">
@@ -95,7 +100,7 @@
         <!-- Hero Visual -->
         <div class="relative hidden lg:block">
             <div class="absolute -inset-4 bg-orange-500/20 blur-3xl rounded-full"></div>
-            <img src="https://timeskuwait.com/news/wp-content/uploads/2023/04/1436263.jpg" alt="Kuwait Operations" class="relative rounded-3xl shadow-2xl floating border border-white/10">
+            <img src="{% static 'img/hero-image.png' %}" alt="NAJMAT ALWESAM Operations" class="relative rounded-3xl shadow-2xl floating border border-white/10">
         </div>
     </div>
 
@@ -103,10 +108,10 @@
     <div class="py-16 bg-white/5 border-y border-white/5">
         <div class="max-w-7xl mx-auto px-6 text-center">
             <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mb-10" x-text="lang === 'en' ? 'Trusted by Industry Leaders' : 'موثوقون من قادة الصناعة'"></p>
-            <div class="flex flex-wrap justify-center items-center gap-12 lg:gap-20 opacity-50 grayscale hover:grayscale-0 transition-all">
-                <span class="text-2xl font-black text-white tracking-tighter">PHARMAZONE</span>
-                <span class="text-2xl font-black text-white tracking-tighter">BURGER KING</span>
-                <span class="text-2xl font-black text-white tracking-tighter">TALABAT</span>
+            <div class="flex flex-wrap justify-center items-center gap-12 lg:gap-20">
+                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-emerald-400 hover:drop-shadow-[0_0_15px_rgba(52,211,153,0.6)] hover:scale-110">PHARMAZONE</span>
+                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-orange-500 hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:scale-110">BURGER KING</span>
+                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-amber-400 hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] hover:scale-110">TALABAT</span>
             </div>
         </div>
     </div>
@@ -175,7 +180,10 @@
         <div class="grid md:grid-cols-2 gap-8 mt-12">
             <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
                 <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
-                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'NAJMAT ALWESAM completely transformed our food delivery speed. Highly recommended!' : 'NAJMAT ALWESAM غيرت تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!'"></p>
+                <p class="text-gray-300 italic mb-8 relative z-10">
+                    <span x-show="lang === 'en'">NAJMAT ALWESAM completely transformed our food delivery speed. Highly recommended!</span>
+                    <span x-show="lang === 'ar'">لقد غيرت نجمة الوسام تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!</span>
+                </p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center font-bold text-orange-400">AM</div>
                     <div>
@@ -202,7 +210,10 @@
     <div class="py-24 px-6 lg:px-12 max-w-7xl mx-auto text-center">
         <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-[3rem] p-12 lg:p-20 shadow-2xl shadow-orange-500/20">
             <h2 class="text-4xl lg:text-6xl font-black text-white mb-6" x-text="lang === 'en' ? 'Ready to Dispatch?' : 'جاهز للإرسال؟'"></h2>
-            <p class="text-white/80 text-xl mb-10 max-w-2xl mx-auto" x-text="lang === 'en' ? 'Join hundreds of businesses that trust NAJMAT ALWESAM.' : 'انضم إلى مئات الشركات التي تثق بNAJMAT ALWESAM.'"></p>
+            <p class="text-white/80 text-xl mb-10 max-w-2xl mx-auto">
+                <span x-show="lang === 'en'">Join hundreds of businesses that trust NAJMAT ALWESAM.</span>
+                <span x-show="lang === 'ar'">انضم إلى مئات الشركات التي تثق بـ نجمة الوسام.</span>
+            </p>
             <a href="{% url 'login' %}" class="inline-flex items-center gap-3 px-10 py-5 bg-white text-orange-600 font-black text-xl rounded-2xl hover:scale-105 transition-transform">
                 <span x-show="lang === 'en'">Get Started</span>
                 <span x-show="lang === 'ar'">ابدأ الآن</span>
@@ -216,11 +227,16 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-lg">🚛</div>
-                <span class="text-white font-bold tracking-tight">NAJMAT ALWESAM</span>
+                <span class="text-white font-bold tracking-tight">
+                    <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
+                    <span x-show="lang === 'ar'">نجمة الوسام</span>
+                </span>
             </div>
             <div class="flex flex-col items-center">
-                <p class="text-gray-500 text-sm">© 2026 NAJMAT ALWESAM Kuwait. All rights reserved.</p>
-
+                <p class="text-gray-500 text-sm">
+                    <span x-show="lang === 'en'">© 2026 NAJMAT ALWESAM Kuwait. All rights reserved.</span>
+                    <span x-show="lang === 'ar'">© 2026 نجمة الوسام الكويت. جميع الحقوق محفوظة.</span>
+                </p>
             </div>
             <div class="flex gap-6 text-gray-400 text-sm">
                 <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>

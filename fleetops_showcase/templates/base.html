@@ -1,11 +1,12 @@
 {% load static role_tags kwd_filters %}
 <!DOCTYPE html>
-<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') !== 'false', logoutModalOpen: false }" :class="{ 'dark': darkMode }">
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') !== 'false', logoutModalOpen: false, lang: document.documentElement.lang }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}NAJMAT ALWESAM{% endblock %}</title>
     <meta name="description" content="NAJMAT ALWESAM — Kuwait Delivery Operations Management">
+    <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -155,12 +156,16 @@
             <!-- Logo -->
             <div class="p-5 border-b border-app-border flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg shadow-orange-500/20">
-                        <span class="text-white text-xl">🚛</span>
-                    </div>
+                    <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-contain" alt="Logo">
                     <div>
-                        <h1 class="font-bold text-app-text text-lg tracking-tight">NAJMAT ALWESAM</h1>
-                        <p class="text-[10px] text-app-text-muted uppercase tracking-widest">Kuwait Operations</p>
+                        <h1 class="font-bold text-app-text text-lg tracking-tight">
+                            <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
+                            <span x-show="lang === 'ar'">نجمة الوسام</span>
+                        </h1>
+                        <p class="text-[10px] text-app-text-muted uppercase tracking-widest">
+                            <span x-show="lang === 'en'">Kuwait Operations</span>
+                            <span x-show="lang === 'ar'">عمليات الكويت</span>
+                        </p>
                     </div>
                 </div>
                 <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-white p-1 rounded">
@@ -171,7 +176,10 @@
             <!-- Navigation -->
             <nav class="flex-1 py-4 px-3 space-y-1">
                 <!-- DASHBOARD -->
-                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Dashboard</p>
+                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                </p>
 
                 {% if_role 'admin' as is_admin %}
                 {% if_role 'manager' as is_manager %}
@@ -182,44 +190,64 @@
 
                 {% if is_admin or is_superadmin %}
                 <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🏠</span> Dashboard
+                    <span>🏠</span> 
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
                 {% if is_manager and not is_admin and not is_superadmin %}
                 <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🏠</span> Dashboard
+                    <span>🏠</span> 
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
                 {% if is_employee and not is_admin and not is_manager and not is_superadmin %}
                 <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🏠</span> Dashboard
+                    <span>🏠</span> 
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
                 {% if is_driver %}
                 <a href="{% url 'driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'driver_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🏠</span> Dashboard
+                    <span>🏠</span> 
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
                 {% if is_accountant and not is_superadmin %}
                 <a href="{% url 'accountant_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'accountant_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🏠</span> Dashboard
+                    <span>🏠</span> 
+                    <span x-show="lang === 'en'">Dashboard</span>
+                    <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
 
                 <!-- TEAM MANAGEMENT (admin/manager) -->
                 {% if is_admin or is_manager or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Team Management</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span x-show="lang === 'en'">Team Management</span>
+                    <span x-show="lang === 'ar'">إدارة الفريق</span>
+                </p>
                 <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>👤</span> Manage Team
+                    <span>👤</span> 
+                    <span x-show="lang === 'en'">Manage Team</span>
+                    <span x-show="lang === 'ar'">إدارة الفريق</span>
                 </a>
                 {% endif %}
 
                 <!-- DRIVER MANAGEMENT -->
                 {% if not is_driver and not is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Driver Management</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                    <span x-show="lang === 'en'">Driver Management</span>
+                    <span x-show="lang === 'ar'">إدارة السائقين</span>
+                </p>
                 {% if is_admin or is_superadmin %}
                 <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>🚗</span> Manage Drivers
+                    <span>🚗</span> 
+                    <span x-show="lang === 'en'">Manage Drivers</span>
+                    <span x-show="lang === 'ar'">إدارة السائقين</span>
                 </a>
                 {% elif is_manager or is_employee %}
                 <a href="{% if is_manager %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
@@ -239,7 +267,9 @@
                 {% if not is_driver and not is_accountant or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Invoices</p>
                 <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>📄</span> Driver Invoices
+                    <span>📄</span> 
+                    <span x-show="lang === 'en'">Driver Invoices</span>
+                    <span x-show="lang === 'ar'">فواتير السائقين</span>
                 </a>
                 {% endif %}
                 {% if is_admin or is_manager or is_employee or is_superadmin %}
@@ -344,7 +374,8 @@
                 </a>
                 <button type="button" @click="logoutModalOpen = true" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 text-sm font-medium transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
+                    <span x-show="lang === 'en'">Logout</span>
+                    <span x-show="lang === 'ar'">تسجيل الخروج</span>
                 </button>
             </div>
         </aside>

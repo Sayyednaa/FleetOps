@@ -1,6 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}404 — Package Lost | NAJMAT ALWESAM{% endblock %}
-{% block page_title %}Page Not Found{% endblock %}
+{% block title %}
+    <span x-show="lang === 'en'">404 — Package Lost | NAJMAT ALWESAM</span>
+    <span x-show="lang === 'ar'">404 — طرد مفقود | نجمة الوسام</span>
+{% endblock %}
+{% block page_title %}
+    <span x-show="lang === 'en'">Page Not Found</span>
+    <span x-show="lang === 'ar'">الصفحة غير موجودة</span>
+{% endblock %}
 
 {% block extra_css %}
 <style>
@@ -44,8 +50,14 @@
     </div>
 
     <div class="max-w-lg mb-12">
-        <h1 class="text-3xl font-extrabold text-white mb-4">Looks like this package got lost in transit.</h1>
-        <p class="text-app-text-muted text-lg">The page you're looking for was either delivered to a wrong address or never existed in our manifest.</p>
+        <h1 class="text-3xl font-extrabold text-white mb-4">
+            <span x-show="lang === 'en'">Looks like this package got lost in transit.</span>
+            <span x-show="lang === 'ar'">يبدو أن هذا الطرد قد ضاع أثناء النقل.</span>
+        </h1>
+        <p class="text-app-text-muted text-lg">
+            <span x-show="lang === 'en'">The page you're looking for was either delivered to a wrong address or never existed in our manifest.</span>
+            <span x-show="lang === 'ar'">الصفحة التي تبحث عنها إما سُلّمت لعنوان خاطئ أو لم تكن موجودة في سجلاتنا أبداً.</span>
+        </p>
     </div>
 
     <div class="relative w-full max-w-md mb-12 group">
@@ -56,10 +68,12 @@
     <div class="flex flex-wrap gap-4 justify-center relative z-20">
         <a href="/" class="px-8 py-4 rounded-2xl bg-orange-500 hover:bg-orange-600 text-white font-bold transition-all shadow-xl shadow-orange-500/20 flex items-center gap-3 active:scale-95">
             <span>🏠</span>
-            Back to Dashboard
+            <span x-show="lang === 'en'">Back to Dashboard</span>
+            <span x-show="lang === 'ar'">العودة للوحة التحكم</span>
         </a>
         <button onclick="window.history.back()" class="px-8 py-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold transition-all active:scale-95">
-            Go Back
+            <span x-show="lang === 'en'">Go Back</span>
+            <span x-show="lang === 'ar'">رجوع</span>
         </button>
     </div>
 </div>
