@@ -48,19 +48,19 @@
                     <div><label class="block text-xs font-medium text-app-text-muted mb-1">Company KD</label>{{ form.company_deduction_kd }}</div>
                 </div>
                 <!-- Installment Plan (Premium Switch) -->
-                <div class="p-4 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {{ form.is_installment_plan.value|lower|default:'false' }} }">
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xs font-bold text-app-text uppercase tracking-wider">Enable Installment Plan</span>
+                <div class="p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {% if form.is_installment_plan.value %}true{% else %}false{% endif %} }">
+                    <div class="flex items-center gap-3 mb-4">
                         <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_installment_plan" class="sr-only peer" x-model="isInstallment">
-                            <div class="w-10 h-5 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+                            <input type="checkbox" name="{{ form.is_installment_plan.name }}" class="sr-only peer" x-model="isInstallment" {% if form.is_installment_plan.value %}checked{% endif %}>
+                            <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
                         </label>
+                        <span class="text-sm font-bold text-app-text">Enable Installment Plan</span>
                     </div>
                     
-                    <div x-show="isInstallment" x-transition class="mt-4 pt-3 border-t border-brand/10">
-                        <label class="block text-[10px] font-bold text-app-text-muted uppercase tracking-wider mb-2">Total Installments (Months)</label>
+                    <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
+                        <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">{{ form.total_installments.label }}</label>
                         {{ form.total_installments }}
-                        <p class="text-[9px] text-app-text-muted mt-2 italic">Deduction will be split equally across months.</p>
+                        <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be split equally across months.</p>
                     </div>
                 </div>
 

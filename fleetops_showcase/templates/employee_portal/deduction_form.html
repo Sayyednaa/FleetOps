@@ -1,101 +1,10 @@
-{% extends 'base.html' %}
+{% extends 'shared/generic_form.html' %}
+
 {% block title %}Add Deduction — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}Submit Deduction{% endblock %}
 {% block breadcrumb %}Employee → Deduction{% endblock %}
 
-{% block content %}
-<div class="max-w-3xl mx-auto">
-    <div class="bg-app-card border border-app-border rounded-2xl p-6 lg:p-10 shadow-sm transition-all">
-        <div class="flex items-center justify-between mb-8 pb-4 border-b border-app-border/50">
-            <div>
-                <h3 class="text-xl font-bold text-app-text">Submit Deduction</h3>
-                <p class="text-sm text-app-text-muted mt-1">Process a driver or staff deduction record</p>
-            </div>
-            <span class="text-3xl">📝</span>
-        </div>
+{% block form_icon %}🧾{% endblock %}
 
-        {% if form.errors %}
-        <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-sm animate-pulse">
-            <p class="font-bold mb-1">Please correct the following errors:</p>
-            {{ form.errors }}
-        </div>
-        {% endif %}
-
-        <form method="post" enctype="multipart/form-data" class="space-y-6">
-            {% csrf_token %}
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Driver Selection -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Driver / Employee Selection *</label>
-                    <div class="relative">
-                        {{ form.driver }}
-                        {% if form.employee %}
-                        <div class="mt-2">
-                            <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Internal Staff (Optional)</label>
-                            {{ form.employee }}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Reason -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Reason for Deduction *</label>
-                    {{ form.reason }}
-                </div>
-
-                <!-- Date & Company -->
-                <div>
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Deduction Date *</label>
-                    {{ form.deduction_date }}
-                </div>
-                <div>
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Contracting Company *</label>
-                    {{ form.contracting_company }}
-                </div>
-
-                <!-- Amounts -->
-                <div class="p-4 bg-app-bg border border-app-border rounded-2xl">
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Contractor Deduction (KD)</label>
-                    {{ form.contractor_deduction_kd }}
-                    <p class="text-[10px] text-app-text-muted mt-1">Amount deducted by the delivery platform</p>
-                </div>
-                <div class="p-4 bg-app-bg border border-app-border rounded-2xl">
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Company Deduction (KD)</label>
-                    {{ form.company_deduction_kd }}
-                    <p class="text-[10px] text-app-text-muted mt-1">Amount to be deducted from salary</p>
-                </div>
-
-                <!-- Installment Plan -->
-                <div class="md:col-span-2 p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {{ form.is_installment_plan.value|lower|default:'false' }} }">
-                    <div class="flex items-center gap-3 mb-4">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" name="is_installment_plan" class="sr-only peer" x-model="isInstallment">
-                            <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
-                        </label>
-                        <span class="text-sm font-bold text-app-text">Enable Installment Plan</span>
-                    </div>
-                    
-                    <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
-                        <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Total Installments</label>
-                        {{ form.total_installments }}
-                        <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be automatically split across consecutive months.</p>
-                    </div>
-                </div>
-
-                <!-- Proof -->
-                <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">Supporting Proof (PDF)</label>
-                    {{ form.pdf_proof }}
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-8 border-t border-app-border/50">
-                <a href="{% url 'accountant_dashboard' %}" class="px-6 py-2.5 bg-app-card hover:bg-black/5 dark:hover:bg-white/5 text-app-text-muted border border-app-border rounded-xl text-sm font-bold transition-all">Cancel</a>
-                <button type="submit" class="px-8 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20">Submit Record</button>
-            </div>
-        </form>
-    </div>
-</div>
-{% endblock %}
+{% block form_title %}Submit Deduction{% endblock %}
+{% block form_subtitle %}Process a driver or staff deduction record{% endblock %}

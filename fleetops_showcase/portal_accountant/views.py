@@ -208,7 +208,11 @@ from django.contrib import messages
 class AccountantDriverAddView(AccountantMixin, View):
     def get(self, request):
         form = DriverForm()
-        return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False, 'portal': 'accountant'})
+        return render(request, 'admin_portal/driver_form.html', {
+            'form': form, 'editing': False, 'portal': 'accountant',
+            'title': 'Add New Driver', 'subtitle': 'Register a new driver in the system',
+            'breadcrumb': 'Accountant → Drivers → Add', 'icon': '🚗'
+        })
 
     def post(self, request):
         form = DriverForm(request.POST, request.FILES)
@@ -218,7 +222,11 @@ class AccountantDriverAddView(AccountantMixin, View):
             driver.save()
             messages.success(request, f'Driver {driver.full_name} added successfully.')
             return redirect('accountant_talabat') # Or wherever
-        return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False, 'portal': 'accountant'})
+        return render(request, 'admin_portal/driver_form.html', {
+            'form': form, 'editing': False, 'portal': 'accountant',
+            'title': 'Add New Driver', 'subtitle': 'Register a new driver in the system',
+            'breadcrumb': 'Accountant → Drivers → Add', 'icon': '🚗'
+        })
 
 class AccountantDeductionAddView(AccountantMixin, View):
     def get(self, request):
@@ -226,7 +234,11 @@ class AccountantDeductionAddView(AccountantMixin, View):
         form = DeductionForm()
         form.fields['driver'].queryset = Driver.objects.filter(is_active=True)
         form.fields['employee'].queryset = Profile.objects.exclude(role='driver')
-        return render(request, 'employee_portal/deduction_form.html', {'form': form, 'portal': 'accountant'})
+        return render(request, 'employee_portal/deduction_form.html', {
+            'form': form, 'portal': 'accountant',
+            'title': 'Submit Deduction', 'subtitle': 'Process a driver or staff deduction record',
+            'breadcrumb': 'Accountant → Deduction → Add', 'icon': '🧾'
+        })
 
     def post(self, request):
         from core.models import Driver, Profile
@@ -239,7 +251,11 @@ class AccountantDeductionAddView(AccountantMixin, View):
             deduction.save()
             messages.success(request, 'Deduction submitted successfully.')
             return redirect('accountant_talabat')
-        return render(request, 'employee_portal/deduction_form.html', {'form': form, 'portal': 'accountant'})
+        return render(request, 'employee_portal/deduction_form.html', {
+            'form': form, 'portal': 'accountant',
+            'title': 'Submit Deduction', 'subtitle': 'Process a driver or staff deduction record',
+            'breadcrumb': 'Accountant → Deduction → Add', 'icon': '🧾'
+        })
 
 from django.contrib.auth.decorators import login_required, user_passes_test
 from core.excel_utils import generate_excel_template, export_talabat_excel, export_contract_excel, import_from_excel

@@ -78,7 +78,11 @@ class EmployeeDriverListView(StaffRequiredMixin, View):
 class EmployeeDriverAddView(StaffRequiredMixin, View):
     def get(self, request):
         form = DriverForm()
-        return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False, 'portal': 'employee'})
+        return render(request, 'admin_portal/driver_form.html', {
+            'form': form, 'editing': False, 'portal': 'employee',
+            'title': 'Add New Driver', 'subtitle': 'Register a new driver in the system',
+            'breadcrumb': 'Employee → Drivers → Add', 'icon': '🚗'
+        })
 
     def post(self, request):
         form = DriverForm(request.POST, request.FILES)
@@ -88,14 +92,22 @@ class EmployeeDriverAddView(StaffRequiredMixin, View):
             driver.save()
             messages.success(request, f'Driver {driver.full_name} added successfully.')
             return redirect('employee_driver_list')
-        return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False, 'portal': 'employee'})
+        return render(request, 'admin_portal/driver_form.html', {
+            'form': form, 'editing': False, 'portal': 'employee',
+            'title': 'Add New Driver', 'subtitle': 'Register a new driver in the system',
+            'breadcrumb': 'Employee → Drivers → Add', 'icon': '🚗'
+        })
 
 
 class EmployeeDeductionAddView(StaffRequiredMixin, View):
     def get(self, request):
         form = EmployeeDeductionForm()
         form.fields['driver'].queryset = Driver.objects.filter(is_active=True)
-        return render(request, 'employee_portal/deduction_form.html', {'form': form})
+        return render(request, 'employee_portal/deduction_form.html', {
+            'form': form,
+            'title': 'Submit Deduction', 'subtitle': 'Process a driver deduction record',
+            'breadcrumb': 'Employee → Deduction → Add', 'icon': '🧾'
+        })
 
     def post(self, request):
         form = EmployeeDeductionForm(request.POST, request.FILES)
@@ -106,7 +118,11 @@ class EmployeeDeductionAddView(StaffRequiredMixin, View):
             deduction.save()
             messages.success(request, 'Deduction submitted successfully.')
             return redirect('employee_dashboard')
-        return render(request, 'employee_portal/deduction_form.html', {'form': form})
+        return render(request, 'employee_portal/deduction_form.html', {
+            'form': form,
+            'title': 'Submit Deduction', 'subtitle': 'Process a driver deduction record',
+            'breadcrumb': 'Employee → Deduction → Add', 'icon': '🧾'
+        })
 
 class EmployeeDeductionListView(StaffRequiredMixin, View):
     def get(self, request):

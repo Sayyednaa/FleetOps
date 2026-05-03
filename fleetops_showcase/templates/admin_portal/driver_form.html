@@ -1,316 +1,270 @@
-{% extends 'base.html' %}
+{% extends 'shared/generic_form.html' %}
+
 {% block title %}{% if editing %}Edit{% else %}Add{% endif %} Driver — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}{% if editing %}Edit Driver{% else %}Add New Driver{% endif %}{% endblock %}
 {% block breadcrumb %}NAJMAT ALWESAM / {% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% elif portal == 'accountant' %}Accountant{% else %}Admin{% endif %} / Drivers / {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
 
-{% block content %}
-<div class="max-w-5xl mx-auto">
-    {% if editing %}
-    <div class="flex justify-end mb-6">
-        {% if portal == 'admin' %}
-        <a href="{% url 'admin_salary_slip' driver.pk %}" target="_blank" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            Generate Salary Slip
-        </a>
-        {% elif portal == 'manager' %}
-        <a href="{% url 'manager_salary_slip' driver.pk %}" target="_blank" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold transition-all flex items-center gap-2 shadow-md hover:shadow-lg">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-            Generate Salary Slip
-        </a>
-        {% endif %}
+{% block form_icon %}🚗{% endblock %}
+{% block form_title %}{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}{% endblock %}
+{% block form_subtitle %}{% if editing %}Modify the existing record to match the master database sheet.{% else %}Create a new record following the "ALL DRIVERS DETAILS SHEET" format.{% endif %}{% endblock %}
+
+{% block form_content %}
+    <div class="mt-4 p-3 bg-brand/10 border border-brand/20 rounded-xl mb-10">
+        <p class="text-xs font-bold text-brand uppercase tracking-wider">⚠️ System Compliance</p>
+        <p class="text-[11px] text-app-text-muted mt-1">Fields and uploads marked with an asterisk (*) are mandatory for system registration.</p>
     </div>
-    {% endif %}
 
-    <div class="bg-app-card rounded-2xl shadow-sm border border-app-border overflow-hidden animate-fade-in">
-        <div class="p-6 lg:p-10">
-            <div class="mb-10">
-                <h2 class="text-2xl font-bold text-app-text">{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}</h2>
-                <p class="text-sm text-app-text-muted mt-2">{% if editing %}Modify the existing record to match the master database sheet.{% else %}Create a new record following the "ALL DRIVERS DETAILS SHEET" format.{% endif %}</p>
-                <div class="mt-4 p-3 bg-brand/10 border border-brand/20 rounded-xl">
-                    <p class="text-xs font-bold text-brand uppercase tracking-wider">⚠️ System Compliance</p>
-                    <p class="text-[11px] text-app-text-muted mt-1">Fields and uploads marked with an asterisk (*) are mandatory for system registration.</p>
-                </div>
+    <!-- Section 1: Basic Information -->
+    <div class="space-y-6">
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">1. Basic Identification</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Full Name*</label>
+                {{ form.full_name }}
             </div>
-
-            {% if form.errors %}
-            <div class="mb-8 p-4 bg-red-900/20 border border-red-800 rounded-xl text-red-400 text-sm">
-                <p class="font-bold mb-2 flex items-center gap-2">
-                    <span>❌</span> Please correct the errors below
-                </p>
-                <ul class="list-disc list-inside space-y-1">
-                    {% for field, errors in form.errors.items %}
-                    <li><span class="font-semibold">{{ field|title }}:</span> {{ errors|join:", " }}</li>
-                    {% endfor %}
-                </ul>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Phone Number*</label>
+                {{ form.phone }}
             </div>
-            {% endif %}
-
-            <form method="post" enctype="multipart/form-data" class="space-y-10">
-                {% csrf_token %}
-
-                <!-- Section 1: Basic Information -->
-                <div class="space-y-6">
-                    <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">1. Basic Identification</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Full Name*</label>
-                            {{ form.full_name }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Phone Number*</label>
-                            {{ form.phone }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Email Address</label>
-                            {{ form.email }}
-                        </div>
-                        <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
-                            <label class="block text-xs font-bold text-app-text uppercase">Profile Avatar (Selfie)*</label>
-                            {{ form.photo_selfie }}
-                            {% if editing and driver.photo_selfie %}
-                            <div class="mt-2 flex items-center justify-between p-2 bg-black/5 dark:bg-white/5 rounded-xl border border-app-border">
-                                <div class="flex items-center gap-3">
-                                    <img src="{{ driver.photo_selfie.url }}" class="w-10 h-10 rounded-lg object-cover">
-                                    <span class="text-[10px] text-app-text-muted">Current Avatar</span>
-                                </div>
-                                <a href="{{ driver.photo_selfie.url }}" target="_blank" class="px-2 py-1 bg-brand/10 text-brand rounded-lg text-[9px] font-bold hover:bg-brand hover:text-white transition-all">View Full</a>
-                            </div>
-                            {% endif %}
-                        </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Email Address</label>
+                {{ form.email }}
+            </div>
+            <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
+                <label class="block text-xs font-bold text-app-text uppercase">Profile Avatar (Selfie)*</label>
+                {{ form.photo_selfie }}
+                {% if editing and driver.photo_selfie %}
+                <div class="mt-2 flex items-center justify-between p-2 bg-black/5 dark:bg-white/5 rounded-xl border border-app-border">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ driver.photo_selfie.url }}" class="w-10 h-10 rounded-lg object-cover">
+                        <span class="text-[10px] text-app-text-muted">Current Avatar</span>
                     </div>
+                    <a href="{{ driver.photo_selfie.url }}" target="_blank" class="px-2 py-1 bg-brand/10 text-brand rounded-lg text-[9px] font-bold hover:bg-brand hover:text-white transition-all">View Full</a>
                 </div>
-
-                <!-- Section 2: Identity Details -->
-                <div class="space-y-6">
-                    <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">2. Identity & Expiry Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Civil ID Number*</label>
-                            {{ form.civil_id_number }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Civil ID Expiry*</label>
-                            {{ form.civil_id_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Passport Number*</label>
-                            {{ form.passport_number }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Passport Expiry*</label>
-                            {{ form.passport_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">WP Expiry*</label>
-                            {{ form.working_permit_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">License Expiry*</label>
-                            {{ form.driver_license_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">HC Expiry*</label>
-                            {{ form.health_insurance_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">PCC Expiry</label>
-                            {{ form.criminal_certificate_expiry }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 3: Vehicle Information -->
-                <div class="space-y-6">
-                    <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">3. Vehicle Information</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Car Registration No*</label>
-                            {{ form.vehicle_registration }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Car RC Expiry*</label>
-                            {{ form.vehicle_registration_expiry }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Plate Number*</label>
-                            {{ form.vehicle_plate_number }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Vehicle Name*</label>
-                            {{ form.vehicle_name }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Vehicle Type*</label>
-                            {{ form.vehicle_type }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Zone / Working Area</label>
-                            {{ form.zone }}
-                        </div>
-                        <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
-                            <label class="block text-xs font-bold text-app-text uppercase">Petrol Card Number</label>
-                            {{ form.petrol_card_number }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 4: Employment & Finance -->
-                <div class="space-y-6">
-                    <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">4. Profession & Finance</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Profession (Position)*</label>
-                            {{ form.position }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">WP Salary*</label>
-                            {{ form.basic_salary_wp }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Working ID*</label>
-                            {{ form.working_id }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">IBAN Number</label>
-                            {{ form.iban_number }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Bank Name</label>
-                            {{ form.bank_name }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">File Status</label>
-                            {{ form.file_status }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Company Name*</label>
-                            {{ form.company_name }}
-                        </div>
-                        <div class="space-y-1.5">
-                            <label class="block text-xs font-bold text-app-text uppercase">Work Contract (Type)*</label>
-                            {{ form.contract_type }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section 5: Document Upload Center -->
-                <div class="space-y-6" x-data="{ 
-                    activeDoc: '',
-                    stagedFiles: [],
-                    init() {
-                        // Check for existing files if editing
-                        {% if editing %}
-                            {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: 'Civil ID', filename: 'Current File', url: '{{ driver.civil_id_file.url }}'});{% endif %}
-                            {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: 'Passport', filename: 'Current File', url: '{{ driver.passport_file.url }}'});{% endif %}
-                            {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: 'Work Permit', filename: 'Current File', url: '{{ driver.work_permit_file.url }}'});{% endif %}
-                            {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: 'Driving License', filename: 'Current File', url: '{{ driver.driving_license_file.url }}'});{% endif %}
-                            {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: 'Health Card', filename: 'Current File', url: '{{ driver.health_card_file.url }}'});{% endif %}
-                            {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: 'Vehicle RC', filename: 'Current File', url: '{{ driver.vehicle_rc_file.url }}'});{% endif %}
-                            {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: 'PCC (Criminal)', filename: 'Current File', url: '{{ driver.criminal_pcc_file.url }}'});{% endif %}
-                            {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: 'Other Docs', filename: 'Current File', url: '{{ driver.other_docs_file.url }}'});{% endif %}
-                        {% endif %}
-                    },
-                    onFileChange(id, label, e) {
-                        const file = e.target.files[0];
-                        if (file) {
-                            this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
-                            const url = URL.createObjectURL(file);
-                            this.stagedFiles.push({id: id, label: label, filename: file.name, url: url});
-                            this.activeDoc = '';
-                        }
-                    },
-                    removeFile(id) {
-                        this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
-                        const input = document.getElementById('id_' + id);
-                        if (input) input.value = '';
-                    }
-                }">
-                    <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">5. Document Upload Center</h3>
-                    
-                    <div class="bg-black/5 dark:bg-white/5 border border-app-border rounded-2xl p-6">
-                        <div class="flex flex-col md:flex-row items-center gap-6 mb-8">
-                            <div class="flex-1 w-full space-y-2">
-                                <label class="block text-xs font-bold text-app-text uppercase">Select Document to Add</label>
-                                <select x-model="activeDoc" class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm focus:ring-2 focus:ring-brand/20 transition-all outline-none">
-                                    <option value="">-- Choose Document Type --</option>
-                                    <option value="civil_id_file" :disabled="stagedFiles.some(f => f.id === 'civil_id_file')">Civil ID File</option>
-                                    <option value="passport_file" :disabled="stagedFiles.some(f => f.id === 'passport_file')">Passport File</option>
-                                    <option value="work_permit_file" :disabled="stagedFiles.some(f => f.id === 'work_permit_file')">Work Permit File</option>
-                                    <option value="driving_license_file" :disabled="stagedFiles.some(f => f.id === 'driving_license_file')">Driving License File</option>
-                                    <option value="health_card_file" :disabled="stagedFiles.some(f => f.id === 'health_card_file')">Health Card File</option>
-                                    <option value="vehicle_rc_file" :disabled="stagedFiles.some(f => f.id === 'vehicle_rc_file')">Vehicle RC File</option>
-                                    <option value="criminal_pcc_file" :disabled="stagedFiles.some(f => f.id === 'criminal_pcc_file')">PCC (Criminal) File</option>
-                                    <option value="other_docs_file" :disabled="stagedFiles.some(f => f.id === 'other_docs_file')">Other Supporting Docs</option>
-                                </select>
-                            </div>
-                            <div class="flex-1 w-full space-y-2" x-show="activeDoc">
-                                <label class="block text-xs font-bold text-app-text uppercase" x-text="'Upload ' + activeDoc.replace('_file', '').replace('_', ' ').toUpperCase()"></label>
-                                <div class="relative group">
-                                    <!-- Hidden Inputs but functional -->
-                                    <div class="hidden">
-                                        <div id="file-container">
-                                            <input type="file" name="civil_id_file" id="id_civil_id_file" @change="onFileChange('civil_id_file', 'Civil ID', $event)">
-                                            <input type="file" name="passport_file" id="id_passport_file" @change="onFileChange('passport_file', 'Passport', $event)">
-                                            <input type="file" name="work_permit_file" id="id_work_permit_file" @change="onFileChange('work_permit_file', 'Work Permit', $event)">
-                                            <input type="file" name="driving_license_file" id="id_driving_license_file" @change="onFileChange('driving_license_file', 'Driving License', $event)">
-                                            <input type="file" name="health_card_file" id="id_health_card_file" @change="onFileChange('health_card_file', 'Health Card', $event)">
-                                            <input type="file" name="vehicle_rc_file" id="id_vehicle_rc_file" @change="onFileChange('vehicle_rc_file', 'Vehicle RC', $event)">
-                                            <input type="file" name="criminal_pcc_file" id="id_criminal_pcc_file" @change="onFileChange('criminal_pcc_file', 'PCC (Criminal)', $event)">
-                                            <input type="file" name="other_docs_file" id="id_other_docs_file" @change="onFileChange('other_docs_file', 'Other Docs', $event)">
-                                        </div>
-                                    </div>
-                                    <button type="button" @click="document.getElementById('id_' + activeDoc).click()" class="w-full py-3 px-4 bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                                        Browse File
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Staged List -->
-                        <div class="space-y-3">
-                            <h4 class="text-[10px] font-black text-app-text-muted uppercase tracking-widest px-1">Selected Documents for Upload</h4>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="stagedFiles.length > 0">
-                                <template x-for="file in stagedFiles" :key="file.id">
-                                    <div class="flex items-center justify-between p-3 bg-app-bg border border-app-border rounded-xl animate-scale-in">
-                                        <div class="flex items-center gap-3">
-                                            <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs font-bold text-app-text" x-text="file.label"></p>
-                                                <p class="text-[10px] text-app-text-muted truncate max-w-[150px]" x-text="file.filename"></p>
-                                            </div>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <template x-if="file.url">
-                                                <a :href="file.url" target="_blank" class="p-2 text-brand hover:text-brand-hover transition-colors" title="View Document">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                                </a>
-                                            </template>
-                                            <button type="button" @click="removeFile(file.id)" class="p-2 text-app-text-muted hover:text-red-500 transition-colors">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                            <div x-show="stagedFiles.length === 0" class="py-10 text-center border-2 border-dashed border-app-border rounded-2xl bg-black/5 dark:bg-white/5">
-                                <p class="text-xs text-app-text-muted">No documents selected. Use the dropdown above to start uploading.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <div class="flex items-center justify-end gap-4 pt-8 border-t border-app-border">
-                    <a href="javascript:history.back()" class="px-6 py-2.5 text-sm font-medium text-app-text-muted hover:text-app-text transition-colors">Cancel</a>
-                    <button type="submit" class="bg-brand hover:bg-brand-hover text-white font-bold py-3 px-12 rounded-xl transition-all shadow-lg shadow-brand/30 active:transform active:scale-95">
-                        {% if editing %}Update Record{% else %}Save New Entry{% endif %}
-                    </button>
-                </div>
-            </form>
+                {% endif %}
+            </div>
         </div>
     </div>
-</div>
+
+    <!-- Section 2: Identity Details -->
+    <div class="space-y-6 pt-10">
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">2. Identity & Expiry Details</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Civil ID Number*</label>
+                {{ form.civil_id_number }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Civil ID Expiry*</label>
+                {{ form.civil_id_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Passport Number*</label>
+                {{ form.passport_number }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Passport Expiry*</label>
+                {{ form.passport_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">WP Expiry*</label>
+                {{ form.working_permit_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">License Expiry*</label>
+                {{ form.driver_license_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">HC Expiry*</label>
+                {{ form.health_insurance_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">PCC Expiry</label>
+                {{ form.criminal_certificate_expiry }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Vehicle Information -->
+    <div class="space-y-6 pt-10">
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">3. Vehicle Information</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Car Registration No*</label>
+                {{ form.vehicle_registration }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Car RC Expiry*</label>
+                {{ form.vehicle_registration_expiry }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Plate Number*</label>
+                {{ form.vehicle_plate_number }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Vehicle Name*</label>
+                {{ form.vehicle_name }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Vehicle Type*</label>
+                {{ form.vehicle_type }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Zone / Working Area</label>
+                {{ form.zone }}
+            </div>
+            <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
+                <label class="block text-xs font-bold text-app-text uppercase">Petrol Card Number</label>
+                {{ form.petrol_card_number }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Employment & Finance -->
+    <div class="space-y-6 pt-10">
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">4. Profession & Finance</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Profession (Position)*</label>
+                {{ form.position }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">WP Salary*</label>
+                {{ form.basic_salary_wp }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Working ID*</label>
+                {{ form.working_id }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">IBAN Number</label>
+                {{ form.iban_number }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Bank Name</label>
+                {{ form.bank_name }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">File Status</label>
+                {{ form.file_status }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Company Name*</label>
+                {{ form.company_name }}
+            </div>
+            <div class="space-y-1.5">
+                <label class="block text-xs font-bold text-app-text uppercase">Work Contract (Type)*</label>
+                {{ form.contract_type }}
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 5: Document Upload Center -->
+    <div class="space-y-6 pt-10" x-data="{ 
+        activeDoc: '',
+        stagedFiles: [],
+        init() {
+            // Check for existing files if editing
+            {% if editing %}
+                {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: 'Civil ID', filename: 'Current File', url: '{{ driver.civil_id_file.url }}'});{% endif %}
+                {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: 'Passport', filename: 'Current File', url: '{{ driver.passport_file.url }}'});{% endif %}
+                {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: 'Work Permit', filename: 'Current File', url: '{{ driver.work_permit_file.url }}'});{% endif %}
+                {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: 'Driving License', filename: 'Current File', url: '{{ driver.driving_license_file.url }}'});{% endif %}
+                {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: 'Health Card', filename: 'Current File', url: '{{ driver.health_card_file.url }}'});{% endif %}
+                {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: 'Vehicle RC', filename: 'Current File', url: '{{ driver.vehicle_rc_file.url }}'});{% endif %}
+                {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: 'PCC (Criminal)', filename: 'Current File', url: '{{ driver.criminal_pcc_file.url }}'});{% endif %}
+                {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: 'Other Docs', filename: 'Current File', url: '{{ driver.other_docs_file.url }}'});{% endif %}
+            {% endif %}
+        },
+        onFileChange(id, label, e) {
+            const file = e.target.files[0];
+            if (file) {
+                this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
+                const url = URL.createObjectURL(file);
+                this.stagedFiles.push({id: id, label: label, filename: file.name, url: url});
+                this.activeDoc = '';
+            }
+        },
+        removeFile(id) {
+            this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
+            const input = document.getElementById('id_' + id);
+            if (input) input.value = '';
+        }
+    }">
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">5. Document Upload Center</h3>
+        
+        <div class="bg-black/5 dark:bg-white/5 border border-app-border rounded-2xl p-6">
+            <div class="flex flex-col md:flex-row items-center gap-6 mb-8">
+                <div class="flex-1 w-full space-y-2">
+                    <label class="block text-xs font-bold text-app-text uppercase">Select Document to Add</label>
+                    <select x-model="activeDoc" class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm focus:ring-2 focus:ring-brand/20 transition-all outline-none">
+                        <option value="">-- Choose Document Type --</option>
+                        <option value="civil_id_file" :disabled="stagedFiles.some(f => f.id === 'civil_id_file')">Civil ID File</option>
+                        <option value="passport_file" :disabled="stagedFiles.some(f => f.id === 'passport_file')">Passport File</option>
+                        <option value="work_permit_file" :disabled="stagedFiles.some(f => f.id === 'work_permit_file')">Work Permit File</option>
+                        <option value="driving_license_file" :disabled="stagedFiles.some(f => f.id === 'driving_license_file')">Driving License File</option>
+                        <option value="health_card_file" :disabled="stagedFiles.some(f => f.id === 'health_card_file')">Health Card File</option>
+                        <option value="vehicle_rc_file" :disabled="stagedFiles.some(f => f.id === 'vehicle_rc_file')">Vehicle RC File</option>
+                        <option value="criminal_pcc_file" :disabled="stagedFiles.some(f => f.id === 'criminal_pcc_file')">PCC (Criminal) File</option>
+                        <option value="other_docs_file" :disabled="stagedFiles.some(f => f.id === 'other_docs_file')">Other Supporting Docs</option>
+                    </select>
+                </div>
+                <div class="flex-1 w-full space-y-2" x-show="activeDoc">
+                    <label class="block text-xs font-bold text-app-text uppercase" x-text="'Upload ' + activeDoc.replace('_file', '').replace('_', ' ').toUpperCase()"></label>
+                    <div class="relative group">
+                        <!-- Hidden Inputs but functional -->
+                        <div class="hidden">
+                            <div id="file-container">
+                                <input type="file" name="civil_id_file" id="id_civil_id_file" @change="onFileChange('civil_id_file', 'Civil ID', $event)">
+                                <input type="file" name="passport_file" id="id_passport_file" @change="onFileChange('passport_file', 'Passport', $event)">
+                                <input type="file" name="work_permit_file" id="id_work_permit_file" @change="onFileChange('work_permit_file', 'Work Permit', $event)">
+                                <input type="file" name="driving_license_file" id="id_driving_license_file" @change="onFileChange('driving_license_file', 'Driving License', $event)">
+                                <input type="file" name="health_card_file" id="id_health_card_file" @change="onFileChange('health_card_file', 'Health Card', $event)">
+                                <input type="file" name="vehicle_rc_file" id="id_vehicle_rc_file" @change="onFileChange('vehicle_rc_file', 'Vehicle RC', $event)">
+                                <input type="file" name="criminal_pcc_file" id="id_criminal_pcc_file" @change="onFileChange('criminal_pcc_file', 'PCC (Criminal)', $event)">
+                                <input type="file" name="other_docs_file" id="id_other_docs_file" @change="onFileChange('other_docs_file', 'Other Docs', $event)">
+                            </div>
+                        </div>
+                        <button type="button" @click="document.getElementById('id_' + activeDoc).click()" class="w-full py-3 px-4 bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                            Browse File
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Staged List -->
+            <div class="space-y-3">
+                <h4 class="text-[10px] font-black text-app-text-muted uppercase tracking-widest px-1">Selected Documents for Upload</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="stagedFiles.length > 0">
+                    <template x-for="file in stagedFiles" :key="file.id">
+                        <div class="flex items-center justify-between p-3 bg-app-bg border border-app-border rounded-xl animate-scale-in">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-app-text" x-text="file.label"></p>
+                                    <p class="text-[10px] text-app-text-muted truncate max-w-[150px]" x-text="file.filename"></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <template x-if="file.url">
+                                    <a :href="file.url" target="_blank" class="p-2 text-brand hover:text-brand-hover transition-colors" title="View Document">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                    </a>
+                                </template>
+                                <button type="button" @click="removeFile(file.id)" class="p-2 text-app-text-muted hover:text-red-500 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div x-show="stagedFiles.length === 0" class="py-10 text-center border-2 border-dashed border-app-border rounded-2xl bg-black/5 dark:bg-white/5">
+                    <p class="text-xs text-app-text-muted">No documents selected. Use the dropdown above to start uploading.</p>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} — NAJMAT ALWESAM{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+{% block breadcrumb %}{{ breadcrumb }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-app-card border border-app-border rounded-2xl p-6 lg:p-10 shadow-sm transition-all animate-fade-in">
+        <div class="flex items-center justify-between mb-8 pb-4 border-b border-app-border/50">
+            <div>
+                <h3 class="text-xl font-bold text-app-text">{{ title }}</h3>
+                <p class="text-sm text-app-text-muted mt-1">{{ subtitle }}</p>
+            </div>
+            <span class="text-3xl">{% block form_icon %}{{ icon|default:"📝" }}{% endblock %}</span>
+        </div>
+
+        {% if form.errors %}
+        <div class="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-2xl text-red-500 text-sm">
+            <p class="font-bold mb-1 flex items-center gap-2">
+                <span>❌</span> Please correct the following errors:
+            </p>
+            <ul class="list-disc list-inside space-y-1">
+                {% for field, errors in form.errors.items %}
+                    <li><span class="font-semibold">{{ field|title }}:</span> {{ errors|join:", " }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {% for field in form.visible_fields %}
+                    {% if field.name == 'is_installment_plan' %}
+                        <div class="md:col-span-2 p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {% if field.value %}true{% else %}false{% endif %} }">
+                            <div class="flex items-center gap-3 mb-4">
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" name="{{ field.name }}" class="sr-only peer" x-model="isInstallment" {% if field.value %}checked{% endif %}>
+                                    <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                                </label>
+                                <span class="text-sm font-bold text-app-text">{{ field.label }}</span>
+                            </div>
+                            
+                            <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
+                                <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">{{ form.total_installments.label }}</label>
+                                {{ form.total_installments }}
+                                <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be automatically split across consecutive months.</p>
+                            </div>
+                        </div>
+                    {% elif field.name == 'total_installments' and form.is_installment_plan %}
+                        <!-- Handled inside is_installment_plan block -->
+                    {% else %}
+                        <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'reason' or field.name == 'full_name' or field.name == 'driver' %}md:col-span-2{% endif %}">
+                            <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">
+                                {{ field.label }} {% if field.field.required %}*{% endif %}
+                            </label>
+                            {{ field }}
+                            {% if field.help_text %}<p class="text-[10px] text-app-text-muted mt-1">{{ field.help_text }}</p>{% endif %}
+                            {% if field.errors %}<p class="text-xs text-red-500 mt-1">{{ field.errors.0 }}</p>{% endif %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            <div class="flex justify-end gap-3 pt-8 border-t border-app-border/50">
+                <a href="javascript:history.back()" class="px-6 py-2.5 bg-app-card hover:bg-black/5 dark:hover:bg-white/5 text-app-text-muted border border-app-border rounded-xl text-sm font-bold transition-all">Cancel</a>
+                <button type="submit" class="px-8 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20">
+                    {% if editing %}Update Record{% else %}Submit Details{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -268,8 +268,8 @@ class DeductionForm(forms.ModelForm):
         fields = [
             'driver', 'employee', 'reason', 'deduction_date',
             'contracting_company', 'contractor_deduction_kd',
-            'company_deduction_kd', 'pdf_proof',
-            'is_installment_plan', 'total_installments',
+            'company_deduction_kd', 'is_installment_plan', 
+            'total_installments', 'pdf_proof',
         ]
         widgets = {
             'driver': forms.Select(attrs={'class': TW_SELECT}),
@@ -307,7 +307,8 @@ class EmployeeDeductionForm(DeductionForm):
         fields = [
             'driver', 'reason', 'deduction_date',
             'contracting_company', 'contractor_deduction_kd',
-            'company_deduction_kd', 'pdf_proof',
+            'company_deduction_kd', 'is_installment_plan', 
+            'total_installments', 'pdf_proof',
         ]
 
     def clean(self):
