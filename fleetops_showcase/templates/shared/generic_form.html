@@ -28,41 +28,184 @@
         </div>
         {% endif %}
 
-        <form method="post" enctype="multipart/form-data" class="space-y-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-8" x-data="{ 
+            selectedFiles: {},
+            init() {
+                // Initialize with existing files from database if any
+                {% for field in form.visible_fields %}
+                    {% if field.field.widget.input_type == 'file' and field.value and field.value.name %}
+                        this.selectedFiles['{{ field.name }}'] = {
+                            name: '{{ field.value.name|cut:"driver_docs/"|cut:"civil_id/"|cut:"passport/"|cut:"work_permit/"|cut:"driving_license/"|cut:"health_card/"|cut:"criminal_pcc/"|cut:"vehicle_rc/"|cut:"photo/"|cut:"other/" }}',
+                            isExisting: true
+                        };
+                    {% endif %}
+                {% endfor %}
+            },
+            handleFileChange(fieldName, event) {
+                const file = event.target.files[0];
+                if (file) {
+                    this.selectedFiles[fieldName] = {
+                        name: file.name,
+                        isExisting: false
+                    };
+                }
+            }
+        }">
             {% csrf_token %}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Non-File Fields First -->
                 {% for field in form.visible_fields %}
-                    {% if field.name == 'is_installment_plan' %}
-                        <div class="md:col-span-2 p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {% if field.value %}true{% else %}false{% endif %} }">
-                            <div class="flex items-center gap-3 mb-4">
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" name="{{ field.name }}" class="sr-only peer" x-model="isInstallment" {% if field.value %}checked{% endif %}>
-                                    <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                    {% if field.field.widget.input_type != 'file' %}
+                        {% if field.name == 'is_installment_plan' %}
+                            <div class="md:col-span-2 p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {% if field.value %}true{% else %}false{% endif %} }">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <label class="relative inline-flex items-center cursor-pointer">
+                                        <input type="checkbox" name="{{ field.name }}" class="sr-only peer" x-model="isInstallment" {% if field.value %}checked{% endif %}>
+                                        <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
+                                    </label>
+                                    <span class="text-sm font-bold text-app-text">{{ field.label }}</span>
+                                </div>
+                                
+                                <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
+                                    <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">{{ form.total_installments.label }}</label>
+                                    {{ form.total_installments }}
+                                    <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be automatically split across consecutive months.</p>
+                                </div>
+                            </div>
+                        {% elif field.name == 'total_installments' and form.is_installment_plan %}
+                            <!-- Handled inside is_installment_plan block -->
+                        {% else %}
+                            <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'reason' or field.name == 'full_name' or field.name == 'driver' %}md:col-span-2{% endif %}">
+                                <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">
+                                    {{ field.label }} {% if field.field.required %}*{% endif %}
                                 </label>
-                                <span class="text-sm font-bold text-app-text">{{ field.label }}</span>
+                                {{ field }}
+                                {% if field.help_text %}<p class="text-[10px] text-app-text-muted mt-1">{{ field.help_text }}</p>{% endif %}
+                                {% if field.errors %}<p class="text-xs text-red-500 mt-1">{{ field.errors.0 }}</p>{% endif %}
                             </div>
-                            
-                            <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
-                                <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">{{ form.total_installments.label }}</label>
-                                {{ form.total_installments }}
-                                <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be automatically split across consecutive months.</p>
-                            </div>
-                        </div>
-                    {% elif field.name == 'total_installments' and form.is_installment_plan %}
-                        <!-- Handled inside is_installment_plan block -->
-                    {% else %}
-                        <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'reason' or field.name == 'full_name' or field.name == 'driver' %}md:col-span-2{% endif %}">
-                            <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">
-                                {{ field.label }} {% if field.field.required %}*{% endif %}
-                            </label>
-                            {{ field }}
-                            {% if field.help_text %}<p class="text-[10px] text-app-text-muted mt-1">{{ field.help_text }}</p>{% endif %}
-                            {% if field.errors %}<p class="text-xs text-red-500 mt-1">{{ field.errors.0 }}</p>{% endif %}
-                        </div>
+                        {% endif %}
                     {% endif %}
                 {% endfor %}
             </div>
+
+            <!-- Documents Section (File Fields) -->
+            {% if form.is_multipart %}
+                <div class="mt-10 pt-8 border-t border-app-border/50" x-data="{ 
+                    selectedDocFieldName: '',
+                    fileFields: [
+                        {% for field in form.visible_fields %}
+                            {% if field.field.widget.input_type == 'file' %}
+                                { name: '{{ field.name }}', label: '{{ field.label|escapejs }}', required: {{ field.field.required|yesno:'true,false' }} },
+                            {% endif %}
+                        {% endfor %}
+                    ]
+                }">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-xl">📂</div>
+                        <div>
+                            <h4 class="text-lg font-bold text-app-text">Document Center</h4>
+                            <p class="text-xs text-app-text-muted">Select a document type and attach the corresponding file.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Dropdown & Upload UI -->
+                    <div class="p-6 bg-app-bg/50 border border-app-border border-dashed rounded-2xl mb-8">
+                        <div class="flex flex-col md:flex-row items-end gap-4">
+                            <div class="flex-1 w-full">
+                                <label class="block text-[10px] font-black text-app-text-muted uppercase tracking-widest mb-2">Select Document Type</label>
+                                <select x-model="selectedDocFieldName" class="block w-full rounded-xl border border-app-border bg-app-card py-2.5 px-4 text-app-text sm:text-sm shadow-sm focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all">
+                                    <option value="">-- Select a document --</option>
+                                    <template x-for="field in fileFields" :key="field.name">
+                                        <option :value="field.name" x-text="field.label + (field.required ? ' *' : '') + (selectedFiles[field.name] ? ' (Attached)' : '')" :class="selectedFiles[field.name] ? 'text-emerald-500 font-bold' : ''"></option>
+                                    </template>
+                                </select>
+                            </div>
+                            
+                            <div class="w-full md:w-auto">
+                                <button type="button" 
+                                        @click="if(selectedDocFieldName) document.getElementById('id_' + selectedDocFieldName).click()"
+                                        :disabled="!selectedDocFieldName"
+                                        class="w-full md:w-auto px-8 py-2.5 bg-brand text-white rounded-xl text-sm font-bold shadow-lg shadow-brand/20 transition-all hover:bg-brand/90 disabled:opacity-50 disabled:grayscale disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                                    <span x-text="selectedFiles[selectedDocFieldName] ? '🔄 Replace File' : '📎 Attach File'"></span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <p class="text-[10px] text-app-text-muted mt-3 italic" x-show="!selectedDocFieldName">Please select a document type from the dropdown to enable uploading.</p>
+                        
+                        <!-- Warning only if it exists or was just picked -->
+                        <div x-show="selectedDocFieldName && selectedFiles[selectedDocFieldName]" class="mt-3 p-2 bg-amber-500/10 border border-amber-500/20 rounded-lg animate-fade-in" x-cloak>
+                            <p class="text-[10px] text-amber-600 dark:text-amber-400 font-bold flex items-center gap-2">
+                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+                                <span x-text="selectedFiles[selectedDocFieldName]?.isExisting ? 'This document is already on file. Uploading a new one will replace it.' : 'You have already selected a file for this. Choosing a new one will replace your selection.'"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Hidden Inputs -->
+                    <div class="hidden">
+                        {% for field in form.visible_fields %}
+                            {% if field.field.widget.input_type == 'file' %}
+                                <input type="file" name="{{ field.name }}" id="id_{{ field.name }}" 
+                                       @change="handleFileChange('{{ field.name }}', $event)">
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+
+                    <!-- Summary List -->
+                    <div class="space-y-3">
+                        <h5 class="text-[10px] font-black text-app-text-muted uppercase tracking-widest flex items-center gap-2">
+                            <span>📋</span> Attached Documents (<span x-text="Object.keys(selectedFiles).length"></span>)
+                        </h5>
+                        
+                        <div x-show="Object.keys(selectedFiles).length === 0" class="py-10 text-center border-2 border-dashed border-app-border rounded-2xl opacity-50">
+                            <p class="text-sm text-app-text-muted">No documents attached yet.</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <template x-for="(fileObj, fieldName) in selectedFiles" :key="fieldName">
+                                <div class="flex items-center justify-between p-4 bg-app-card border border-app-border rounded-2xl text-xs shadow-sm group animate-fade-in"
+                                     :class="fileObj.isExisting ? 'opacity-80 border-emerald-500/30' : 'border-brand/30'">
+                                    <div class="flex items-center gap-4 truncate">
+                                        <div class="w-10 h-10 rounded-xl bg-app-bg flex items-center justify-center font-black text-[10px]"
+                                             :class="fileObj.isExisting ? 'text-emerald-500' : 'text-brand'">
+                                            <span x-text="fileObj.name.split('.').pop().toUpperCase()"></span>
+                                        </div>
+                                        <div class="truncate">
+                                            <div class="flex items-center gap-2">
+                                                <p class="text-app-text font-black uppercase tracking-tight" x-text="fileFields.find(f => f.name === fieldName)?.label || fieldName"></p>
+                                                <span x-show="fileObj.isExisting" class="text-[8px] bg-emerald-500/10 text-emerald-500 px-1 rounded">EXISTING</span>
+                                                <span x-show="!fileObj.isExisting" class="text-[8px] bg-brand/10 text-brand px-1 rounded animate-pulse">NEW</span>
+                                            </div>
+                                            <p class="text-app-text-muted truncate text-[10px]" x-text="fileObj.name"></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <button type="button" @click="document.getElementById('id_' + fieldName).click()" 
+                                                class="p-2 text-app-text-muted hover:text-brand hover:bg-brand/10 rounded-lg transition-colors" title="Change file">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                        </button>
+                                        <button type="button" @click="delete selectedFiles[fieldName]; document.getElementById('id_' + fieldName).value = ''" 
+                                                class="p-2 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors" title="Remove">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Error Messages for File Fields -->
+                    {% for field in form.visible_fields %}
+                        {% if field.field.widget.input_type == 'file' and field.errors %}
+                            <div class="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-[10px] font-bold flex items-center gap-2">
+                                <span>❌</span> {{ field.label }}: {{ field.errors.0 }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
 
             <div class="flex justify-end gap-3 pt-8 border-t border-app-border/50">
                 <a href="javascript:history.back()" class="px-6 py-2.5 bg-app-card hover:bg-black/5 dark:hover:bg-white/5 text-app-text-muted border border-app-border rounded-xl text-sm font-bold transition-all">Cancel</a>

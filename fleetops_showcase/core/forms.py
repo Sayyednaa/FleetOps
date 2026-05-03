@@ -52,9 +52,9 @@ class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = [
-            'first_name', 'last_name', 'email', 'phone', 'avatar', 'identification_number', 'passport',
+            'first_name', 'last_name', 'email', 'phone', 'identification_number', 'passport',
             'contract_expiry_date', 'base_salary_kd', 'iban_number', 'bank_name',
-            'role', 'position', 'supporting_document',
+            'role', 'position', 'avatar', 'supporting_document',
         ]
         widgets = {
             'first_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'First Name'}),
@@ -136,19 +136,31 @@ class DriverForm(forms.ModelForm):
     class Meta:
         model = Driver
         fields = [
+            # Identity & Contact
             'full_name', 'phone', 'email',
-            'civil_id_number', 'civil_id_expiry', 'civil_id_file',
-            'passport_number', 'passport_expiry', 'passport_file',
-            'working_permit_expiry', 'work_permit_file',
-            'driver_license_expiry', 'driving_license_file',
-            'health_insurance_expiry', 'health_card_file',
-            'vehicle_registration', 'vehicle_registration_expiry', 'vehicle_rc_file',
+            'civil_id_number', 'civil_id_expiry',
+            'passport_number', 'passport_expiry',
+            
+            # Compliance
+            'working_permit_expiry',
+            'driver_license_expiry',
+            'health_insurance_expiry',
+            'criminal_certificate_expiry',
+            
+            # Vehicle
+            'vehicle_registration', 'vehicle_registration_expiry',
             'vehicle_plate_number', 'vehicle_name', 'vehicle_type',
+            
+            # Work Info
             'zone', 'petrol_card_number', 'working_id',
             'company_name', 'contract_type', 'position',
             'iban_number', 'bank_name', 'basic_salary_wp',
-            'criminal_certificate_expiry', 'criminal_pcc_file',
-            'file_status', 'photo_selfie', 'other_docs_file',
+            'file_status',
+
+            # File Uploads (at the end)
+            'civil_id_file', 'passport_file', 'work_permit_file', 
+            'driving_license_file', 'health_card_file', 'vehicle_rc_file',
+            'criminal_pcc_file', 'photo_selfie', 'other_docs_file',
         ]
         widgets = {
             'full_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Full Name'}),
@@ -177,6 +189,17 @@ class DriverForm(forms.ModelForm):
             'basic_salary_wp': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': 'Basic Salary (WP)'}),
             'criminal_certificate_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'file_status': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'File Status'}),
+            
+            # File widgets
+            'civil_id_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'passport_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'work_permit_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'driving_license_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'health_card_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'vehicle_rc_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'criminal_pcc_file': forms.FileInput(attrs={'class': TW_FILE}),
+            'photo_selfie': forms.FileInput(attrs={'class': TW_FILE}),
+            'other_docs_file': forms.FileInput(attrs={'class': TW_FILE}),
         }
 
     def clean(self):
