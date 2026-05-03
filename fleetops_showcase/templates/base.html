@@ -1,6 +1,6 @@
 {% load static role_tags kwd_filters %}
 <!DOCTYPE html>
-<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') !== 'false', logoutModalOpen: false, lang: document.documentElement.lang }" :class="{ 'dark': darkMode }">
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') === 'true', logoutModalOpen: false, lang: document.documentElement.lang }" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,6 +30,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 
     <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 
     <!-- Chart.js -->
@@ -46,8 +47,18 @@
             --color-app-card: #ffffff;
             --color-app-sidebar: #ffffff;
             --color-app-border: #e2e8f0;
-            --color-app-text: #0f172a;
-            --color-app-text-muted: #64748b;
+            --color-app-text: #000000;
+            --color-app-text-muted: #111111;
+        }
+
+        /* Input specific overrides for light mode */
+        input:not([type="checkbox"]), select, textarea {
+            background-color: white !important;
+            color: black !important;
+        }
+        .dark input:not([type="checkbox"]), .dark select, .dark textarea {
+            background-color: #111118 !important;
+            color: #f1f5f9 !important;
         }
 
         /* Dark Theme Tokens Override */
@@ -73,7 +84,8 @@
 
     <style>
         * { font-family: 'Tajawal', 'Inter', system-ui, sans-serif; }
-        body { overflow-x: hidden; }
+        html { font-size: 18px; line-height: 1.6; }
+        body { overflow-x: hidden; color: var(--color-app-text); background-color: var(--color-app-bg); }
 
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
@@ -176,48 +188,48 @@
             <!-- Navigation -->
             <nav class="flex-1 py-4 px-3 space-y-1">
                 <!-- DASHBOARD -->
-                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </p>
 
-                {% if_role 'admin' as is_admin %}
+                {% if_role 'admin' 'superadmin' as is_admin %}
                 {% if_role 'manager' as is_manager %}
                 {% if_role 'employee' as is_employee %}
                 {% if_role 'accountant' as is_accountant %}
                 {% if_role 'driver' as is_driver %}
                 {% if_role 'superadmin' as is_superadmin %}
 
-                {% if is_admin or is_superadmin %}
-                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_admin %}
+                <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
-                {% if is_manager and not is_admin and not is_superadmin %}
-                <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_manager and not is_admin %}
+                <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
-                {% if is_employee and not is_admin and not is_manager and not is_superadmin %}
-                <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_employee and not is_admin and not is_manager %}
+                <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
                 {% if is_driver %}
-                <a href="{% url 'driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'driver_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'driver_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
                 </a>
                 {% endif %}
-                {% if is_accountant and not is_superadmin %}
-                <a href="{% url 'accountant_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'accountant_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_accountant and not is_admin %}
+                <a href="{% url 'accountant_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'accountant_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
                     <span x-show="lang === 'en'">Dashboard</span>
                     <span x-show="lang === 'ar'">لوحة التحكم</span>
@@ -225,12 +237,12 @@
                 {% endif %}
 
                 <!-- TEAM MANAGEMENT (admin/manager) -->
-                {% if is_admin or is_manager or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                {% if is_admin or is_manager %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
                     <span x-show="lang === 'en'">Team Management</span>
                     <span x-show="lang === 'ar'">إدارة الفريق</span>
                 </p>
-                <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>👤</span> 
                     <span x-show="lang === 'en'">Manage Team</span>
                     <span x-show="lang === 'ar'">إدارة الفريق</span>
@@ -238,50 +250,50 @@
                 {% endif %}
 
                 <!-- DRIVER MANAGEMENT -->
-                {% if not is_driver and not is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">
+                {% if not is_driver and not is_accountant %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
                     <span x-show="lang === 'en'">Driver Management</span>
                     <span x-show="lang === 'ar'">إدارة السائقين</span>
                 </p>
-                {% if is_admin or is_superadmin %}
-                <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_admin %}
+                <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🚗</span> 
                     <span x-show="lang === 'en'">Manage Drivers</span>
                     <span x-show="lang === 'ar'">إدارة السائقين</span>
                 </a>
                 {% elif is_manager or is_employee %}
-                <a href="{% if is_manager %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% if is_manager %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🚗</span> {% if is_manager %}Manage Drivers{% else %}View Drivers{% endif %}
                 </a>
                 {% endif %}
                 {% endif %}
 
                 {% if is_driver %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">My Profile</p>
-                <a href="{% url 'driver_my_profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'my-profile' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">My Profile</p>
+                <a href="{% url 'driver_my_profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'my-profile' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🚗</span> My Profile
                 </a>
                 {% endif %}
 
                 <!-- INVOICES -->
-                {% if not is_driver and not is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Invoices</p>
-                <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if not is_driver and not is_accountant %}
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Invoices</p>
+                <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📄</span> 
                     <span x-show="lang === 'en'">Driver Invoices</span>
                     <span x-show="lang === 'ar'">فواتير السائقين</span>
                 </a>
                 {% endif %}
-                {% if is_admin or is_manager or is_employee or is_superadmin %}
-                <a href="{% if is_admin %}{% url 'admin_deductions' %}{% elif is_manager %}{% url 'manager_deductions' %}{% else %}{% url 'employee_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_admin or is_manager or is_employee %}
+                <a href="{% if is_admin %}{% url 'admin_deductions' %}{% elif is_manager %}{% url 'manager_deductions' %}{% else %}{% url 'employee_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🧾</span> Deduction Invoices
                 </a>
-                {% if is_admin or is_superadmin %}
-                <a href="{% url 'admin_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                {% if is_admin %}
+                <a href="{% url 'admin_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>⏳</span> Pending Dues
                 </a>
                 {% elif is_manager or is_employee %}
-                <a href="{% if is_manager %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% if is_manager %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>⏳</span> Pending Dues
                 </a>
                 {% endif %}
@@ -289,42 +301,42 @@
 
                 <!-- ARCHIVE -->
                 {% if not is_driver and not is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Archive</p>
-                <a href="{% url 'archive_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'archive_list' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Archive</p>
+                <a href="{% url 'archive_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'archive_list' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🗃️</span> Invoice Archive
                 </a>
-                <a href="{% url 'company_files' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'company-files' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'company_files' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'company-files' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📁</span> Company Files
                 </a>
-                <a href="{% url 'deactivated_drivers' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deactivated-drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'deactivated_drivers' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deactivated-drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🚫</span> Deactivated Drivers
                 </a>
                 {% endif %}
                 <!-- ACCOUNTANT: Forms -->
                 {% if is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Forms</p>
-                <a href="{% url 'accountant_driver_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'driver-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Forms</p>
+                <a href="{% url 'accountant_driver_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'driver-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📝</span> Driver Info Form
                 </a>
-                <a href="{% url 'accountant_deduction_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deduction-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'accountant_deduction_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deduction-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🧾</span> Deduction Form
                 </a>
 
                 <!-- ACCOUNTANT: Salary -->
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Salary / Accountant</p>
-                <a href="{% url 'accountant_talabat' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'talabat' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Salary / Accountant</p>
+                <a href="{% url 'accountant_talabat' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'talabat' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🍔</span> Talabat
                 </a>
-                <a href="{% url 'accountant_pharmazone' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pharmazone' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'accountant_pharmazone' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pharmazone' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>💊</span> Pharma Zone
                 </a>
-                <a href="{% url 'accountant_burgerking' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'burgerking' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'accountant_burgerking' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'burgerking' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🍟</span> Burger King
                 </a>
-                <a href="{% url 'accountant_other_contract' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'other-contract' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'accountant_other_contract' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'other-contract' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📄</span> Other Contracts
                 </a>
-                <a href="{% url 'accountant_monthly_details' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'monthly-details' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
+                <a href="{% url 'accountant_monthly_details' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'monthly-details' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📊</span> Monthly Details
                 </a>
                 {% endif %}

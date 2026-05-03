@@ -8,16 +8,15 @@
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
     <!-- Form -->
     <div class="xl:col-span-1 space-y-6">
-        <div class="bg-card-dark border border-border-dark rounded-2xl p-6">
+        <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-white flex items-center gap-2"><span>📝</span> Add Deduction</h3>
+                <h3 class="text-lg font-bold text-app-text flex items-center gap-2"><span>📝</span> Add Deduction</h3>
                 <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-xs text-orange-500 hover:underline">View Pending Dues →</a>
             </div>
 
-            <!-- Bulk Import -->
-            <div class="p-3 bg-black/20 border border-app-border border-dashed rounded-xl mb-6 flex items-center justify-between gap-3">
+            <div class="p-3 bg-app-bg border border-app-border border-dashed rounded-xl mb-6 flex items-center justify-between gap-3">
                 <div class="flex-1">
-                    <h4 class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Bulk Import</h4>
+                    <h4 class="text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Bulk Import</h4>
                 </div>
                 <div class="flex items-center gap-2">
                     <form method="post" action="{% url 'bulk_upload' 'deduction' %}" enctype="multipart/form-data">
@@ -29,7 +28,7 @@
                             <input id="excel-upload-deduction" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
                         </label>
                     </form>
-                    <a href="{% url 'template_download' 'deduction' %}" class="p-1.5 bg-app-bg hover:bg-black/10 dark:hover:bg-white/10 text-app-text-muted hover:text-app-text border border-app-border rounded-lg text-xs transition-all" title="Download Template">
+                    <a href="{% url 'template_download' 'deduction' %}" class="p-1.5 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 text-app-text-muted hover:text-app-text border border-app-border rounded-lg text-xs transition-all" title="Download Template">
                         <span>⬇️</span>
                     </a>
                 </div>
@@ -39,85 +38,77 @@
             {% endif %}
             <form method="post" enctype="multipart/form-data" class="space-y-4">
                 {% csrf_token %}
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">Driver</label>{{ form.driver }}</div>
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">Employee</label>{{ form.employee }}</div>
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">Reason *</label>{{ form.reason }}</div>
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">Date *</label>{{ form.deduction_date }}</div>
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">Contracting Company *</label>{{ form.contracting_company }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Driver</label>{{ form.driver }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Employee</label>{{ form.employee }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Reason *</label>{{ form.reason }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Date *</label>{{ form.deduction_date }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Contracting Company *</label>{{ form.contracting_company }}</div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-medium text-gray-400 mb-1">Contractor KD</label>{{ form.contractor_deduction_kd }}</div>
-                    <div><label class="block text-xs font-medium text-gray-400 mb-1">Company KD</label>{{ form.company_deduction_kd }}</div>
+                    <div><label class="block text-xs font-medium text-app-text-muted mb-1">Contractor KD</label>{{ form.contractor_deduction_kd }}</div>
+                    <div><label class="block text-xs font-medium text-app-text-muted mb-1">Company KD</label>{{ form.company_deduction_kd }}</div>
                 </div>
-                <div class="p-3 bg-gray-800/50 rounded-xl border border-gray-700 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-medium text-gray-300">Installment Plan?</label>
-                        {{ form.is_installment_plan }}
+                <!-- Installment Plan (Premium Switch) -->
+                <div class="p-4 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {{ form.is_installment_plan.value|lower|default:'false' }} }">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs font-bold text-app-text uppercase tracking-wider">Enable Installment Plan</span>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_installment_plan" class="sr-only peer" x-model="isInstallment">
+                            <div class="w-10 h-5 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand"></div>
+                        </label>
                     </div>
-                    <div x-show="is_installment" x-data="{ is_installment: false }" x-init="$watch('$refs.inst_check.checked', v => is_installment = v)">
-                        <!-- We'll use simple JS for toggle since Alpine might not be initialized same way here -->
-                    </div>
-                    <div id="installment_fields" class="hidden">
-                        <label class="block text-xs font-medium text-gray-400 mb-1">Total Installments (Months)</label>
+                    
+                    <div x-show="isInstallment" x-transition class="mt-4 pt-3 border-t border-brand/10">
+                        <label class="block text-[10px] font-bold text-app-text-muted uppercase tracking-wider mb-2">Total Installments (Months)</label>
                         {{ form.total_installments }}
-                        <p class="text-[10px] text-gray-500 mt-1">Amount will be split equally across months.</p>
+                        <p class="text-[9px] text-app-text-muted mt-2 italic">Deduction will be split equally across months.</p>
                     </div>
                 </div>
-                <div><label class="block text-xs font-medium text-gray-400 mb-1">PDF Proof</label>{{ form.pdf_proof }}</div>
-                <button type="submit" class="w-full py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors">Submit Deduction</button>
+
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1">PDF Proof</label>{{ form.pdf_proof }}</div>
+                <button type="submit" class="w-full py-3 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20">Submit Deduction</button>
             </form>
-            
-            <script>
-                document.querySelector('input[name="is_installment_plan"]').addEventListener('change', function(e) {
-                    const fields = document.getElementById('installment_fields');
-                    if(e.target.checked) {
-                        fields.classList.remove('hidden');
-                    } else {
-                        fields.classList.add('hidden');
-                    }
-                });
-            </script>
         </div>
     </div>
 
     <!-- Table -->
     <div class="xl:col-span-2">
-        <div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden">
-            <div class="p-4 border-b border-border-dark">
-                <h3 class="text-lg font-bold text-white">Deduction History</h3>
+        <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
+            <div class="p-4 border-b border-app-border">
+                <h3 class="text-lg font-bold text-app-text">Deduction History</h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
-                        <tr class="border-b border-border-dark">
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Target</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Reason</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">Company</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Contractor KD</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase">Company KD</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">By</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">PDF</th>
+                        <tr class="border-b border-app-border bg-black/5 dark:bg-white/5">
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Date</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Target</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Reason</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Company</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase">Contractor KD</th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase">Company KD</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">By</th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-app-text-muted uppercase">PDF</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-border-dark">
+                    <tbody class="divide-y divide-app-border">
                         {% for d in deductions %}
-                        <tr class="hover:bg-white/[0.02]">
-                            <td class="px-4 py-3 text-sm text-gray-300">{{ d.deduction_date|date:"M d, Y" }}</td>
+                        <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                            <td class="px-4 py-3 text-sm text-app-text-muted">{{ d.deduction_date|date:"M d, Y" }}</td>
                             <td class="px-4 py-3 text-sm">
-                                {% if d.driver %}<span class="text-orange-400">🚗 {{ d.driver.full_name }}</span>{% endif %}
-                                {% if d.employee %}<span class="text-blue-400">👤 {{ d.employee.get_full_name }}</span>{% endif %}
+                                {% if d.driver %}<span class="text-orange-500 font-bold">🚗 {{ d.driver.full_name }}</span>{% endif %}
+                                {% if d.employee %}<span class="text-blue-500 font-bold">👤 {{ d.employee.get_full_name }}</span>{% endif %}
                             </td>
-                            <td class="px-4 py-3 text-sm text-gray-300 max-w-[200px] truncate">{{ d.reason }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-300">{{ d.get_contracting_company_display }}</td>
-                            <td class="px-4 py-3 text-sm text-right text-red-400 font-medium">{{ d.contractor_deduction_kd|kwd }}</td>
-                            <td class="px-4 py-3 text-sm text-right text-red-400 font-medium">{{ d.company_deduction_kd|kwd }}</td>
-                            <td class="px-4 py-3 text-sm text-gray-500">{{ d.submitted_by.get_full_name|default:"—" }}</td>
+                            <td class="px-4 py-3 text-sm text-app-text-muted max-w-[200px] truncate">{{ d.reason }}</td>
+                            <td class="px-4 py-3 text-sm text-app-text-muted">{{ d.get_contracting_company_display }}</td>
+                            <td class="px-4 py-3 text-sm text-right text-red-500 font-black">{{ d.contractor_deduction_kd|kwd }}</td>
+                            <td class="px-4 py-3 text-sm text-right text-red-500 font-black">{{ d.company_deduction_kd|kwd }}</td>
+                            <td class="px-4 py-3 text-sm text-app-text-muted">{{ d.submitted_by.get_full_name|default:"—" }}</td>
                             <td class="px-4 py-3 text-center">
-                                {% if d.pdf_proof %}<a href="{{ d.pdf_proof.url }}" target="_blank" class="text-orange-400 hover:text-orange-300">📄</a>{% else %}—{% endif %}
+                                {% if d.pdf_proof %}<a href="{{ d.pdf_proof.url }}" target="_blank" class="text-orange-500 hover:text-orange-600 font-bold">📄</a>{% else %}—{% endif %}
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="8" class="px-4 py-12 text-center text-gray-500">No deductions recorded.</td></tr>
+                        <tr><td colspan="8" class="px-4 py-12 text-center text-app-text-muted">No deductions recorded.</td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

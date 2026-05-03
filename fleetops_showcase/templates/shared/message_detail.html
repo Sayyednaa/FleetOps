@@ -5,10 +5,10 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto">
-    <div class="bg-card-dark border border-border-dark rounded-2xl overflow-hidden">
+    <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
         <!-- Header -->
-        <div class="p-6 border-b border-border-dark">
-            <h2 class="text-xl font-bold text-white mb-3">{{ msg.subject }}</h2>
+        <div class="p-6 border-b border-app-border">
+            <h2 class="text-xl font-bold text-app-text mb-3">{{ msg.subject }}</h2>
             <div class="flex items-center gap-3">
                 {% if msg.sender.avatar %}
                 <img src="{{ msg.sender.avatar.url }}" class="w-10 h-10 rounded-full object-cover border border-border-dark" alt="{{ msg.sender.get_full_name }}">
@@ -18,24 +18,24 @@
                 </div>
                 {% endif %}
                 <div>
-                    <p class="text-sm font-medium text-white">{{ msg.sender.get_full_name }}</p>
-                    <p class="text-xs text-gray-500">{{ msg.created_at|date:"F d, Y \a\t g:i A" }}</p>
+                    <p class="text-sm font-medium text-app-text">{{ msg.sender.get_full_name }}</p>
+                    <p class="text-xs text-app-text-muted">{{ msg.created_at|date:"F d, Y \a\t g:i A" }}</p>
                 </div>
             </div>
-            <div class="mt-2 text-xs text-gray-500">
+            <div class="mt-2 text-xs text-app-text-muted">
                 To: {% for r in msg.recipients.all %}{{ r.recipient.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}
             </div>
         </div>
 
         <!-- Body -->
         <div class="p-6">
-            <div class="prose prose-invert max-w-none text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">{{ msg.body }}</div>
+            <div class="prose max-w-none text-app-text text-sm leading-relaxed whitespace-pre-wrap">{{ msg.body }}</div>
         </div>
 
         <!-- Attachment -->
         {% if msg.attachment %}
         <div class="px-6 pb-6">
-            <a href="{{ msg.attachment.url }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-xl text-sm text-gray-300 transition-colors">
+            <a href="{{ msg.attachment.url }}" target="_blank" class="inline-flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 border border-app-border rounded-xl text-sm text-app-text-muted transition-colors">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/></svg>
                 📎 {{ msg.attachment.name|truncatechars:30 }}
             </a>
@@ -44,7 +44,7 @@
 
         <!-- Actions -->
         <div class="px-6 pb-6 flex gap-3">
-            <a href="{% url 'message_inbox' %}" class="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-medium transition-colors">← Back to Messages</a>
+            <a href="{% url 'message_inbox' %}" class="px-4 py-2 bg-app-bg hover:bg-black/5 dark:hover:bg-white/5 border border-app-border text-app-text-muted rounded-xl text-sm font-medium transition-colors">← Back to Messages</a>
         </div>
     </div>
 </div>

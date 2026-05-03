@@ -11,22 +11,22 @@
             <!-- Filter Form -->
             <form method="get" class="flex flex-wrap items-center gap-3 flex-1">
                 <div class="relative group">
-                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within:text-brand transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-app-text-muted group-focus-within:text-brand transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                     <input type="text" name="q" value="{{ q }}" placeholder="Search name / phone..."
-                           class="pl-10 pr-4 py-2 bg-black/20 border border-app-border rounded-xl text-app-text placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-brand/50 text-sm w-64 transition-all">
+                           class="pl-10 pr-4 py-2 bg-app-bg border border-app-border rounded-xl text-app-text placeholder-app-text-muted focus:outline-none focus:ring-2 focus:ring-brand/50 text-sm w-64 transition-all">
                 </div>
                 <div class="flex items-center gap-2">
-                    <select name="company" class="px-3 py-2 bg-black/20 border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
+                    <select name="company" class="px-3 py-2 bg-app-bg border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
                         <option value="">All Companies</option>
                         {% for val, label in company_choices %}<option value="{{ val }}" {% if company == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
                     </select>
-                    <select name="contract" class="px-3 py-2 bg-black/20 border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
+                    <select name="contract" class="px-3 py-2 bg-app-bg border border-app-border rounded-xl text-app-text text-sm focus:outline-none focus:ring-2 focus:ring-brand/50 transition-all">
                         <option value="">All Contracts</option>
                         {% for val, label in contract_choices %}<option value="{{ val }}" {% if contract == val %}selected{% endif %}>{{ label }}</option>{% endfor %}
                     </select>
                     <button type="submit" class="px-5 py-2 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-bold transition-all shadow-lg shadow-brand/10">Filter</button>
                     {% if q or company or contract %}
-                    <a href="{% if portal == 'admin' %}{% url 'admin_driver_list' %}{% elif portal == 'manager' %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="text-xs text-gray-500 hover:text-app-text underline px-2">Clear</a>
+                    <a href="{% if portal == 'admin' %}{% url 'admin_driver_list' %}{% elif portal == 'manager' %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="text-xs text-app-text-muted hover:text-app-text underline px-2">Clear</a>
                     {% endif %}
                 </div>
             </form>
@@ -34,6 +34,11 @@
             <div class="flex items-center gap-4">
                 {% if portal == 'admin' %}
                 <a href="{% url 'admin_driver_add' %}" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Add Driver
+                </a>
+                {% elif portal == 'manager' %}
+                <a href="{% url 'manager_driver_add' %}" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2 shadow-lg shadow-orange-500/20">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                     Add Driver
                 </a>
@@ -47,8 +52,8 @@
                 <!-- Bulk Section -->
             <div class="flex items-center gap-4 pl-6 border-l border-app-border/30">
                 <div class="hidden sm:block text-right">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Bulk Import</p>
-                    <p class="text-[9px] text-gray-600">.xlsx / .xls files</p>
+                    <p class="text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Bulk Import</p>
+                    <p class="text-[9px] text-app-text-muted">.xlsx / .xls files</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <form method="post" action="{% url 'bulk_upload' 'driver' %}" enctype="multipart/form-data" class="flex items-center">
@@ -60,7 +65,7 @@
                             <input id="excel-upload-driver" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
                         </label>
                     </form>
-                    <a href="{% url 'template_download' 'driver' %}" class="flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-black/10 dark:hover:bg-white/10 text-app-text-muted hover:text-app-text border border-app-border rounded-xl text-xs font-bold transition-all" title="Download Template">
+                    <a href="{% url 'template_download' 'driver' %}" class="flex items-center gap-2 px-4 py-2 bg-app-bg hover:bg-app-border/50 text-app-text-muted hover:text-app-text border border-app-border rounded-xl text-xs font-bold transition-all" title="Download Template">
                         <span>⬇️</span>
                     </a>
                 </div>
@@ -79,14 +84,14 @@
                     <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Name</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Company</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Contract</th>
-                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Vehicle</th>
+                    <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider whitespace-nowrap min-w-[120px]">Vehicle</th>
                     <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase tracking-wider">Status</th>
                     <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase tracking-wider">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-app-border">
                 {% for driver in page_obj %}
-                <tr class="hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition-colors" x-data="{ expanded: false }">
+                <tr class="hover:bg-app-border/10 transition-colors" x-data="{ expanded: false }">
                     <td class="px-4 py-3 text-sm text-app-text-muted">{{ forloop.counter }}</td>
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
@@ -104,20 +109,20 @@
                     </td>
                     <td class="px-4 py-3 text-sm text-app-text">{{ driver.get_company_name_display }}</td>
                     <td class="px-4 py-3 text-sm text-app-text">{{ driver.get_contract_type_display }}</td>
-                    <td class="px-4 py-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full {% if driver.vehicle_type == 'car' %}bg-blue-500/10 text-blue-500{% elif driver.vehicle_type == 'bike' %}bg-brand/10 text-brand{% else %}bg-purple-500/10 text-purple-500{% endif %}">
+                    <td class="px-4 py-3 whitespace-nowrap">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full whitespace-nowrap {% if driver.vehicle_type == 'car' %}bg-blue-500/10 text-blue-500{% elif driver.vehicle_type == 'bike' %}bg-brand/10 text-brand{% else %}bg-purple-500/10 text-purple-500{% endif %}">
                             {% if driver.vehicle_type == 'car' %}🚗{% elif driver.vehicle_type == 'bike' %}🏍️{% else %}🏎️{% endif %} {{ driver.get_vehicle_type_display }}
                         </span>
                     </td>
                     <td class="px-4 py-3">
-                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full {% if driver.is_active %}bg-emerald-500/10 text-emerald-600{% else %}bg-gray-500/10 text-gray-500{% endif %}">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full {% if driver.is_active %}bg-emerald-500/10 text-emerald-600{% else %}bg-app-text-muted/10 text-app-text-muted{% endif %}">
                             {% if driver.is_active %}Active{% else %}Inactive{% endif %}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-right">
                         <div class="flex items-center justify-end gap-1">
                             <!-- Expand docs -->
-                            <button @click="expanded = !expanded" class="p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors" title="View documents">
+                            <button @click="expanded = !expanded" class="p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-app-border/50 transition-colors" title="View documents">
                                 <svg class="w-4 h-4 transition-transform" :class="expanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                             </button>
 

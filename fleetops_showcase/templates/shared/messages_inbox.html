@@ -7,13 +7,13 @@
 <div class="max-w-4xl mx-auto" x-data="{ tab: 'inbox' }">
     <!-- Tabs + Compose -->
     <div class="flex items-center justify-between mb-6">
-        <div class="flex gap-1 bg-gray-800 rounded-xl p-1">
-            <button @click="tab = 'inbox'" :class="tab === 'inbox' ? 'bg-orange-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'"
+        <div class="flex gap-1 bg-app-card rounded-xl p-1 border border-app-border">
+            <button @click="tab = 'inbox'" :class="tab === 'inbox' ? 'bg-orange-500 text-white shadow-lg' : 'text-app-text-muted hover:text-app-text'"
                     class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
                 📥 Inbox
                 {% if unread_messages_count %}<span class="ml-1 bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded-full">{{ unread_messages_count }}</span>{% endif %}
             </button>
-            <button @click="tab = 'sent'" :class="tab === 'sent' ? 'bg-orange-500 text-white shadow-lg' : 'text-gray-400 hover:text-white'"
+            <button @click="tab = 'sent'" :class="tab === 'sent' ? 'bg-orange-500 text-white shadow-lg' : 'text-app-text-muted hover:text-app-text'"
                     class="px-4 py-2 rounded-lg text-sm font-semibold transition-all">
                 📤 Sent
             </button>
@@ -31,12 +31,12 @@
     <!-- Inbox Tab -->
     <div x-show="tab === 'inbox'" class="space-y-2">
         {% for mr in inbox %}
-        <a href="{% url 'message_detail' mr.message.pk %}" class="block p-4 rounded-xl border transition-all hover:bg-white/[0.02]
-            {% if not mr.is_read %}bg-orange-500/5 border-l-4 border-orange-500 border-t border-r border-b border-t-border-dark border-r-border-dark border-b-border-dark{% else %}bg-card-dark border-border-dark{% endif %}">
+        <a href="{% url 'message_detail' mr.message.pk %}" class="block p-4 rounded-xl border transition-all hover:bg-black/5 dark:hover:bg-white/5
+            {% if not mr.is_read %}bg-orange-500/5 border-l-4 border-orange-500 border-t border-r border-b border-app-border{% else %}bg-app-card border-app-border{% endif %}">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 min-w-0">
                     {% if mr.message.sender.avatar %}
-                    <img src="{{ mr.message.sender.avatar.url }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-border-dark" alt="{{ mr.message.sender.get_full_name }}">
+                    <img src="{{ mr.message.sender.avatar.url }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0 border border-app-border" alt="{{ mr.message.sender.get_full_name }}">
                     {% else %}
                     <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                         {{ mr.message.sender.first_name.0 }}{{ mr.message.sender.last_name.0 }}
@@ -44,19 +44,19 @@
                     {% endif %}
                     <div class="min-w-0">
                         <div class="flex items-center gap-2">
-                            <span class="text-sm font-medium {% if not mr.is_read %}text-white{% else %}text-gray-400{% endif %}">{{ mr.message.sender.get_full_name }}</span>
+                            <span class="text-sm font-medium {% if not mr.is_read %}text-app-text{% else %}text-app-text-muted{% endif %}">{{ mr.message.sender.get_full_name }}</span>
                             {% if not mr.is_read %}<span class="w-2 h-2 rounded-full bg-orange-500 flex-shrink-0"></span>{% endif %}
                         </div>
-                        <p class="text-sm {% if not mr.is_read %}text-gray-200{% else %}text-gray-500{% endif %} truncate">{{ mr.message.subject }}</p>
+                        <p class="text-sm {% if not mr.is_read %}text-app-text/90{% else %}text-app-text-muted{% endif %} truncate">{{ mr.message.subject }}</p>
                     </div>
                 </div>
-                <span class="text-[10px] text-gray-600 flex-shrink-0 ml-2">{{ mr.message.created_at|timesince }} ago</span>
+                <span class="text-[10px] text-app-text-muted flex-shrink-0 ml-2">{{ mr.message.created_at|timesince }} ago</span>
             </div>
         </a>
         {% empty %}
-        <div class="bg-card-dark border border-border-dark rounded-2xl p-12 text-center">
+        <div class="bg-app-card border border-app-border rounded-2xl p-12 text-center">
             <span class="text-4xl block mb-3">📭</span>
-            <p class="text-gray-500">No messages in your inbox.</p>
+            <p class="text-app-text-muted">No messages in your inbox.</p>
         </div>
         {% endfor %}
     </div>
@@ -64,19 +64,19 @@
     <!-- Sent Tab -->
     <div x-show="tab === 'sent'" x-cloak class="space-y-2">
         {% for msg in sent %}
-        <a href="{% url 'message_detail' msg.pk %}" class="block p-4 rounded-xl border bg-card-dark border-border-dark transition-all hover:bg-white/[0.02]">
+        <a href="{% url 'message_detail' msg.pk %}" class="block p-4 rounded-xl border bg-app-card border-app-border transition-all hover:bg-black/5 dark:hover:bg-white/5">
             <div class="flex items-center justify-between">
                 <div class="min-w-0">
-                    <p class="text-sm font-medium text-white truncate">{{ msg.subject }}</p>
-                    <p class="text-xs text-gray-500 mt-0.5 truncate">To: {% for r in msg.recipients.all %}{{ r.recipient.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+                    <p class="text-sm font-medium text-app-text truncate">{{ msg.subject }}</p>
+                    <p class="text-xs text-app-text-muted mt-0.5 truncate">To: {% for r in msg.recipients.all %}{{ r.recipient.get_full_name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
                 </div>
-                <span class="text-[10px] text-gray-600 flex-shrink-0 ml-2">{{ msg.created_at|timesince }} ago</span>
+                <span class="text-[10px] text-app-text-muted flex-shrink-0 ml-2">{{ msg.created_at|timesince }} ago</span>
             </div>
         </a>
         {% empty %}
-        <div class="bg-card-dark border border-border-dark rounded-2xl p-12 text-center">
+        <div class="bg-app-card border border-app-border rounded-2xl p-12 text-center">
             <span class="text-4xl block mb-3">📤</span>
-            <p class="text-gray-500">No sent messages.</p>
+            <p class="text-app-text-muted">No sent messages.</p>
         </div>
         {% endfor %}
     </div>

@@ -225,10 +225,13 @@ class InvoiceExportView(StaffRequiredMixin, View):
 class ArchiveListView(StaffRequiredMixin, View):
     def get(self, request):
         qs = InvoiceArchive.objects.select_related('driver').all()
+        q = request.GET.get('q', '')
         company = request.GET.get('company', '')
         contract = request.GET.get('contract', '')
         month_str = request.GET.get('month', '')
 
+        if q:
+            qs = qs.filter(driver_name__icontains=q)
         if month_str:
             try:
                 parts = month_str.split('-')
@@ -245,6 +248,7 @@ class ArchiveListView(StaffRequiredMixin, View):
 
         return render(request, 'shared/archive.html', {
             'page_obj': page_obj,
+            'q': q,
             'company': company,
             'contract': contract,
             'month': month_str,
@@ -277,6 +281,13 @@ class NotificationReadAllView(AnyAuthenticatedMixin, View):
     def post(self, request):
         Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
         django_messages.success(request, 'All notifications marked as read.')
+        return redirect('/shared/notifications/')
+
+
+class NotificationClearAllView(AnyAuthenticatedMixin, View):
+    def post(self, request):
+        Notification.objects.filter(user=request.user).delete()
+        django_messages.success(request, 'Notification history cleared.')
         return redirect('/shared/notifications/')
 
 

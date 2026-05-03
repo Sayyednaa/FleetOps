@@ -15,6 +15,7 @@ from core.models import (
     ROLE_CHOICES, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
 from core.forms import ProfileForm, DriverForm, DeductionForm, DeductionInstallmentForm, TaskAssignmentForm
+from core.utils import notify_superadmin_action, check_and_notify_expiries
 from django.views import View
 
 
@@ -64,6 +65,7 @@ def get_chart_data():
 
 class AdminDashboardView(StaffRequiredMixin, View):
     def get(self, request):
+        check_and_notify_expiries(request.user)
         today = date.today()
         month_invoices = DriverInvoice.objects.filter(
             specified_date__year=today.year,
@@ -117,11 +119,18 @@ class TeamListView(AdminManagerRequiredMixin, View):
         paginator = Paginator(qs, 20)
         page_obj = paginator.get_page(request.GET.get('page'))
 
+        team_tasks = Task.objects.exclude(user__role='driver').select_related('user', 'assigned_by')
+
+        # Detect portal if not explicitly provided (admin or manager)
+        portal_type = 'admin' if request.user.role in ['admin', 'superadmin'] else 'manager'
+
         return render(request, 'admin_portal/team_list.html', {
             'page_obj': page_obj,
+            'team_tasks': team_tasks,
             'q': q,
             'sort': sort,
             'dir': direction,
+            'portal': portal_type,
         })
 
 
@@ -139,6 +148,10 @@ class TeamAddView(AdminManagerRequiredMixin, View):
             if p1:
                 user.set_password(p1)
             user.save()
+            
+            if request.user.role == 'superadmin':
+                notify_superadmin_action(request.user, "Team Member Created", f"created a new team member: {user.get_full_name()}")
+
             messages.success(request, f'Team member {user.get_full_name()} created successfully.')
             return redirect('admin_team_list')
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
@@ -159,6 +172,10 @@ class TeamEditView(AdminManagerRequiredMixin, View):
             if p1:
                 user.set_password(p1)
             user.save()
+            
+            if request.user.role == 'superadmin':
+                notify_superadmin_action(request.user, "Team Member Updated", f"updated team member: {user.get_full_name()}")
+
             messages.success(request, f'Team member {user.get_full_name()} updated.')
             return redirect('admin_team_list')
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': True, 'member': member})
@@ -169,6 +186,10 @@ class TeamDeleteView(AdminManagerRequiredMixin, View):
         member = get_object_or_404(Profile, pk=pk)
         name = member.get_full_name()
         member.delete()
+
+        if request.user.role == 'superadmin':
+            notify_superadmin_action(request.user, "Team Member Deleted", f"deleted team member: {name}")
+
         messages.success(request, f'Team member {name} deleted.')
         return redirect('admin_team_list')
 
@@ -217,6 +238,10 @@ class DriverAddView(StaffRequiredMixin, View):
             driver = form.save(commit=False)
             driver.created_by = request.user
             driver.save()
+            
+            if request.user.role == 'superadmin':
+                notify_superadmin_action(request.user, "Driver Created", f"added a new driver: {driver.full_name}", related_driver=driver)
+
             messages.success(request, f'Driver {driver.full_name} added successfully.')
             return redirect('admin_driver_list')
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': False})
@@ -233,6 +258,10 @@ class DriverEditView(StaffRequiredMixin, View):
         form = DriverForm(request.POST, request.FILES, instance=driver)
         if form.is_valid():
             form.save()
+            
+            if request.user.role == 'superadmin':
+                notify_superadmin_action(request.user, "Driver Updated", f"updated driver info for: {driver.full_name}", related_driver=driver)
+
             messages.success(request, f'Driver {driver.full_name} updated.')
             return redirect('admin_driver_list')
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': True, 'driver': driver})
@@ -243,6 +272,10 @@ class DriverDeleteView(StaffRequiredMixin, View):
         driver = get_object_or_404(Driver, pk=pk)
         name = driver.full_name
         driver.delete()
+
+        if request.user.role == 'superadmin':
+            notify_superadmin_action(request.user, "Driver Deleted", f"deleted driver: {name}")
+
         messages.success(request, f'Driver {name} deleted.')
         return redirect('admin_driver_list')
 
@@ -366,6 +399,10 @@ class DeductionListView(StaffRequiredMixin, View):
                     status='pending'
                 )
 
+            if request.user.role == 'superadmin':
+                target = deduction.driver or deduction.employee
+                notify_superadmin_action(request.user, "Deduction Recorded", f"recorded a deduction of {deduction.total_amount} KD for {target}", related_driver=deduction.driver)
+
             messages.success(request, 'Deduction recorded successfully.')
             return redirect('admin_deductions')
         deductions = Deduction.objects.select_related('driver', 'employee', 'submitted_by').all()
@@ -381,17 +418,31 @@ class PendingDuesView(StaffRequiredMixin, View):
             'deduction__driver', 'deduction__employee'
         ).order_by('status', 'due_date')
         
-        # Filter logic if needed
+        # Filter logic
         q = request.GET.get('q', '')
+        status_filter = request.GET.get('status', '')
+        start_date = request.GET.get('start_date', '')
+        end_date = request.GET.get('end_date', '')
+
         if q:
             installments = installments.filter(
                 Q(deduction__driver__full_name__icontains=q) |
                 Q(deduction__reason__icontains=q)
             )
+        if status_filter:
+            installments = installments.filter(status=status_filter)
+        if start_date:
+            installments = installments.filter(due_date__gte=start_date)
+        if end_date:
+            installments = installments.filter(due_date__lte=end_date)
 
         return render(request, 'admin_portal/pending_dues.html', {
             'installments': installments,
             'q': q,
+            'status_filter': status_filter,
+            'start_date': start_date,
+            'end_date': end_date,
+            'portal': 'admin',
         })
 
 

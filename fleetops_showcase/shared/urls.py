@@ -20,6 +20,7 @@ urlpatterns = [
     path('notifications/', views.NotificationListView.as_view(), name='notification_list'),
     path('notifications/<uuid:pk>/read/', views.NotificationReadView.as_view(), name='notification_read'),
     path('notifications/read-all/', views.NotificationReadAllView.as_view(), name='notification_read_all'),
+    path('notifications/clear-all/', views.NotificationClearAllView.as_view(), name='notification_clear_all'),
 
     # Messages
     path('messages/', views.MessageInboxView.as_view(), name='message_inbox'),

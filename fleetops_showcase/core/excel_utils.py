@@ -150,32 +150,65 @@ def export_contract_excel(queryset, label='contract'):
     return response
 
 def generate_excel_template(model_type):
-    """Generate a template .xlsx file for bulk upload."""
+    """Generate a template .xlsx file for bulk upload with existing data."""
+    from .models import Driver, Profile, Deduction, DriverInvoice, TalabatSalaryDetail, ContractSalaryDetail
     wb = openpyxl.Workbook()
     ws = wb.active
     ws.title = "Template"
 
-    # Define headers per model
+    # Define headers and fetch data per model
     if model_type == 'driver':
         headers = [
             'Full Name', 'Email', 'Phone', 'Civil ID Number',
             'Passport Number', 'Vehicle Plate Number', 'Vehicle Name', 'Company Name',
             'Contract Type', 'Vehicle Type'
         ]
+        queryset = Driver.objects.all()
+        data_rows = []
+        for obj in queryset:
+            data_rows.append([
+                obj.full_name, obj.email, obj.phone, obj.civil_id_number,
+                obj.passport_number, obj.vehicle_plate_number, obj.vehicle_name,
+                obj.company_name, obj.contract_type, obj.vehicle_type
+            ])
     elif model_type == 'team':
         headers = [
             'First Name', 'Last Name', 'Email', 'Phone', 'Identification Number',
             'Passport', 'Role', 'Position', 'Base Salary KD'
         ]
+        queryset = Profile.objects.all()
+        data_rows = []
+        for obj in queryset:
+            data_rows.append([
+                obj.first_name, obj.last_name, obj.email, obj.phone,
+                obj.identification_number, obj.passport, obj.role, obj.position,
+                float(obj.base_salary_kd)
+            ])
     elif model_type == 'deduction':
         headers = [
             'Driver Email', 'Reason', 'Contracting Company', 
             'Contractor Deduction KD', 'Company Deduction KD'
         ]
+        queryset = Deduction.objects.all()
+        data_rows = []
+        for obj in queryset:
+            email = obj.driver.email if obj.driver else (obj.employee.email if obj.employee else "")
+            data_rows.append([
+                email, obj.reason, obj.contracting_company,
+                float(obj.contractor_deduction_kd), float(obj.company_deduction_kd)
+            ])
     elif model_type == 'invoice':
         headers = [
             'NO.', 'Name', 'Phone', 'Cash', 'Main Orders', 'Addl. Orders', 'Hours', 'Work Date'
         ]
+        queryset = DriverInvoice.objects.all()
+        data_rows = []
+        for i, obj in enumerate(queryset, 1):
+            data_rows.append([
+                i, obj.driver.full_name, obj.driver.phone, float(obj.cash),
+                obj.main_orders, obj.additional_orders, float(obj.hours),
+                str(obj.specified_date)
+            ])
     elif model_type == 'talabat_salary':
         headers = [
             'Driver ID', 'Batch 1 Orders', 'Batch 1 Amount', 'Batch 2 Orders', 'Batch 2 Amount',
@@ -183,12 +216,30 @@ def generate_excel_template(model_type):
             'Batch 5 Orders', 'Batch 5 Amount', 'Batch 6 Orders', 'Batch 6 Amount',
             'Batch 7 Orders', 'Batch 7 Amount', 'Deduction'
         ]
+        queryset = TalabatSalaryDetail.objects.all()
+        data_rows = []
+        for obj in queryset:
+            data_rows.append([
+                obj.driver.employee_serial_number, obj.batch_1_orders, float(obj.batch_1_amount),
+                obj.batch_2_orders, float(obj.batch_2_amount), obj.batch_3_orders, float(obj.batch_3_amount),
+                obj.batch_4_orders, float(obj.batch_4_amount), obj.batch_5_orders, float(obj.batch_5_amount),
+                obj.batch_6_orders, float(obj.batch_6_amount), obj.batch_7_orders, float(obj.batch_7_amount),
+                float(obj.deduction)
+            ])
     elif model_type == 'contract_salary':
         headers = [
             'Name', 'Contract Type', 'Month', 'Total Salary', 'Absent Days', 'Deduction', 'Remark'
         ]
+        queryset = ContractSalaryDetail.objects.all()
+        data_rows = []
+        for obj in queryset:
+            data_rows.append([
+                obj.name, obj.contract_type, str(obj.month), float(obj.total_salary),
+                obj.absent, float(obj.deduction), obj.remark
+            ])
     else:
         headers = ['Data']
+        data_rows = []
 
     orange_fill = PatternFill(start_color="F97316", end_color="F97316", fill_type="solid")
     for col_idx, header in enumerate(headers, 1):
@@ -196,7 +247,12 @@ def generate_excel_template(model_type):
         cell.font = Font(bold=True, color="FFFFFF")
         cell.fill = orange_fill
         cell.alignment = Alignment(horizontal='center')
-        ws.column_dimensions[cell.column_letter].width = 20
+        ws.column_dimensions[cell.column_letter].width = 22
+
+    # Populate Data Rows
+    for row_idx, row_data in enumerate(data_rows, 2):
+        for col_idx, value in enumerate(row_data, 1):
+            ws.cell(row=row_idx, column=col_idx, value=value)
 
     response = HttpResponse(
         content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'

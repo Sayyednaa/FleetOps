@@ -21,28 +21,41 @@
     </div>
 
     <!-- Filters -->
-    <div class="bg-gray-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-4">
+    <div class="bg-app-card border border-app-border rounded-2xl p-4">
         <form method="GET" class="flex flex-wrap items-center gap-4">
-            <div class="flex-1 min-w-[300px] relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-500">
+            <div class="flex-1 min-w-[200px] relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-app-text-muted">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </span>
                 <input type="text" name="q" value="{{ q }}" placeholder="Search driver, reason..." 
-                       class="w-full pl-10 pr-4 py-2.5 bg-gray-800 border border-gray-700 rounded-xl text-gray-100 focus:ring-2 focus:ring-orange-500 focus:border-transparent outline-none transition-all">
+                       class="w-full pl-10 pr-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-app-text focus:ring-2 focus:ring-orange-500 outline-none transition-all">
             </div>
+            
+            <select name="status" class="px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-app-text text-sm focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+                <option value="">All Statuses</option>
+                <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>⏳ Pending</option>
+                <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>✅ Paid</option>
+            </select>
+
+            <div class="flex items-center gap-2">
+                <input type="date" name="start_date" value="{{ start_date }}" class="px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-app-text text-sm focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+                <span class="text-app-text-muted">to</span>
+                <input type="date" name="end_date" value="{{ end_date }}" class="px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-app-text text-sm focus:ring-2 focus:ring-orange-500 outline-none transition-all">
+            </div>
+
             <button type="submit" class="px-6 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-medium rounded-xl transition-all">
-                Search
+                Apply Filters
             </button>
-            {% if q %}
-            <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-gray-400 hover:text-white transition-colors text-sm">Clear</a>
+            {% if q or status_filter or start_date or end_date %}
+            <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-app-text-muted hover:text-orange-500 transition-colors text-sm">Clear</a>
             {% endif %}
         </form>
     </div>
 
     <!-- Stats -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-gray-900/50 backdrop-blur-xl border border-white/10 p-6 rounded-2xl">
-            <p class="text-gray-400 text-sm font-medium">Pending Installments</p>
+        <div class="bg-app-card border border-app-border p-6 rounded-2xl shadow-sm">
+            <p class="text-app-text-muted text-sm font-medium">Matching Installments</p>
             <h3 class="text-3xl font-bold text-orange-500 mt-1">
                 {{ installments.count }}
             </h3>
@@ -50,11 +63,11 @@
     </div>
 
     <!-- Table -->
-    <div class="bg-gray-900/50 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-2xl">
+    <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-white/5 text-gray-300 text-sm uppercase tracking-wider">
+                    <tr class="bg-black/5 dark:bg-white/5 text-app-text-muted text-sm uppercase tracking-wider">
                         <th class="px-6 py-4 font-semibold">Target</th>
                         <th class="px-6 py-4 font-semibold">Reason</th>
                         <th class="px-6 py-4 font-semibold">Amount</th>
@@ -63,12 +76,12 @@
                         <th class="px-6 py-4 font-semibold text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-white/5">
+                <tbody class="divide-y divide-app-border">
                     {% for item in installments %}
-                    <tr class="hover:bg-white/5 transition-colors group">
+                    <tr class="hover:bg-black/5 dark:hover:bg-white/5 transition-colors group">
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10 shadow-lg">
+                                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center text-app-text font-bold border border-app-border shadow-sm">
                                     {% if item.deduction.driver %}
                                         {{ item.deduction.driver.full_name|slice:":1" }}
                                     {% else %}
@@ -76,14 +89,14 @@
                                     {% endif %}
                                 </div>
                                 <div>
-                                    <p class="text-white font-medium">
+                                    <p class="text-app-text font-medium">
                                         {% if item.deduction.driver %}
                                             {{ item.deduction.driver.full_name }}
                                         {% else %}
                                             {{ item.deduction.employee.get_full_name }}
                                         {% endif %}
                                     </p>
-                                    <p class="text-xs text-gray-500">
+                                    <p class="text-xs text-app-text-muted">
                                         {% if item.deduction.driver %}
                                             {{ item.deduction.driver.civil_id_number }}
                                         {% else %}
@@ -94,12 +107,12 @@
                             </div>
                         </td>
                         <td class="px-6 py-4">
-                            <p class="text-gray-300 text-sm line-clamp-1">{{ item.deduction.reason }}</p>
+                            <p class="text-app-text-muted text-sm line-clamp-1">{{ item.deduction.reason }}</p>
                         </td>
-                        <td class="px-6 py-4 font-mono font-bold text-orange-400">
+                        <td class="px-6 py-4 font-mono font-bold text-orange-500">
                             {{ item.amount|kwd }}
                         </td>
-                        <td class="px-6 py-4 text-gray-400 text-sm">
+                        <td class="px-6 py-4 text-app-text-muted text-sm">
                             {{ item.due_date|date:"d M Y" }}
                         </td>
                         <td class="px-6 py-4">
@@ -129,7 +142,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <td colspan="6" class="px-6 py-12 text-center text-app-text-muted">
                             No pending dues found.
                         </td>
                     </tr>

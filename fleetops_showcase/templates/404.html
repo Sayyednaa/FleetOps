@@ -1,8 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}
-    <span x-show="lang === 'en'">404 — Package Lost | NAJMAT ALWESAM</span>
-    <span x-show="lang === 'ar'">404 — طرد مفقود | نجمة الوسام</span>
-{% endblock %}
+{% block title %}404 — Page Not Found{% endblock %}
 {% block page_title %}
     <span x-show="lang === 'en'">Page Not Found</span>
     <span x-show="lang === 'ar'">الصفحة غير موجودة</span>
@@ -43,7 +40,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="min-h-[80vh] flex flex-col items-center justify-center text-center px-6 error-bg">
+<div class="min-h-[80vh] flex flex-col items-center justify-center text-center px-6 error-bg" x-init="document.title = lang === 'ar' ? '404 — طرد مفقود' : '404 — Package Lost';">
     <div class="relative mb-8">
         <div class="glitch" data-text="404">404</div>
         <div class="absolute -top-12 -right-12 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl"></div>

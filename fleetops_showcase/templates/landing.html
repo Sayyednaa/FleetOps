@@ -1,9 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}
-    <span x-show="lang === 'en'">NAJMAT ALWESAM | Modern Delivery Services in Kuwait</span>
-    <span x-show="lang === 'ar'">نجمة الوسام | خدمات توصيل حديثة في الكويت</span>
-{% endblock %}
+{% block title %}NAJMAT ALWESAM — نجمة الوسام{% endblock %}
 
 {% block extra_css %}
 <!-- SEO Meta Tags -->
@@ -17,13 +14,23 @@
 
 <style>
     .glass-nav {
-        background: rgba(10, 10, 15, 0.7);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px border-border-dark;
+        background: color-mix(in srgb, var(--bg-card), transparent 20%);
+        backdrop-filter: blur(16px);
+        border-bottom: 1px solid var(--border-app);
+        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.1);
     }
     .hero-gradient {
-        background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.15), transparent),
-                    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.1), transparent);
+        background: radial-gradient(circle at top right, rgba(249, 115, 22, 0.1), transparent),
+                    radial-gradient(circle at bottom left, rgba(59, 130, 246, 0.05), transparent);
+    }
+    .card-reveal {
+        opacity: 0;
+        transform: translateY(20px);
+        transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .card-reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
     }
     .floating {
         animation: floating 3s ease-in-out infinite;
@@ -43,23 +50,23 @@
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen hero-gradient" x-data="{ lang: 'en' }" x-init="lang = document.documentElement.lang">
+<div class="min-h-screen hero-gradient" x-data="{ lang: 'en' }" x-init="lang = document.documentElement.lang; document.title = lang === 'ar' ? 'نجمة الوسام | خدمات توصيل حديثة' : 'NAJMAT ALWESAM | Modern Delivery Services';">
     <!-- Navbar -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-6 lg:px-12">
-        <div class="flex items-center gap-3">
-            <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-contain" alt="Logo">
-            <h1 class="font-bold text-white text-xl tracking-tight">
+    <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-4 lg:px-12">
+        <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+            <img src="{% static 'img/logo.png' %}" class="w-8 h-8 sm:w-10 sm:h-10 object-contain flex-shrink-0" alt="Logo">
+            <h1 class="font-bold text-app-text text-sm sm:text-xl tracking-tight truncate">
                 <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
                 <span x-show="lang === 'ar'">نجمة الوسام</span>
             </h1>
         </div>
-        <div class="flex items-center gap-4 lg:gap-6">
+        <div class="flex items-center gap-3 sm:gap-6 flex-shrink-0">
             <button @click="localStorage.setItem('i18nextLng', lang === 'en' ? 'ar' : 'en'); window.location.reload();" 
-                    class="text-sm font-bold text-gray-400 hover:text-white transition-colors">
+                    class="text-[10px] sm:text-sm font-bold text-app-text-muted hover:text-orange-500 transition-colors uppercase tracking-widest">
                 <span x-show="lang === 'en'">العربية</span>
                 <span x-show="lang === 'ar'">English</span>
             </button>
-            <a href="{% url 'login' %}" class="px-6 py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-all shadow-lg shadow-orange-500/20">
+            <a href="{% url 'login' %}" class="px-4 sm:px-6 py-1.5 sm:py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold transition-all shadow-lg shadow-orange-500/20 whitespace-nowrap">
                 Sign In
             </a>
         </div>
@@ -72,7 +79,7 @@
                 <span x-show="lang === 'en'">⚡ Trusted Delivery Partner</span>
                 <span x-show="lang === 'ar'">⚡ شريك التوصيل الموثوق</span>
             </div>
-            <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
+            <h1 class="text-5xl lg:text-7xl font-extrabold text-app-text leading-tight">
                 <template x-if="lang === 'en'">
                     <span>NAJMAT ALWESAM <span class="text-orange-500">Delivering Excellence</span> in Kuwait</span>
                 </template>
@@ -80,7 +87,7 @@
                     <span>نجمة الوسام <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
                 </template>
             </h1>
-            <p class="text-xl text-gray-400 leading-relaxed max-w-xl">
+            <p class="text-2xl text-app-text-muted leading-relaxed max-w-xl">
                 <span x-show="lang === 'en'">Providing reliable delivery services for restaurants, pharmacies, and retail businesses across all Kuwait governorates.</span>
                 <span x-show="lang === 'ar'">تقديم خدمات توصيل موثوقة للمطاعم والصيدليات وشركات التجزئة في جميع محافظات الكويت.</span>
             </p>
@@ -90,7 +97,7 @@
                     <span x-show="lang === 'ar'">خدماتنا</span>
                     <span>→</span>
                 </a>
-                <a href="{% url 'login' %}" class="px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-bold text-lg transition-all">
+                <a href="{% url 'login' %}" class="px-8 py-4 rounded-xl bg-app-card border border-app-border hover:bg-black/5 dark:hover:bg-white/5 text-app-text font-bold text-lg transition-all">
                     <span x-show="lang === 'en'">Portal Login</span>
                     <span x-show="lang === 'ar'">دخول البوابة</span>
                 </a>
@@ -109,9 +116,9 @@
         <div class="max-w-7xl mx-auto px-6 text-center">
             <p class="text-gray-500 uppercase tracking-widest text-xs font-bold mb-10" x-text="lang === 'en' ? 'Trusted by Industry Leaders' : 'موثوقون من قادة الصناعة'"></p>
             <div class="flex flex-wrap justify-center items-center gap-12 lg:gap-20">
-                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-emerald-400 hover:drop-shadow-[0_0_15px_rgba(52,211,153,0.6)] hover:scale-110">PHARMAZONE</span>
-                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-orange-500 hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.6)] hover:scale-110">BURGER KING</span>
-                <span class="text-2xl font-black text-white/40 tracking-tighter cursor-default transition-all duration-300 hover:text-amber-400 hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.6)] hover:scale-110">TALABAT</span>
+                <span class="text-2xl font-black text-app-text-muted/40 tracking-tighter cursor-default transition-all duration-300 hover:text-emerald-500 hover:drop-shadow-[0_0_15px_rgba(52,211,153,0.3)] hover:scale-110">PHARMAZONE</span>
+                <span class="text-2xl font-black text-app-text-muted/40 tracking-tighter cursor-default transition-all duration-300 hover:text-orange-500 hover:drop-shadow-[0_0_15px_rgba(249,115,22,0.3)] hover:scale-110">BURGER KING</span>
+                <span class="text-2xl font-black text-app-text-muted/40 tracking-tighter cursor-default transition-all duration-300 hover:text-amber-500 hover:drop-shadow-[0_0_15px_rgba(251,191,36,0.3)] hover:scale-110">TALABAT</span>
             </div>
         </div>
     </div>
@@ -119,35 +126,36 @@
     <!-- Services Section -->
     <div id="services" class="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
         <div class="text-center space-y-4 mb-20">
-            <h2 class="text-4xl font-bold text-white" x-text="lang === 'en' ? 'Our Specialized Services' : 'خدماتنا المتخصصة'"></h2>
-            <p class="text-gray-400 max-w-2xl mx-auto text-lg" x-text="lang === 'en' ? 'Tailored logistics solutions designed to match the rapid pace of your business.' : 'حلول لوجستية مصممة خصيصاً لتناسب الوتيرة السريعة لأعمالك.'"></p>
+            <h2 class="text-4xl font-bold text-app-text" x-text="lang === 'en' ? 'Our Specialized Services' : 'خدماتنا المتخصصة'"></h2>
+            <p class="text-app-text-muted max-w-2xl mx-auto text-lg" x-text="lang === 'en' ? 'Tailored logistics solutions designed to match the rapid pace of your business.' : 'حلول لوجستية مصممة خصيصاً لتناسب الوتيرة السريعة لأعمالك.'"></p>
         </div>
         
         <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             <!-- Service 1 -->
-            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-orange-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-400 text-2xl mb-6">🍔</div>
-                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Restaurants & Food' : 'المطاعم والأغذية'"></h3>
-                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Hot, fresh deliveries at lightning speed.' : 'توصيل ساخن وطازج بسرعة البرق.'"></p>
+            <div class="p-8 rounded-3xl bg-app-card border border-app-border hover:border-orange-500/30 transition-all group shadow-sm card-reveal">
+                <div class="w-14 h-14 rounded-2xl bg-orange-500/10 flex items-center justify-center text-orange-500 text-2xl mb-6">🍔</div>
+                <h3 class="text-xl font-bold text-app-text mb-2" x-text="lang === 'en' ? 'Restaurants & Food' : 'المطاعم والأغذية'"></h3>
+                <p class="text-app-text-muted text-sm" x-text="lang === 'en' ? 'Hot, fresh deliveries at lightning speed.' : 'توصيل ساخن وطازج بسرعة البرق.'"></p>
             </div>
             <!-- Service 2 -->
-            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-blue-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-400 text-2xl mb-6">💊</div>
-                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Pharmacies & Health' : 'الصيدليات والصحة'"></h3>
-                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Safe handling of essential medical supplies.' : 'التعامل الآمن مع الإمدادات الطبية الأساسية.'"></p>
+            <div class="p-8 rounded-3xl bg-app-card border border-app-border hover:border-blue-500/30 transition-all group shadow-sm card-reveal" style="transition-delay: 0.1s;">
+                <div class="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 text-2xl mb-6">💊</div>
+                <h3 class="text-xl font-bold text-app-text mb-2" x-text="lang === 'en' ? 'Pharmacies & Health' : 'الصيدليات والصحة'"></h3>
+                <p class="text-app-text-muted text-sm" x-text="lang === 'en' ? 'Safe handling of essential medical supplies.' : 'التعامل الآمن مع الإمدادات الطبية الأساسية.'"></p>
             </div>
             <!-- Service 3 -->
-            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-emerald-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 text-2xl mb-6">🛍️</div>
-                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'Retail & Shops' : 'التجزئة والمحلات'"></h3>
-                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Same-day delivery for retail businesses.' : 'التوصيل في نفس اليوم لشركات التجزئة.'"></p>
+            <div class="p-8 rounded-3xl bg-app-card border border-app-border hover:border-emerald-500/30 transition-all group shadow-sm card-reveal" style="transition-delay: 0.2s;">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center text-emerald-500 text-2xl mb-6">🛍️</div>
+                <h3 class="text-xl font-bold text-app-text mb-2" x-text="lang === 'en' ? 'Retail & Shops' : 'التجزئة والمحلات'"></h3>
+                <p class="text-app-text-muted text-sm" x-text="lang === 'en' ? 'Same-day delivery for retail businesses.' : 'التوصيل في نفس اليوم لشركات التجزئة.'"></p>
             </div>
             <!-- Service 4 -->
-            <div class="p-8 rounded-3xl bg-card-dark border border-border-dark hover:border-purple-500/30 transition-all group">
-                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-400 text-2xl mb-6">📦</div>
-                <h3 class="text-xl font-bold text-white mb-2" x-text="lang === 'en' ? 'B2B Logistics' : 'لوجستيات B2B'"></h3>
-                <p class="text-gray-500 text-sm" x-text="lang === 'en' ? 'Reliable distribution across all Kuwait governorates.' : 'توزيع موثوق في جميع محافظات الكويت.'"></p>
+            <div class="p-8 rounded-3xl bg-app-card border border-app-border hover:border-purple-500/30 transition-all group shadow-sm card-reveal" style="transition-delay: 0.3s;">
+                <div class="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center text-purple-500 text-2xl mb-6">📦</div>
+                <h3 class="text-xl font-bold text-app-text mb-2" x-text="lang === 'en' ? 'B2B Logistics' : 'لوجستيات B2B'"></h3>
+                <p class="text-app-text-muted text-sm" x-text="lang === 'en' ? 'Reliable distribution across all Kuwait governorates.' : 'توزيع موثوق في جميع محافظات الكويت.'"></p>
             </div>
+        </div>
         </div>
     </div>
 
@@ -155,20 +163,28 @@
     <div class="py-24 px-6 lg:px-12 bg-white/[0.02]">
         <div class="max-w-7xl mx-auto">
             <div class="text-center mb-16">
-                <h2 class="text-4xl font-bold text-white mb-4" x-text="lang === 'en' ? 'Delivering Excellence Daily' : 'نقدم التميز يومياً'"></h2>
+                <h2 class="text-4xl font-bold text-app-text mb-4" x-text="lang === 'en' ? 'Delivering Excellence Daily' : 'نقدم التميز يومياً'"></h2>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
-                    <p class="text-5xl font-black text-orange-500 mb-2">10,000+</p>
-                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Daily Orders' : 'طلب يومي'"></p>
+                <div class="text-center p-10 rounded-3xl bg-app-card border border-app-border shadow-sm card-reveal"
+                     x-data="{ count: 0, target: 10000 }"
+                     x-intersect.once="let interval = setInterval(() => { if(count < target) { count += Math.ceil((target - count) / 10) + 1 } else { count = target; clearInterval(interval) } }, 30)">
+                    <p class="text-5xl font-black text-orange-500 mb-2"><span x-text="count.toLocaleString()">0</span>+</p>
+                    <p class="text-app-text-muted uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Daily Orders' : 'طلب يومي'"></p>
                 </div>
-                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
-                    <p class="text-5xl font-black text-blue-500 mb-2">500+</p>
-                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Active Fleet' : 'أسطول نشط'"></p>
+                <div class="text-center p-10 rounded-3xl bg-app-card border border-app-border shadow-sm card-reveal"
+                     style="transition-delay: 0.1s;"
+                     x-data="{ count: 0, target: 500 }"
+                     x-intersect.once="let interval = setInterval(() => { if(count < target) { count += Math.ceil((target - count) / 8) + 1 } else { count = target; clearInterval(interval) } }, 40)">
+                    <p class="text-5xl font-black text-blue-500 mb-2"><span x-text="count">0</span>+</p>
+                    <p class="text-app-text-muted uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Active Fleet' : 'أسطول نشط'"></p>
                 </div>
-                <div class="text-center p-10 rounded-3xl bg-card-dark border border-border-dark">
-                    <p class="text-5xl font-black text-emerald-500 mb-2">&lt; 30m</p>
-                    <p class="text-gray-400 uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Average Time' : 'متوسط الوقت'"></p>
+                <div class="text-center p-10 rounded-3xl bg-app-card border border-app-border shadow-sm card-reveal"
+                     style="transition-delay: 0.2s;"
+                     x-data="{ count: 60, target: 30 }"
+                     x-intersect.once="let interval = setInterval(() => { if(count > target) { count -= 1 } else { count = target; clearInterval(interval) } }, 60)">
+                    <p class="text-5xl font-black text-emerald-500 mb-2">&lt; <span x-text="count">60</span>m</p>
+                    <p class="text-app-text-muted uppercase tracking-widest text-xs font-bold" x-text="lang === 'en' ? 'Average Time' : 'متوسط الوقت'"></p>
                 </div>
             </div>
         </div>
@@ -178,28 +194,28 @@
     <div class="py-24 px-6 lg:px-12 max-w-7xl mx-auto">
         <p class="text-center text-orange-500 font-bold mb-4 uppercase tracking-widest text-xs" x-text="lang === 'en' ? 'Trusted by Kuwait\'s Best' : 'موثوقون من الأفضل في الكويت'"></p>
         <div class="grid md:grid-cols-2 gap-8 mt-12">
-            <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
-                <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
-                <p class="text-gray-300 italic mb-8 relative z-10">
+            <div class="p-10 rounded-3xl bg-app-card border border-app-border relative shadow-sm">
+                <span class="text-6xl text-app-text-muted/5 absolute top-6 right-8">"</span>
+                <p class="text-app-text-muted italic mb-8 relative z-10">
                     <span x-show="lang === 'en'">NAJMAT ALWESAM completely transformed our food delivery speed. Highly recommended!</span>
                     <span x-show="lang === 'ar'">لقد غيرت نجمة الوسام تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!</span>
                 </p>
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center font-bold text-orange-400">AM</div>
+                    <div class="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center font-bold text-orange-500">AM</div>
                     <div>
-                        <p class="text-white font-bold">Ahmad Al-Mutairi</p>
-                        <p class="text-gray-500 text-xs" x-text="lang === 'en' ? 'Restaurant Owner' : 'صاحب مطعم'"></p>
+                        <p class="text-app-text font-bold">Ahmad Al-Mutairi</p>
+                        <p class="text-app-text-muted text-xs" x-text="lang === 'en' ? 'Restaurant Owner' : 'صاحب مطعم'"></p>
                     </div>
                 </div>
             </div>
-            <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
-                <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
-                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'Their B2B service is flawless. We depend on them for our daily retail dispatching.' : 'خدمة B2B الخاصة بهم لا تشوبها شائبة. نحن نعتمد عليهم في توزيع التجزئة اليومي لدينا.'"></p>
+            <div class="p-10 rounded-3xl bg-app-card border border-app-border relative shadow-sm">
+                <span class="text-6xl text-app-text-muted/5 absolute top-6 right-8">"</span>
+                <p class="text-app-text-muted italic mb-8 relative z-10" x-text="lang === 'en' ? 'Their B2B service is flawless. We depend on them for our daily retail dispatching.' : 'خدمة B2B الخاصة بهم لا تشوبها شائبة. نحن نعتمد عليهم في توزيع التجزئة اليومي لدينا.'"></p>
                 <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-full bg-blue-500/20 flex items-center justify-center font-bold text-blue-400">FS</div>
+                    <div class="w-12 h-12 rounded-full bg-blue-500/10 flex items-center justify-center font-bold text-blue-500">FS</div>
                     <div>
-                        <p class="text-white font-bold">Fatima Saad</p>
-                        <p class="text-gray-500 text-xs" x-text="lang === 'en' ? 'Boutique Manager' : 'مديرة بوتيك'"></p>
+                        <p class="text-app-text font-bold">Fatima Saad</p>
+                        <p class="text-app-text-muted text-xs" x-text="lang === 'en' ? 'Boutique Manager' : 'مديرة بوتيك'"></p>
                     </div>
                 </div>
             </div>
@@ -226,8 +242,8 @@
     <footer class="py-12 border-t border-border-dark px-6 lg:px-12">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-3">
-                <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-lg">🚛</div>
-                <span class="text-white font-bold tracking-tight">
+                <img src="{% static 'img/logo.png' %}" class="w-8 h-8 object-contain" alt="Logo">
+                <span class="text-app-text font-bold tracking-tight">
                     <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
                     <span x-show="lang === 'ar'">نجمة الوسام</span>
                 </span>
@@ -238,11 +254,24 @@
                     <span x-show="lang === 'ar'">© 2026 نجمة الوسام الكويت. جميع الحقوق محفوظة.</span>
                 </p>
             </div>
-            <div class="flex gap-6 text-gray-400 text-sm">
-                <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
-                <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+            <div class="flex gap-6 text-app-text-muted text-sm">
+                <a href="#" class="hover:text-orange-500 transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-orange-500 transition-colors">Terms of Service</a>
             </div>
         </div>
     </footer>
 </div>
+
+<script>
+    // Reveal Observer
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.card-reveal').forEach(el => observer.observe(el));
+</script>
 {% endblock %}

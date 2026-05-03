@@ -139,17 +139,61 @@
 <script>
 document.addEventListener('alpine:init', () => {
     const isDark = () => document.documentElement.classList.contains('dark');
-    const getTextColor = () => isDark() ? '#94a3b8' : '#64748b';
-    const getGridColor = () => isDark() ? '#1e1e2e' : '#e2e8f0';
+    const getTextColor = () => isDark() ? '#94a3b8' : '#1e293b'; // Darker text for light mode
+    const getGridColor = () => isDark() ? 'rgba(148, 163, 184, 0.1)' : 'rgba(30, 41, 59, 0.05)';
     
     const chartData = {{ chart_data|safe }};
+    
+    // Premium color palette
+    const colors = {
+        bike: {
+            stroke: '#f97316',
+            fill: 'rgba(249, 115, 22, 0.1)',
+            solid: 'rgba(249, 115, 22, 0.8)'
+        },
+        car: {
+            stroke: '#6366f1', // Indigo instead of standard blue
+            fill: 'rgba(99, 102, 241, 0.1)',
+            solid: 'rgba(99, 102, 241, 0.8)'
+        }
+    };
+
     const chartDefaults = {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { labels: { color: getTextColor(), font: { family: 'Inter', size: 11 } } } },
+        plugins: { 
+            legend: { 
+                position: 'top',
+                align: 'end',
+                labels: { 
+                    color: getTextColor(), 
+                    usePointStyle: true,
+                    pointStyle: 'circle',
+                    padding: 20,
+                    font: { family: 'Inter', size: 12, weight: '600' } 
+                } 
+            },
+            tooltip: {
+                backgroundColor: isDark() ? '#1e1e2e' : '#ffffff',
+                titleColor: isDark() ? '#ffffff' : '#1e293b',
+                bodyColor: isDark() ? '#94a3b8' : '#64748b',
+                borderColor: isDark() ? '#333' : '#e2e8f0',
+                borderWidth: 1,
+                padding: 12,
+                boxPadding: 6,
+                usePointStyle: true
+            }
+        },
         scales: {
-            x: { ticks: { color: getTextColor() }, grid: { color: getGridColor() } },
-            y: { ticks: { color: getTextColor() }, grid: { color: getGridColor() } }
+            x: { 
+                ticks: { color: getTextColor(), font: { size: 10 } }, 
+                grid: { display: false } 
+            },
+            y: { 
+                beginAtZero: true,
+                ticks: { color: getTextColor(), font: { size: 10 }, padding: 8 }, 
+                grid: { color: getGridColor(), drawBorder: false } 
+            }
         }
     };
 
@@ -159,8 +203,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike (KWD)', data: chartData.revenue_bike, borderColor: '#f97316', backgroundColor: 'rgba(249,115,22,0.1)', tension: 0.4, fill: true },
-                { label: 'Car (KWD)', data: chartData.revenue_car, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', tension: 0.4, fill: true }
+                { label: 'Bike (KWD)', data: chartData.revenue_bike, borderColor: colors.bike.stroke, backgroundColor: colors.bike.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 },
+                { label: 'Car (KWD)', data: chartData.revenue_car, borderColor: colors.car.stroke, backgroundColor: colors.car.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 }
             ]
         },
         options: chartDefaults
@@ -172,8 +216,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike Orders', data: chartData.orders_bike, borderColor: '#f97316', tension: 0.4 },
-                { label: 'Car Orders', data: chartData.orders_car, borderColor: '#3b82f6', tension: 0.4 }
+                { label: 'Bike Orders', data: chartData.orders_bike, borderColor: colors.bike.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 },
+                { label: 'Car Orders', data: chartData.orders_car, borderColor: colors.car.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 }
             ]
         },
         options: chartDefaults
@@ -185,8 +229,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike Orders', data: chartData.orders_bike, backgroundColor: 'rgba(249,115,22,0.7)', borderRadius: 6 },
-                { label: 'Car Orders', data: chartData.orders_car, backgroundColor: 'rgba(59,130,246,0.7)', borderRadius: 6 }
+                { label: 'Bike Orders', data: chartData.orders_bike, backgroundColor: colors.bike.solid, borderRadius: 8, barThickness: 12 },
+                { label: 'Car Orders', data: chartData.orders_car, backgroundColor: colors.car.solid, borderRadius: 8, barThickness: 12 }
             ]
         },
         options: chartDefaults
@@ -201,18 +245,19 @@ document.addEventListener('alpine:init', () => {
             labels: ['Bike Orders', 'Car Orders'],
             datasets: [{
                 data: [totalBike, totalCar],
-                backgroundColor: ['rgba(249,115,22,0.8)', 'rgba(59,130,246,0.8)'],
-                borderColor: ['#f97316', '#3b82f6'],
-                borderWidth: 2
+                backgroundColor: [colors.bike.solid, colors.car.solid],
+                borderColor: isDark() ? '#111' : '#fff',
+                borderWidth: 4,
+                hoverOffset: 15
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { color: getTextColor(), font: { family: 'Inter' }, padding: 20 } }
+                legend: { position: 'bottom', labels: { color: getTextColor(), font: { family: 'Inter', weight: '600' }, padding: 20, usePointStyle: true } }
             },
-            cutout: '65%'
+            cutout: '75%'
         }
     });
 
@@ -222,15 +267,23 @@ document.addEventListener('alpine:init', () => {
             if (mutation.attributeName === 'class') {
                 const color = getTextColor();
                 const grid = getGridColor();
+                const dark = isDark();
+                
                 [revenueChart, ordersLineChart, ordersBarChart, doughnutChart].forEach(chart => {
                     if (chart.options.scales) {
                         chart.options.scales.x.ticks.color = color;
-                        chart.options.scales.x.grid.color = grid;
                         chart.options.scales.y.ticks.color = color;
                         chart.options.scales.y.grid.color = grid;
                     }
                     if (chart.options.plugins.legend.labels) {
                         chart.options.plugins.legend.labels.color = color;
+                    }
+                    if (chart.options.plugins.tooltip) {
+                        chart.options.plugins.tooltip.backgroundColor = dark ? '#1e1e2e' : '#ffffff';
+                        chart.options.plugins.tooltip.titleColor = dark ? '#ffffff' : '#1e293b';
+                    }
+                    if (chart.config.type === 'doughnut') {
+                        chart.data.datasets[0].borderColor = dark ? '#111' : '#fff';
                     }
                     chart.update();
                 });

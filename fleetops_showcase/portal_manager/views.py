@@ -11,7 +11,8 @@ from core.models import (
     Driver, DriverInvoice, Deduction, Notification, Task,
     Profile, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
 )
-from core.forms import DriverForm, DeductionForm, DeductionInstallmentForm
+from core.forms import DriverForm, DeductionForm, DeductionInstallmentForm, TaskAssignmentForm
+from core.utils import notify_superadmin_action, check_and_notify_expiries
 from portal_admin.views import (
     DriverAddView, DriverEditView, DriverDeleteView, DriverToggleActiveView, 
     DriverSalarySlipView, MarkInstallmentPaidView
@@ -22,6 +23,7 @@ from portal_admin.views import get_chart_data
 
 class ManagerDashboardView(AdminManagerRequiredMixin, View):
     def get(self, request):
+        check_and_notify_expiries(request.user)
         today = date.today()
         month_invoices = DriverInvoice.objects.filter(
             specified_date__year=today.year,
@@ -34,7 +36,7 @@ class ManagerDashboardView(AdminManagerRequiredMixin, View):
             total_hours=Sum('hours'),
         )
         total_orders = (totals['total_orders'] or 0) + (totals['total_additional'] or 0)
-        tasks = Task.objects.filter(user=request.user)
+        tasks = Task.objects.filter(Q(user=request.user) | Q(assigned_by=request.user)).order_by('-created_at')
         recent_notifs = Notification.objects.filter(user=request.user, is_read=False)[:5]
 
         return render(request, 'manager_portal/dashboard.html', {
@@ -94,6 +96,10 @@ class ManagerDriverEditView(AdminManagerRequiredMixin, View):
         form = DriverForm(request.POST, request.FILES, instance=driver)
         if form.is_valid():
             form.save()
+            
+            if request.user.role == 'superadmin':
+                notify_superadmin_action(request.user, "Driver Updated (Mgr)", f"updated driver info for: {driver.full_name}", related_driver=driver)
+
             messages.success(request, f'Driver {driver.full_name} updated.')
             return redirect('manager_driver_list')
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': True, 'driver': driver, 'portal': 'manager'})
@@ -196,6 +202,10 @@ class ManagerDeductionListView(AdminManagerRequiredMixin, View):
                     due_date=deduction.deduction_date,
                     status='pending'
                 )
+
+            if request.user.role == 'superadmin':
+                target = deduction.driver or deduction.employee
+                notify_superadmin_action(request.user, "Deduction Recorded (Mgr)", f"recorded a deduction of {deduction.total_amount} KD for {target}", related_driver=deduction.driver)
 
             messages.success(request, 'Deduction recorded successfully.')
             return redirect('manager_deductions')
