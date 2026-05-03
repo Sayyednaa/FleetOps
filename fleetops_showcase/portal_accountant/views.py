@@ -5,7 +5,7 @@ from core.models import Driver, TalabatSalaryDetail, ContractSalaryDetail, Month
 
 class AccountantMixin(LoginRequiredMixin, UserPassesTestMixin):
     def test_func(self):
-        return getattr(self.request.user, 'role', '') == 'accountant'
+        return getattr(self.request.user, 'role', '') in ('accountant', 'superadmin', 'admin')
 
 class AccountantDashboardView(AccountantMixin, TemplateView):
     template_name = 'accountant_portal/dashboard.html'
@@ -25,7 +25,7 @@ class AccountantTalabatView(AccountantMixin, ListView):
     context_object_name = 'drivers'
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        return Driver.objects.filter(is_active=True).order_by('full_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -38,40 +38,55 @@ class AccountantTalabatView(AccountantMixin, ListView):
         month_str = request.POST.get('month')  # e.g. "2026-04"
         
         if not driver_id or not month_str:
-            messages.error(request, 'Please select a rider and month.')
+            messages.error(request, 'Please select a driver and month.')
             return redirect('accountant_talabat')
         
         try:
             driver = Driver.objects.get(id=driver_id)
         except Driver.DoesNotExist:
-            messages.error(request, 'Selected rider not found.')
+            messages.error(request, 'Selected driver not found.')
             return redirect('accountant_talabat')
         
         month_date = f"{month_str}-01"  # convert "2026-04" to "2026-04-01"
         
+        defaults = {
+            'batch_1_orders': int(request.POST.get('batch_1_orders', 0) or 0),
+            'batch_1_amount': Decimal(request.POST.get('batch_1_amount', 0) or 0),
+            'batch_1_net_amount': Decimal(request.POST.get('batch_1_net_amount', 0) or 0),
+            'batch_2_orders': int(request.POST.get('batch_2_orders', 0) or 0),
+            'batch_2_amount': Decimal(request.POST.get('batch_2_amount', 0) or 0),
+            'batch_2_net_amount': Decimal(request.POST.get('batch_2_net_amount', 0) or 0),
+            'batch_3_orders': int(request.POST.get('batch_3_orders', 0) or 0),
+            'batch_3_amount': Decimal(request.POST.get('batch_3_amount', 0) or 0),
+            'batch_3_net_amount': Decimal(request.POST.get('batch_3_net_amount', 0) or 0),
+            'batch_4_orders': int(request.POST.get('batch_4_orders', 0) or 0),
+            'batch_4_amount': Decimal(request.POST.get('batch_4_amount', 0) or 0),
+            'batch_4_net_amount': Decimal(request.POST.get('batch_4_net_amount', 0) or 0),
+            'batch_5_orders': int(request.POST.get('batch_5_orders', 0) or 0),
+            'batch_5_amount': Decimal(request.POST.get('batch_5_amount', 0) or 0),
+            'batch_5_net_amount': Decimal(request.POST.get('batch_5_net_amount', 0) or 0),
+            'batch_6_orders': int(request.POST.get('batch_6_orders', 0) or 0),
+            'batch_6_amount': Decimal(request.POST.get('batch_6_amount', 0) or 0),
+            'batch_6_net_amount': Decimal(request.POST.get('batch_6_net_amount', 0) or 0),
+            'batch_7_orders': int(request.POST.get('batch_7_orders', 0) or 0),
+            'batch_7_amount': Decimal(request.POST.get('batch_7_amount', 0) or 0),
+            'batch_7_net_amount': Decimal(request.POST.get('batch_7_net_amount', 0) or 0),
+            'deduction': Decimal(request.POST.get('deduction', 0) or 0),
+        }
+        
         obj, created = TalabatSalaryDetail.objects.update_or_create(
             driver=driver,
             month=month_date,
-            defaults={
-                'batch_1_orders': int(request.POST.get('batch_1_orders', 0) or 0),
-                'batch_1_amount': Decimal(request.POST.get('batch_1_amount', 0) or 0),
-                'batch_2_orders': int(request.POST.get('batch_2_orders', 0) or 0),
-                'batch_2_amount': Decimal(request.POST.get('batch_2_amount', 0) or 0),
-                'batch_3_orders': int(request.POST.get('batch_3_orders', 0) or 0),
-                'batch_3_amount': Decimal(request.POST.get('batch_3_amount', 0) or 0),
-                'batch_4_orders': int(request.POST.get('batch_4_orders', 0) or 0),
-                'batch_4_amount': Decimal(request.POST.get('batch_4_amount', 0) or 0),
-                'batch_5_orders': int(request.POST.get('batch_5_orders', 0) or 0),
-                'batch_5_amount': Decimal(request.POST.get('batch_5_amount', 0) or 0),
-                'batch_6_orders': int(request.POST.get('batch_6_orders', 0) or 0),
-                'batch_6_amount': Decimal(request.POST.get('batch_6_amount', 0) or 0),
-                'batch_7_orders': int(request.POST.get('batch_7_orders', 0) or 0),
-                'batch_7_amount': Decimal(request.POST.get('batch_7_amount', 0) or 0),
-                'deduction': Decimal(request.POST.get('deduction', 0) or 0),
-            }
+            defaults=defaults
         )
+        
+        # Handle file attachment
+        if request.FILES.get('attachment'):
+            obj.attachment = request.FILES['attachment']
+            obj.save()
+        
         action = 'updated' if not created else 'saved'
-        messages.success(request, f'Salary record {action} for {driver.first_name} {driver.last_name}.')
+        messages.success(request, f'Salary record {action} for {driver.full_name}.')
         return redirect('accountant_talabat')
 
 class AccountantPharmazoneView(AccountantMixin, ListView):
@@ -87,7 +102,7 @@ class AccountantPharmazoneView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        return Driver.objects.filter(is_active=True).order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'pharmazone', 'accountant_pharmazone')
@@ -105,7 +120,7 @@ class AccountantBurgerKingView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        return Driver.objects.filter(is_active=True).order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'burger_king', 'accountant_burgerking')
@@ -123,7 +138,7 @@ class AccountantOtherContractView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        return Driver.objects.filter(is_active=True).order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'other', 'accountant_other_contract')
@@ -140,10 +155,10 @@ def _save_contract_salary(request, contract_type, redirect_url):
     try:
         driver = Driver.objects.get(id=driver_id)
     except Driver.DoesNotExist:
-        messages.error(request, 'Selected rider not found.')
+        messages.error(request, 'Selected driver not found.')
         return redirect(redirect_url)
     
-    name = f"{driver.first_name} {driver.last_name}"
+    name = driver.full_name
     month_date = f"{month_str}-01"
     
     ContractSalaryDetail.objects.create(
@@ -154,6 +169,7 @@ def _save_contract_salary(request, contract_type, redirect_url):
         absent=int(request.POST.get('absent', 0) or 0),
         deduction=Decimal(request.POST.get('deduction', 0) or 0),
         remark=request.POST.get('remark', ''),
+        attachment=request.FILES.get('attachment')
     )
     messages.success(request, f'Salary record saved for {name}.')
     return redirect(redirect_url)
@@ -229,7 +245,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from core.excel_utils import generate_excel_template, export_talabat_excel, export_contract_excel, import_from_excel
 
 def is_accountant(user):
-    return getattr(user, 'role', '') == 'accountant'
+    return getattr(user, 'role', '') in ('accountant', 'superadmin', 'admin')
 
 @login_required
 @user_passes_test(is_accountant)

@@ -51,7 +51,7 @@ class EmployeeDriverListView(StaffRequiredMixin, View):
         vehicle = request.GET.get('vehicle', '')
 
         if q:
-            qs = qs.filter(Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(phone__icontains=q))
+            qs = qs.filter(Q(full_name__icontains=q) | Q(phone__icontains=q))
         if company:
             qs = qs.filter(company_name=company)
         if contract:
@@ -128,8 +128,7 @@ class EmployeePendingDuesView(StaffRequiredMixin, View):
         q = request.GET.get('q', '')
         if q:
             installments = installments.filter(
-                Q(deduction__driver__first_name__icontains=q) |
-                Q(deduction__driver__last_name__icontains=q) |
+                Q(deduction__driver__full_name__icontains=q) |
                 Q(deduction__reason__icontains=q)
             )
 

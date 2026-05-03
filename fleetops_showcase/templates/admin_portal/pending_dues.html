@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static kwd_filters %}
 
-{% block title %}Pending Dues - SAYYEDNAA LOGISTICS{% endblock %}
+{% block title %}Pending Dues - NAJMAT ALWESAM{% endblock %}
 
 {% block content %}
 <div class="space-y-6 animate-fade-in">
@@ -70,7 +70,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="w-10 h-10 rounded-full bg-gradient-to-br from-gray-700 to-gray-800 flex items-center justify-center text-white font-bold border border-white/10 shadow-lg">
                                     {% if item.deduction.driver %}
-                                        {{ item.deduction.driver.first_name|slice:":1" }}
+                                        {{ item.deduction.driver.full_name|slice:":1" }}
                                     {% else %}
                                         {{ item.deduction.employee.first_name|slice:":1" }}
                                     {% endif %}

@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}SAYYEDNAA LOGISTICS{% endblock %}</title>
-    <meta name="description" content="SAYYEDNAA LOGISTICS — Kuwait Delivery Operations Management">
+    <title>{% block title %}NAJMAT ALWESAM{% endblock %}</title>
+    <meta name="description" content="NAJMAT ALWESAM — Kuwait Delivery Operations Management">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -158,7 +158,7 @@
                         <span class="text-white text-xl">🚛</span>
                     </div>
                     <div>
-                        <h1 class="font-bold text-app-text text-lg tracking-tight">SAYYEDNAA</h1>
+                        <h1 class="font-bold text-app-text text-lg tracking-tight">NAJMAT ALWESAM</h1>
                         <p class="text-[10px] text-app-text-muted uppercase tracking-widest">Kuwait Operations</p>
                     </div>
                 </div>
@@ -177,18 +177,19 @@
                 {% if_role 'employee' as is_employee %}
                 {% if_role 'accountant' as is_accountant %}
                 {% if_role 'driver' as is_driver %}
+                {% if_role 'superadmin' as is_superadmin %}
 
-                {% if is_admin %}
+                {% if is_admin or is_superadmin %}
                 <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🏠</span> Dashboard
                 </a>
                 {% endif %}
-                {% if is_manager and not is_admin %}
+                {% if is_manager and not is_admin and not is_superadmin %}
                 <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🏠</span> Dashboard
                 </a>
                 {% endif %}
-                {% if is_employee and not is_admin and not is_manager %}
+                {% if is_employee and not is_admin and not is_manager and not is_superadmin %}
                 <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🏠</span> Dashboard
                 </a>
@@ -198,14 +199,14 @@
                     <span>🏠</span> Dashboard
                 </a>
                 {% endif %}
-                {% if is_accountant %}
+                {% if is_accountant and not is_superadmin %}
                 <a href="{% url 'accountant_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'accountant_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🏠</span> Dashboard
                 </a>
                 {% endif %}
 
                 <!-- TEAM MANAGEMENT (admin/manager) -->
-                {% if is_admin or is_manager %}
+                {% if is_admin or is_manager or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Team Management</p>
                 <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>👤</span> Manage Team
@@ -213,9 +214,9 @@
                 {% endif %}
 
                 <!-- DRIVER MANAGEMENT -->
-                {% if not is_driver and not is_accountant %}
+                {% if not is_driver and not is_accountant or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Driver Management</p>
-                {% if is_admin %}
+                {% if is_admin or is_superadmin %}
                 <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🚗</span> Manage Drivers
                 </a>
@@ -234,17 +235,17 @@
                 {% endif %}
 
                 <!-- INVOICES -->
-                {% if not is_driver and not is_accountant %}
+                {% if not is_driver and not is_accountant or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Invoices</p>
                 <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>📄</span> Driver Invoices
                 </a>
                 {% endif %}
-                {% if is_admin or is_manager or is_employee %}
+                {% if is_admin or is_manager or is_employee or is_superadmin %}
                 <a href="{% if is_admin %}{% url 'admin_deductions' %}{% elif is_manager %}{% url 'manager_deductions' %}{% else %}{% url 'employee_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🧾</span> Deduction Invoices
                 </a>
-                {% if is_admin %}
+                {% if is_admin or is_superadmin %}
                 <a href="{% url 'admin_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>⏳</span> Pending Dues
                 </a>
@@ -256,7 +257,7 @@
                 {% endif %}
 
                 <!-- ARCHIVE -->
-                {% if not is_driver and not is_accountant %}
+                {% if not is_driver and not is_accountant or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Archive</p>
                 <a href="{% url 'archive_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'archive_list' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🗃️</span> Invoice Archive
@@ -269,10 +270,10 @@
                 </a>
                 {% endif %}
                 <!-- ACCOUNTANT: Forms -->
-                {% if is_accountant %}
+                {% if is_accountant or is_superadmin %}
                 <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-gray-600 uppercase tracking-widest">Forms</p>
                 <a href="{% url 'accountant_driver_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'driver-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
-                    <span>📝</span> Rider Info Form
+                    <span>📝</span> Driver Info Form
                 </a>
                 <a href="{% url 'accountant_deduction_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deduction-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-gray-400 hover:text-white hover:bg-white/5{% endif %}">
                     <span>🧾</span> Deduction Form
@@ -327,7 +328,8 @@
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-semibold text-app-text truncate">{{ request.user.get_full_name }}</p>
                         <span class="inline-block px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full
-                            {% if user_role == 'admin' %}bg-brand/20 text-brand
+                            {% if user_role == 'superadmin' %}bg-red-500/20 text-red-400
+                            {% elif user_role == 'admin' %}bg-brand/20 text-brand
                             {% elif user_role == 'manager' %}bg-blue-500/20 text-blue-400
                             {% elif user_role == 'employee' %}bg-emerald-500/20 text-emerald-400
                             {% else %}bg-purple-500/20 text-purple-400{% endif %}">

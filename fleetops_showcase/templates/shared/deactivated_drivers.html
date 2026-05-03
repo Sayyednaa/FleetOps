@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load kwd_filters %}
 
-{% block title %}Deactivated Drivers — Najmat Alwesam{% endblock %}
+{% block title %}Deactivated Drivers — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}Deactivated Drivers{% endblock %}
 {% block breadcrumb %}Archive → Deactivated Drivers{% endblock %}
 
@@ -33,7 +33,7 @@
                         <td class="px-6 py-4">
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 rounded-full bg-gray-500/10 flex items-center justify-center text-gray-400 font-bold text-[10px]">
-                                    {{ driver.first_name.0 }}{{ driver.last_name.0 }}
+                                    {{ driver.full_name.0 }}
                                 </div>
                                 <span class="font-bold text-app-text uppercase">{{ driver.full_name }}</span>
                             </div>

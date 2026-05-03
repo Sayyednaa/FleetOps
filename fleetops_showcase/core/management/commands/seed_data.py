@@ -8,21 +8,31 @@ from core.models import (
 )
 
 class Command(BaseCommand):
-    help = 'Seed the database with SAYYEDNAA LOGISTICS showcase data'
+    help = 'Seed the database with NAJMAT ALWESAM showcase data'
 
     def handle(self, *args, **options):
-        self.stdout.write(self.style.WARNING('Seeding SAYYEDNAA LOGISTICS data...'))
+        self.stdout.write(self.style.WARNING('Seeding NAJMAT ALWESAM data...'))
 
         if Profile.objects.exists():
             self.stdout.write(self.style.SUCCESS('Data already exists. Skipping seed.'))
             return
 
-        # 1. Create Users (Manager, Employee, Accountant only)
+        # 1. Create Users
         self.stdout.write('Creating users...')
 
+        superadmin_user = Profile.objects.create_user(
+            username='admin@najmatalwesam.com',
+            email='admin@najmatalwesam.com',
+            password='admin123',
+            first_name='Super',
+            last_name='Admin',
+            role='superadmin',
+            position='HRManager'
+        )
+
         manager_user = Profile.objects.create_user(
-            username='manager@sayyednaalogistics.com',
-            email='manager@sayyednaalogistics.com',
+            username='manager@najmatalwesam.com',
+            email='manager@najmatalwesam.com',
             password='manager123',
             first_name='Sara',
             last_name='Al-Mutairi',
@@ -31,8 +41,8 @@ class Command(BaseCommand):
         )
 
         employee_user = Profile.objects.create_user(
-            username='employee@sayyednaalogistics.com',
-            email='employee@sayyednaalogistics.com',
+            username='employee@najmatalwesam.com',
+            email='employee@najmatalwesam.com',
             password='employee123',
             first_name='Khalid',
             last_name='Al-Enezi',
@@ -41,8 +51,8 @@ class Command(BaseCommand):
         )
 
         accountant_user = Profile.objects.create_user(
-            username='accountant@sayyednaalogistics.com',
-            email='accountant@sayyednaalogistics.com',
+            username='accountant@najmatalwesam.com',
+            email='accountant@najmatalwesam.com',
             password='accountant123',
             first_name='Fatima',
             last_name='Al-Sabah',
@@ -57,17 +67,18 @@ class Command(BaseCommand):
 
         # Talabat drivers
         talabat_drivers = [
-            ('Ahmed', 'Hassan', 'bike', 'Kuwait City'),
-            ('John', 'Doe', 'car', 'Salmiya'),
-            ('Ali', 'Reza', 'car', 'Hawally'),
-            ('Omar', 'Nabil', 'bike', 'Farwaniya'),
-            ('Hassan', 'Mahmoud', 'bike', 'Jahra'),
+            ('Ahmed Hassan', 'bike', 'Kuwait City'),
+            ('John Doe', 'car', 'Salmiya'),
+            ('Ali Reza', 'car', 'Hawally'),
+            ('Omar Nabil', 'bike', 'Farwaniya'),
+            ('Hassan Mahmoud', 'bike', 'Jahra'),
         ]
-        for f, l, v, z in talabat_drivers:
+        for name, v, z in talabat_drivers:
             d = Driver.objects.create(
-                first_name=f, last_name=l,
+                full_name=name,
                 phone=f'965{random.randint(10000000, 99999999)}',
                 civil_id_number=f'290{random.randint(100000000, 999999999)}',
+                working_id=f'WID-{random.randint(1000, 9999)}',
                 company_name='najmat', contract_type='talabat',
                 vehicle_type=v, zone=z,
                 civil_id_expiry=today + timedelta(days=random.randint(30, 300)),
@@ -78,13 +89,13 @@ class Command(BaseCommand):
 
         # Pharma Zone drivers
         pharma_drivers = [
-            ('Mohamed', 'Ali', 'bike', 'Salmiya'),
-            ('Yusuf', 'Ibrahim', 'car', 'Kuwait City'),
-            ('Rashid', 'Khalil', 'bike', 'Hawally'),
+            ('Mohamed Ali', 'bike', 'Salmiya'),
+            ('Yusuf Ibrahim', 'car', 'Kuwait City'),
+            ('Rashid Khalil', 'bike', 'Hawally'),
         ]
-        for f, l, v, z in pharma_drivers:
+        for name, v, z in pharma_drivers:
             d = Driver.objects.create(
-                first_name=f, last_name=l,
+                full_name=name,
                 phone=f'965{random.randint(10000000, 99999999)}',
                 civil_id_number=f'280{random.randint(100000000, 999999999)}',
                 company_name='najmat', contract_type='pharmazone',
@@ -96,12 +107,12 @@ class Command(BaseCommand):
 
         # Burger King drivers
         bk_drivers = [
-            ('Suresh', 'Kumar', 'bike', 'Farwaniya'),
-            ('Tariq', 'Zaman', 'car', 'Jahra'),
+            ('Suresh Kumar', 'bike', 'Farwaniya'),
+            ('Tariq Zaman', 'car', 'Jahra'),
         ]
-        for f, l, v, z in bk_drivers:
+        for name, v, z in bk_drivers:
             d = Driver.objects.create(
-                first_name=f, last_name=l,
+                full_name=name,
                 phone=f'965{random.randint(10000000, 99999999)}',
                 civil_id_number=f'281{random.randint(100000000, 999999999)}',
                 company_name='najmat', contract_type='burger_king',
@@ -113,12 +124,12 @@ class Command(BaseCommand):
 
         # Other contract drivers
         other_drivers = [
-            ('Imran', 'Sheikh', 'car', 'Kuwait City'),
-            ('Naveed', 'Akhtar', 'bike', 'Salmiya'),
+            ('Imran Sheikh', 'car', 'Kuwait City'),
+            ('Naveed Akhtar', 'bike', 'Salmiya'),
         ]
-        for f, l, v, z in other_drivers:
+        for name, v, z in other_drivers:
             d = Driver.objects.create(
-                first_name=f, last_name=l,
+                full_name=name,
                 phone=f'965{random.randint(10000000, 99999999)}',
                 civil_id_number=f'282{random.randint(100000000, 999999999)}',
                 company_name='najmat', contract_type='other',
@@ -158,17 +169,19 @@ class Command(BaseCommand):
         self.stdout.write('Creating messages...')
         msg = Message.objects.create(
             sender=manager_user,
-            subject='Welcome to SAYYEDNAA LOGISTICS',
+            subject='Welcome to NAJMAT ALWESAM',
             body='Welcome to the new system. Please ensure your documents are up to date.'
         )
         MessageRecipient.objects.create(message=msg, recipient=employee_user)
         MessageRecipient.objects.create(message=msg, recipient=accountant_user)
+        MessageRecipient.objects.create(message=msg, recipient=superadmin_user)
 
         # 6. Create Tasks
         self.stdout.write('Creating tasks...')
+        Task.objects.create(user=superadmin_user, title='System wide audit')
         Task.objects.create(user=manager_user, title='Review monthly reports')
         Task.objects.create(user=manager_user, title='Approve driver leaves')
         Task.objects.create(user=employee_user, title='Check vehicle maintenance')
         Task.objects.create(user=accountant_user, title='Prepare salary sheets')
 
-        self.stdout.write(self.style.SUCCESS('SAYYEDNAA LOGISTICS data seeded successfully!'))
+        self.stdout.write(self.style.SUCCESS('NAJMAT ALWESAM data seeded successfully!'))

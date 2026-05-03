@@ -6,6 +6,7 @@ from django.db import models
 # ─── Choices ─────────────────────────────────────────────────────────────────
 
 ROLE_CHOICES = [
+    ('superadmin', 'Super Admin'),
     ('admin', 'Admin'),
     ('manager', 'Manager'),
     ('employee', 'Employee'),
@@ -52,7 +53,7 @@ BANK_CHOICES = [
 ]
 
 COMPANY_CHOICES = [
-    ('najmat', 'Najmat Alwesam'),
+    ('najmat', 'NAJMAT ALWESAM'),
     ('speedy', 'Speedy'),
     ('other', 'Other'),
 ]
@@ -109,8 +110,7 @@ class Profile(AbstractUser):
 
 class Driver(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
+    full_name = models.CharField(max_length=200)
     email = models.EmailField(blank=True)
     phone = models.CharField(max_length=20)
 
@@ -149,9 +149,19 @@ class Driver(models.Model):
 
     # Documents
     supporting_document = models.FileField(upload_to='driver_docs/', null=True, blank=True)
+    civil_id_file = models.FileField(upload_to='driver_docs/civil_id/', null=True, blank=True)
+    driving_license_file = models.FileField(upload_to='driver_docs/driving_license/', null=True, blank=True)
+    work_permit_file = models.FileField(upload_to='driver_docs/work_permit/', null=True, blank=True)
+    health_card_file = models.FileField(upload_to='driver_docs/health_card/', null=True, blank=True)
+    criminal_pcc_file = models.FileField(upload_to='driver_docs/criminal_pcc/', null=True, blank=True)
+    passport_file = models.FileField(upload_to='driver_docs/passport/', null=True, blank=True)
+    vehicle_rc_file = models.FileField(upload_to='driver_docs/vehicle_rc/', null=True, blank=True)
+    photo_selfie = models.ImageField(upload_to='driver_docs/photo/', null=True, blank=True)
+    other_docs_file = models.FileField(upload_to='driver_docs/other/', null=True, blank=True)
 
     # Meta
     is_active = models.BooleanField(default=True)
+    file_status = models.CharField(max_length=50, blank=True, default='Active')
     created_by = models.ForeignKey(
         Profile, on_delete=models.SET_NULL, null=True, related_name='created_drivers'
     )
@@ -164,11 +174,11 @@ class Driver(models.Model):
     )
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name}"
+        return self.full_name
 
     @property
-    def full_name(self):
-        return f"{self.first_name} {self.last_name}"
+    def get_full_name(self):
+        return self.full_name
 
     def get_expiring_documents(self, days=30):
         from datetime import date, timedelta
@@ -209,7 +219,7 @@ class Driver(models.Model):
         return any(d['status'] in ['warning', 'expired'] for d in self.get_expiring_documents())
 
     class Meta:
-        ordering = ['first_name', 'last_name']
+        ordering = ['full_name']
 
 
 # ─── DriverInvoice ──────────────────────────────────────────────────────────
@@ -442,31 +452,39 @@ class TalabatSalaryDetail(models.Model):
     # Batch 1 to 7
     batch_1_orders = models.IntegerField(default=0)
     batch_1_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_1_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_2_orders = models.IntegerField(default=0)
     batch_2_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_2_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_3_orders = models.IntegerField(default=0)
     batch_3_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_3_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_4_orders = models.IntegerField(default=0)
     batch_4_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_4_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_5_orders = models.IntegerField(default=0)
     batch_5_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_5_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_6_orders = models.IntegerField(default=0)
     batch_6_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_6_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     batch_7_orders = models.IntegerField(default=0)
     batch_7_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    batch_7_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    attachment = models.FileField(upload_to='talabat_attachments/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-month', 'driver__first_name']
+        ordering = ['-month', 'driver__full_name']
         unique_together = ('driver', 'month')
 
     @property
@@ -484,8 +502,15 @@ class TalabatSalaryDetail(models.Model):
         )
 
     @property
+    def total_net_amount(self):
+        return (
+            self.batch_1_net_amount + self.batch_2_net_amount + self.batch_3_net_amount +
+            self.batch_4_net_amount + self.batch_5_net_amount + self.batch_6_net_amount + self.batch_7_net_amount
+        )
+
+    @property
     def net_salary(self):
-        return self.total_amount - self.deduction
+        return self.total_net_amount - self.deduction
 
     def __str__(self):
         return f"Talabat Salary: {self.driver} - {self.month.strftime('%B %Y')}"
@@ -498,6 +523,7 @@ class ContractSalaryDetail(models.Model):
     total_salary = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     absent = models.IntegerField(default=0)
     deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    attachment = models.FileField(upload_to='contract_attachments/', null=True, blank=True)
     remark = models.TextField(blank=True)
     month = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)

@@ -182,7 +182,7 @@ class DriverListView(StaffRequiredMixin, View):
         vehicle = request.GET.get('vehicle', '')
 
         if q:
-            qs = qs.filter(Q(first_name__icontains=q) | Q(last_name__icontains=q) | Q(phone__icontains=q))
+            qs = qs.filter(Q(full_name__icontains=q) | Q(phone__icontains=q))
         if company:
             qs = qs.filter(company_name=company)
         if contract:
@@ -260,11 +260,25 @@ class DriverToggleActiveView(StaffRequiredMixin, View):
 class DriverSalarySlipView(StaffRequiredMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
-        today = date.today()
+        
+        # Get month/year from query params or default to current
+        year_str = request.GET.get('year')
+        month_str = request.GET.get('month')
+        
+        if year_str and month_str:
+            try:
+                target_year = int(year_str)
+                target_month = int(month_str)
+                target_date = date(target_year, target_month, 1)
+            except (ValueError, TypeError):
+                target_date = date.today()
+        else:
+            target_date = date.today()
+
         invoices = DriverInvoice.objects.filter(
             driver=driver,
-            specified_date__year=today.year,
-            specified_date__month=today.month,
+            specified_date__year=target_date.year,
+            specified_date__month=target_date.month,
         )
         totals = invoices.aggregate(
             cash=Sum('cash'),
@@ -274,8 +288,8 @@ class DriverSalarySlipView(StaffRequiredMixin, View):
         )
         deductions = Deduction.objects.filter(
             driver=driver,
-            deduction_date__year=today.year,
-            deduction_date__month=today.month,
+            deduction_date__year=target_date.year,
+            deduction_date__month=target_date.month,
         )
         total_deductions = deductions.aggregate(
             total=Sum('contractor_deduction_kd')
@@ -294,8 +308,9 @@ class DriverSalarySlipView(StaffRequiredMixin, View):
             'deductions': deductions,
             'total_deductions': total_deductions,
             'net_payable': net,
-            'month_label': today.strftime('%B %Y'),
-            'generated_date': today,
+            'month_label': target_date.strftime('%B %Y'),
+            'generated_date': date.today(),
+            'target_date': target_date,
         })
 
 
@@ -370,8 +385,7 @@ class PendingDuesView(StaffRequiredMixin, View):
         q = request.GET.get('q', '')
         if q:
             installments = installments.filter(
-                Q(deduction__driver__first_name__icontains=q) |
-                Q(deduction__driver__last_name__icontains=q) |
+                Q(deduction__driver__full_name__icontains=q) |
                 Q(deduction__reason__icontains=q)
             )
 

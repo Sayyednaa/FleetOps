@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% block title %}SAYYEDNAA LOGISTICS | SAYYEDNAA LOGISTICS — Modern Delivery Services in Kuwait{% endblock %}
+{% block title %}NAJMAT ALWESAM | NAJMAT ALWESAM — Modern Delivery Services in Kuwait{% endblock %}
 
 {% block extra_css %}
 <!-- SEO Meta Tags -->
-<meta name="description" content="شركة SAYYEDNAA LOGISTICS - خدمة توصيل موثوقة في الكويت. نقدم خدمات توصيل الطلبات من المطاعم والمتاجر والصيدليات للأفراد والشركات في جميع أنحاء الكويت." />
-<meta name="keywords" content="توصيل, الكويت, خدمة توصيل, توصيل طلبات, توصيل طعام, SAYYEDNAA LOGISTICS, delivery, kuwait, food delivery" />
-<meta name="author" content="شركة SAYYEDNAA LOGISTICS" />
-<meta property="og:title" content="شركة SAYYEDNAA LOGISTICS للتوصيل" />
+<meta name="description" content="شركة NAJMAT ALWESAM - خدمة توصيل موثوقة في الكويت. نقدم خدمات توصيل الطلبات من المطاعم والمتاجر والصيدليات للأفراد والشركات في جميع أنحاء الكويت." />
+<meta name="keywords" content="توصيل, الكويت, خدمة توصيل, توصيل طلبات, توصيل طعام, NAJMAT ALWESAM, delivery, kuwait, food delivery" />
+<meta name="author" content="شركة NAJMAT ALWESAM" />
+<meta property="og:title" content="شركة NAJMAT ALWESAM للتوصيل" />
 <meta property="og:description" content="خدمة توصيل موثوقة في الكويت. نقدم خدمات توصيل الطلبات من المطاعم والمتاجر والصيدليات." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://najmatalwesam.com" />
@@ -46,7 +46,7 @@
             <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg">
                 <span class="text-white text-xl">🚛</span>
             </div>
-            <h1 class="font-bold text-white text-xl tracking-tight">SAYYEDNAA LOGISTICS</h1>
+            <h1 class="font-bold text-white text-xl tracking-tight">NAJMAT ALWESAM</h1>
         </div>
         <div class="flex items-center gap-4 lg:gap-6">
             <button @click="localStorage.setItem('i18nextLng', lang === 'en' ? 'ar' : 'en'); window.location.reload();" 
@@ -69,10 +69,10 @@
             </div>
             <h1 class="text-5xl lg:text-7xl font-extrabold text-white leading-tight">
                 <template x-if="lang === 'en'">
-                    <span>SAYYEDNAA LOGISTICS <span class="text-orange-500">Delivering Excellence</span> in Kuwait</span>
+                    <span>NAJMAT ALWESAM <span class="text-orange-500">Delivering Excellence</span> in Kuwait</span>
                 </template>
                 <template x-if="lang === 'ar'">
-                    <span>SAYYEDNAA LOGISTICS <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
+                    <span>NAJMAT ALWESAM <span class="text-orange-500">نقدم التميز</span> في الكويت</span>
                 </template>
             </h1>
             <p class="text-xl text-gray-400 leading-relaxed max-w-xl">
@@ -175,7 +175,7 @@
         <div class="grid md:grid-cols-2 gap-8 mt-12">
             <div class="p-10 rounded-3xl bg-card-dark border border-border-dark relative">
                 <span class="text-6xl text-white/5 absolute top-6 right-8">"</span>
-                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'SAYYEDNAA LOGISTICS completely transformed our food delivery speed. Highly recommended!' : 'SAYYEDNAA LOGISTICS غيرت تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!'"></p>
+                <p class="text-gray-300 italic mb-8 relative z-10" x-text="lang === 'en' ? 'NAJMAT ALWESAM completely transformed our food delivery speed. Highly recommended!' : 'NAJMAT ALWESAM غيرت تماماً سرعة توصيل الطعام لدينا. ننصح بهم بشدة!'"></p>
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center font-bold text-orange-400">AM</div>
                     <div>
@@ -202,7 +202,7 @@
     <div class="py-24 px-6 lg:px-12 max-w-7xl mx-auto text-center">
         <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-[3rem] p-12 lg:p-20 shadow-2xl shadow-orange-500/20">
             <h2 class="text-4xl lg:text-6xl font-black text-white mb-6" x-text="lang === 'en' ? 'Ready to Dispatch?' : 'جاهز للإرسال؟'"></h2>
-            <p class="text-white/80 text-xl mb-10 max-w-2xl mx-auto" x-text="lang === 'en' ? 'Join hundreds of businesses that trust SAYYEDNAA LOGISTICS.' : 'انضم إلى مئات الشركات التي تثق بSAYYEDNAA LOGISTICS.'"></p>
+            <p class="text-white/80 text-xl mb-10 max-w-2xl mx-auto" x-text="lang === 'en' ? 'Join hundreds of businesses that trust NAJMAT ALWESAM.' : 'انضم إلى مئات الشركات التي تثق بNAJMAT ALWESAM.'"></p>
             <a href="{% url 'login' %}" class="inline-flex items-center gap-3 px-10 py-5 bg-white text-orange-600 font-black text-xl rounded-2xl hover:scale-105 transition-transform">
                 <span x-show="lang === 'en'">Get Started</span>
                 <span x-show="lang === 'ar'">ابدأ الآن</span>
@@ -216,12 +216,12 @@
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
             <div class="flex items-center gap-3">
                 <div class="w-8 h-8 rounded-lg bg-orange-500 flex items-center justify-center text-white text-lg">🚛</div>
-                <span class="text-white font-bold tracking-tight">SAYYEDNAA LOGISTICS</span>
+                <span class="text-white font-bold tracking-tight">NAJMAT ALWESAM</span>
             </div>
             <div class="flex flex-col items-center">
-                <p class="text-gray-500 text-sm">© 2026 SAYYEDNAA LOGISTICS Kuwait. All rights reserved.</p>
-                <a href="https://sayyednaa.github.io" target="_blank" class="text-[10px] text-gray-600 hover:text-orange-500 transition-colors mt-2">
-                    Made with 💖 by <span class="font-bold">SAYYEDNAA</span>
+                <p class="text-gray-500 text-sm">© 2026 NAJMAT ALWESAM Kuwait. All rights reserved.</p>
+                <a href="https://najmatalwesam.com" target="_blank" class="text-[10px] text-gray-600 hover:text-orange-500 transition-colors mt-2">
+                    Made with 💖 by <span class="font-bold">NAJMAT ALWESAM</span>
                 </a>
             </div>
             <div class="flex gap-6 text-gray-400 text-sm">

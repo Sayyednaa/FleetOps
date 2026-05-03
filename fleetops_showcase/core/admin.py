@@ -14,9 +14,9 @@ class ProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Driver)
 class DriverAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'phone', 'company_name', 'contract_type', 'vehicle_type', 'is_active')
+    list_display = ('full_name', 'phone', 'company_name', 'contract_type', 'vehicle_type', 'is_active')
     list_filter = ('company_name', 'contract_type', 'vehicle_type', 'is_active')
-    search_fields = ('first_name', 'last_name', 'phone', 'civil_id_number')
+    search_fields = ('full_name', 'phone', 'civil_id_number')
 
 
 @admin.register(DriverInvoice)

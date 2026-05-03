@@ -44,7 +44,7 @@ class ProfileForm(forms.ModelForm):
     )
 
     role = forms.ChoiceField(
-        choices=[('manager', 'Manager'), ('employee', 'Employee'), ('accountant', 'Accountant')],
+        choices=[('superadmin', 'Super Admin'), ('manager', 'Manager'), ('employee', 'Employee'), ('accountant', 'Accountant')],
         widget=forms.Select(attrs={'class': TW_SELECT}),
         initial='manager'
     )
@@ -136,46 +136,90 @@ class DriverForm(forms.ModelForm):
     class Meta:
         model = Driver
         fields = [
-            'first_name', 'last_name', 'email', 'phone',
-            'civil_id_number', 'civil_id_expiry', 'passport_number', 'passport_expiry',
-            'working_permit_expiry', 'driver_license_expiry',
-            'vehicle_registration', 'vehicle_registration_expiry', 'vehicle_plate_number', 'vehicle_name',
-            'zone', 'petrol_card_number', 'health_insurance_expiry', 'criminal_certificate_expiry',
-            'employee_serial_number', 'company_name', 'working_id', 'contract_type',
-            'position', 'vehicle_type',
+            'full_name', 'phone', 'email',
+            'civil_id_number', 'civil_id_expiry', 'civil_id_file',
+            'passport_number', 'passport_expiry', 'passport_file',
+            'working_permit_expiry', 'work_permit_file',
+            'driver_license_expiry', 'driving_license_file',
+            'health_insurance_expiry', 'health_card_file',
+            'vehicle_registration', 'vehicle_registration_expiry', 'vehicle_rc_file',
+            'vehicle_plate_number', 'vehicle_name', 'vehicle_type',
+            'zone', 'petrol_card_number', 'working_id',
+            'company_name', 'contract_type', 'position',
             'iban_number', 'bank_name', 'basic_salary_wp',
-            'supporting_document',
+            'criminal_certificate_expiry', 'criminal_pcc_file',
+            'file_status', 'photo_selfie', 'other_docs_file',
         ]
         widgets = {
-            'first_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'First Name'}),
-            'last_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Last Name'}),
-            'email': forms.EmailInput(attrs={'class': TW_INPUT, 'placeholder': 'Email Address (Optional)'}),
+            'full_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Full Name'}),
             'phone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Phone Number'}),
+            'email': forms.EmailInput(attrs={'class': TW_INPUT, 'placeholder': 'Email Address (Optional)'}),
             'civil_id_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Civil ID Number'}),
             'civil_id_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'passport_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Passport Number'}),
             'passport_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'working_permit_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'driver_license_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'vehicle_registration': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Registration'}),
+            'health_insurance_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
+            'vehicle_registration': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Car Registration Number'}),
             'vehicle_registration_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
             'vehicle_plate_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Plate Number'}),
             'vehicle_name': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Vehicle Name'}),
-            'zone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Zone/Working Area'}),
-            'petrol_card_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Petrol Card / Sticker Number'}),
-            'health_insurance_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'criminal_certificate_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
-            'employee_serial_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Employee Serial Number'}),
-            'company_name': forms.Select(attrs={'class': TW_SELECT}),
-            'working_id': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Working ID'}),
-            'contract_type': forms.Select(attrs={'class': TW_SELECT}),
-            'position': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Position / Job Title'}),
             'vehicle_type': forms.Select(attrs={'class': TW_SELECT}),
+            'zone': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Zone / Working Area'}),
+            'petrol_card_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Petrol Card Number'}),
+            'working_id': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Working ID'}),
+            'company_name': forms.Select(attrs={'class': TW_SELECT}),
+            'contract_type': forms.Select(attrs={'class': TW_SELECT}),
+            'position': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'Profession'}),
             'iban_number': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'IBAN Number'}),
             'bank_name': forms.Select(attrs={'class': TW_SELECT}),
             'basic_salary_wp': forms.NumberInput(attrs={'class': TW_INPUT, 'step': '0.001', 'placeholder': 'Basic Salary (WP)'}),
-            'supporting_document': forms.FileInput(attrs={'class': TW_FILE}),
+            'criminal_certificate_expiry': forms.DateInput(attrs={'class': TW_DATE, 'type': 'date'}),
+            'file_status': forms.TextInput(attrs={'class': TW_INPUT, 'placeholder': 'File Status'}),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        
+        # Mandatory fields list
+        mandatory_fields = [
+            ('civil_id_number', 'Civil ID Number'),
+            ('civil_id_expiry', 'Civil ID Expiry'),
+            ('civil_id_file', 'Civil ID File'),
+            ('passport_number', 'Passport Number'),
+            ('passport_expiry', 'Passport Expiry'),
+            ('passport_file', 'Passport File'),
+            ('working_permit_expiry', 'Work Permit Expiry'),
+            ('work_permit_file', 'Work Permit File'),
+            ('driver_license_expiry', 'Driving License Expiry'),
+            ('driving_license_file', 'Driving License File'),
+            ('health_insurance_expiry', 'Health Card Expiry'),
+            ('health_card_file', 'Health Card File'),
+            ('vehicle_registration', 'Vehicle Registration'),
+            ('vehicle_registration_expiry', 'Vehicle Registration Expiry'),
+            ('vehicle_rc_file', 'Vehicle RC File'),
+            ('photo_selfie', 'Photo/Selfie'),
+        ]
+
+        # Check each mandatory field
+        for field_name, field_label in mandatory_fields:
+            value = cleaned_data.get(field_name)
+            
+            # If it's a file field and we are editing, check if the instance already has a file
+            if field_name.endswith('_file') or field_name == 'photo_selfie':
+                if not value:
+                    if self.instance and self.instance.pk:
+                        existing_file = getattr(self.instance, field_name, None)
+                        if not existing_file:
+                            self.add_error(field_name, f"{field_label} is compulsory.")
+                    else:
+                        self.add_error(field_name, f"{field_label} is compulsory.")
+            else:
+                if not value:
+                    self.add_error(field_name, f"{field_label} is compulsory.")
+
+        return cleaned_data
 
     def save(self, commit=True):
         driver = super().save(commit=False)
@@ -187,8 +231,8 @@ class DriverForm(forms.ModelForm):
                 email=email,
                 defaults={
                     'username': email,
-                    'first_name': self.cleaned_data.get('first_name', ''),
-                    'last_name': self.cleaned_data.get('last_name', ''),
+                    'first_name': self.cleaned_data.get('full_name', '').split(' ')[0],
+                    'last_name': ' '.join(self.cleaned_data.get('full_name', '').split(' ')[1:]),
                     'role': 'driver',
                 }
             )

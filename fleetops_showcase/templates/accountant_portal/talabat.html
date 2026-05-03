@@ -1,12 +1,12 @@
 {% extends "base.html" %}
-{% block title %}Talabat Salary Details - Accountant{% endblock %}
+{% block title %}Talabat Salary Details — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}Talabat Salary Details{% endblock %}
-{% block breadcrumb %}Accountant / Talabat{% endblock %}
+{% block breadcrumb %}NAJMAT ALWESAM / Accountant / Talabat{% endblock %}
 
 {% block content %}
 <div class="space-y-6" x-data="talabatSalary()">
     <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xl font-bold text-app-text">Talabat Salary Entry</h3>
+        <h3 class="text-xl font-bold text-app-text">NAJMAT ALWESAM — Talabat Salary Entry</h3>
         <div class="flex gap-2">
             <a href="{% url 'accountant_download_template' 'talabat_salary' %}" class="px-3 py-1.5 text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg flex items-center gap-1 transition-colors">
                 <span>📄</span> Template
@@ -26,22 +26,22 @@
 
     <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6">
         <h3 class="text-lg font-bold mb-4">Data Entry Form</h3>
-        <form method="post" action="{% url 'accountant_talabat' %}" class="space-y-6">
+        <form method="post" action="{% url 'accountant_talabat' %}" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             <!-- Driver Selection + Month -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Select Rider / Employee</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Select Driver / Employee</label>
                     <select name="driver_id" x-model="selectedDriverId" @change="updateDriverDetails" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors" required>
-                        <option value="">-- Select Rider --</option>
+                        <option value="">-- Select Driver --</option>
                         {% for driver in drivers %}
-                        <option value="{{ driver.id }}" data-employee-id="{{ driver.employee_serial_number }}">{{ driver.first_name }} {{ driver.last_name }}</option>
+                        <option value="{{ driver.id }}" data-employee-id="{{ driver.working_id }}">{{ driver.full_name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Rider ID (Auto-populated)</label>
-                    <input type="text" x-model="riderId" readonly class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm opacity-70 cursor-not-allowed">
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Driver ID (Auto-populated)</label>
+                    <input type="text" x-model="driverId" readonly class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm opacity-70 cursor-not-allowed">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Month</label>
@@ -57,6 +57,7 @@
                             <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Batch</th>
                             <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Orders</th>
                             <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Amount</th>
+                            <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Net Amount</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,10 +65,13 @@
                             <tr class="border-b border-app-border/50">
                                 <td class="px-4 py-3 text-sm font-medium" x-text="`Batch ${i}`"></td>
                                 <td class="px-4 py-3">
-                                    <input type="number" :name="`batch_${i}_orders`" x-model.number="batches[i-1].orders" class="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded-lg text-sm" placeholder="0">
+                                    <input type="number" :name="`batch_${i}_orders`" x-model.number="batches[i-1].orders" @input="calcNet(i-1)" class="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded-lg text-sm" placeholder="0">
                                 </td>
                                 <td class="px-4 py-3">
-                                    <input type="number" step="0.001" :name="`batch_${i}_amount`" x-model.number="batches[i-1].amount" class="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded-lg text-sm" placeholder="0.000">
+                                    <input type="number" step="0.001" :name="`batch_${i}_amount`" x-model.number="batches[i-1].amount" @input="calcNet(i-1)" class="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded-lg text-sm" placeholder="0.000">
+                                </td>
+                                <td class="px-4 py-3">
+                                    <input type="number" step="0.001" :name="`batch_${i}_net_amount`" x-model.number="batches[i-1].netAmount" class="w-full px-3 py-1.5 bg-app-bg border border-app-border rounded-lg text-sm font-semibold text-emerald-600" placeholder="0.000">
                                 </td>
                             </tr>
                         </template>
@@ -77,12 +81,13 @@
                             <td class="px-4 py-4 text-sm text-right">TOTAL</td>
                             <td class="px-4 py-4 text-brand" x-text="totalOrders"></td>
                             <td class="px-4 py-4 text-brand" x-text="totalAmount.toFixed(3)"></td>
+                            <td class="px-4 py-4 text-emerald-600 font-bold" x-text="totalNetAmount.toFixed(3)"></td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Deduction</label>
                     <input type="number" step="0.001" name="deduction" x-model.number="deduction" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors">
@@ -90,6 +95,11 @@
                 <div>
                     <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Net Salary</label>
                     <div class="px-4 py-2.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-xl text-lg font-bold" x-text="netSalary.toFixed(3)"></div>
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Attach File</label>
+                    <input type="file" name="attachment" class="block w-full text-sm text-app-text-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 border border-app-border rounded-md bg-app-bg">
+                    <p class="text-xs text-app-text-muted mt-1">PDF, PNG, JPG, XLSX (max 10MB)</p>
                 </div>
             </div>
 
@@ -109,23 +119,33 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-app-bg border-y border-app-border">
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Rider</th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Driver</th>
                         <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Month</th>
                         <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Total Orders</th>
                         <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Total Amount</th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Net Amount</th>
                         <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Deduction</th>
                         <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Net Salary</th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Attachment</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for record in saved_records %}
                     <tr class="border-b border-app-border/50 hover:bg-app-bg/50 transition-colors">
-                        <td class="px-4 py-3 text-sm font-medium">{{ record.driver.first_name }} {{ record.driver.last_name }}</td>
+                        <td class="px-4 py-3 text-sm font-medium">{{ record.driver.full_name }}</td>
                         <td class="px-4 py-3 text-sm text-app-text-muted">{{ record.month|date:"F Y" }}</td>
                         <td class="px-4 py-3 text-sm">{{ record.total_orders }}</td>
                         <td class="px-4 py-3 text-sm">{{ record.total_amount }}</td>
+                        <td class="px-4 py-3 text-sm font-semibold text-emerald-600">{{ record.total_net_amount }}</td>
                         <td class="px-4 py-3 text-sm text-red-500">{{ record.deduction }}</td>
                         <td class="px-4 py-3 text-sm font-bold text-emerald-500">{{ record.net_salary }}</td>
+                        <td class="px-4 py-3 text-sm">
+                            {% if record.attachment %}
+                            <a href="{{ record.attachment.url }}" target="_blank" class="text-brand hover:underline text-xs font-bold">📎 View</a>
+                            {% else %}
+                            <span class="text-app-text-muted text-xs">—</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -143,13 +163,19 @@
     function talabatSalary() {
         return {
             selectedDriverId: '',
-            riderId: '',
-            batches: Array(7).fill().map(() => ({ orders: 0, amount: 0 })),
+            driverId: '',
+            batches: Array(7).fill().map(() => ({ orders: 0, amount: 0, netAmount: 0 })),
             deduction: 0,
             
             updateDriverDetails(e) {
                 const selectedOption = e.target.options[e.target.selectedIndex];
-                this.riderId = selectedOption.getAttribute('data-employee-id') || 'N/A';
+                this.driverId = selectedOption.getAttribute('data-employee-id') || 'N/A';
+            },
+
+            calcNet(index) {
+                // Auto-calculate net amount = orders * amount (can be overridden manually)
+                const batch = this.batches[index];
+                batch.netAmount = parseFloat(((batch.orders || 0) * (batch.amount || 0)).toFixed(3));
             },
 
             get totalOrders() {
@@ -160,8 +186,12 @@
                 return this.batches.reduce((sum, batch) => sum + (batch.amount || 0), 0);
             },
 
+            get totalNetAmount() {
+                return this.batches.reduce((sum, batch) => sum + (batch.netAmount || 0), 0);
+            },
+
             get netSalary() {
-                return Math.max(0, this.totalAmount - (this.deduction || 0));
+                return Math.max(0, this.totalNetAmount - (this.deduction || 0));
             }
         }
     }

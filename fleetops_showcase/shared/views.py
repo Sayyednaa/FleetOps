@@ -57,7 +57,7 @@ class InvoiceListView(StaffRequiredMixin, View):
         except ValueError:
             target_date = date.today()
 
-        drivers = Driver.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        drivers = Driver.objects.filter(is_active=True).order_by('full_name')
         
         # Prefetch invoices for this date
         invoices = DriverInvoice.objects.filter(specified_date=target_date)
@@ -218,7 +218,7 @@ class InvoiceExportView(StaffRequiredMixin, View):
         year, month = _parse_month(request)
         qs = DriverInvoice.objects.filter(
             specified_date__year=year, specified_date__month=month,
-        ).select_related('driver').order_by('driver__first_name', 'specified_date')
+        ).select_related('driver').order_by('driver__full_name', 'specified_date')
         return export_invoices_excel(qs, f"{year}-{month:02d}")
 
 
@@ -454,7 +454,7 @@ class CompanyFileDeleteView(StaffRequiredMixin, View):
 
 class DeactivatedDriversView(StaffRequiredMixin, View):
     def get(self, request):
-        drivers = Driver.objects.filter(is_active=False).order_by('first_name')
+        drivers = Driver.objects.filter(is_active=False).order_by('full_name')
         return render(request, 'shared/deactivated_drivers.html', {'drivers': drivers})
 
 

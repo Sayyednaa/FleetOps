@@ -16,7 +16,7 @@ def notify_on_driver_create(sender, instance, created, **kwargs):
                         user=user,
                         title=f"Document Alert: {doc['label']}",
                         body=(
-                            f"{instance.first_name} {instance.last_name}'s {doc['label']} "
+                            f"{instance.full_name}'s {doc['label']} "
                             f"{'expires in ' + str(doc['days_remaining']) + ' days' if doc['status'] == 'warning' else 'has expired'}."
                         ),
                         type='document_expiry',

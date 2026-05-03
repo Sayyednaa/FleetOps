@@ -15,21 +15,26 @@ class RoleRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
         return redirect('access_denied')
 
 
+class SuperAdminRequiredMixin(RoleRequiredMixin):
+    """Only superadmin can access."""
+    allowed_roles = ['superadmin']
+
+
 class AdminRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ['admin']
+    allowed_roles = ['superadmin', 'admin']
 
 
 class AccountantRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ['admin', 'accountant']
+    allowed_roles = ['superadmin', 'admin', 'accountant']
 
 
 class AdminManagerRequiredMixin(RoleRequiredMixin):
-    allowed_roles = ['admin', 'manager']
+    allowed_roles = ['superadmin', 'admin', 'manager']
 
 
 class StaffRequiredMixin(RoleRequiredMixin):
     """Access for all office roles."""
-    allowed_roles = ['admin', 'manager', 'employee', 'accountant']
+    allowed_roles = ['superadmin', 'admin', 'manager', 'employee', 'accountant']
 
 
 class DriverRequiredMixin(RoleRequiredMixin):

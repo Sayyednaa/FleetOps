@@ -9,7 +9,7 @@ def home_view(request):
     """
     if request.user.is_authenticated:
         role = getattr(request.user, 'role', None)
-        if role == 'admin':
+        if role in ['admin', 'superadmin']:
             return redirect('admin_dashboard')
         elif role == 'manager':
             return redirect('manager_dashboard')

@@ -23,7 +23,7 @@ def export_invoices_excel(queryset, month_label):
     # Data rows
     for row_idx, invoice in enumerate(queryset, 2):
         ws.cell(row=row_idx, column=1, value=row_idx - 1)
-        ws.cell(row=row_idx, column=2, value=f"{invoice.driver.first_name} {invoice.driver.last_name}")
+        ws.cell(row=row_idx, column=2, value=invoice.driver.full_name)
         ws.cell(row=row_idx, column=3, value=invoice.driver.phone)
         ws.cell(row=row_idx, column=4, value=float(invoice.cash))
         ws.cell(row=row_idx, column=5, value=invoice.main_orders)
@@ -87,7 +87,7 @@ def export_talabat_excel(queryset, label='talabat'):
     ws.title = f"Salary {label}"
 
     headers = [
-        'Rider ID', 'Name', 'Total Orders', 'Total Salary KD', 'Deduction KD', 'Net Salary KD'
+        'Driver ID', 'Name', 'Total Orders', 'Total Salary KD', 'Deduction KD', 'Net Salary KD'
     ]
     orange_fill = PatternFill(start_color="F97316", end_color="F97316", fill_type="solid")
     for col_idx, header in enumerate(headers, 1):
@@ -98,7 +98,7 @@ def export_talabat_excel(queryset, label='talabat'):
 
     for row_idx, record in enumerate(queryset, 2):
         ws.cell(row=row_idx, column=1, value=record.driver.employee_serial_number)
-        ws.cell(row=row_idx, column=2, value=f"{record.driver.first_name} {record.driver.last_name}")
+        ws.cell(row=row_idx, column=2, value=record.driver.full_name)
         ws.cell(row=row_idx, column=3, value=record.total_orders)
         ws.cell(row=row_idx, column=4, value=float(record.total_salary))
         ws.cell(row=row_idx, column=5, value=float(record.deduction))
@@ -158,7 +158,7 @@ def generate_excel_template(model_type):
     # Define headers per model
     if model_type == 'driver':
         headers = [
-            'First Name', 'Last Name', 'Email', 'Phone', 'Civil ID Number',
+            'Full Name', 'Email', 'Phone', 'Civil ID Number',
             'Passport Number', 'Vehicle Plate Number', 'Vehicle Name', 'Company Name',
             'Contract Type', 'Vehicle Type'
         ]
@@ -178,7 +178,7 @@ def generate_excel_template(model_type):
         ]
     elif model_type == 'talabat_salary':
         headers = [
-            'Rider ID', 'Batch 1 Orders', 'Batch 1 Amount', 'Batch 2 Orders', 'Batch 2 Amount',
+            'Driver ID', 'Batch 1 Orders', 'Batch 1 Amount', 'Batch 2 Orders', 'Batch 2 Amount',
             'Batch 3 Orders', 'Batch 3 Amount', 'Batch 4 Orders', 'Batch 4 Amount',
             'Batch 5 Orders', 'Batch 5 Amount', 'Batch 6 Orders', 'Batch 6 Amount',
             'Batch 7 Orders', 'Batch 7 Amount', 'Deduction'
@@ -229,8 +229,7 @@ def import_from_excel(file, model_type, user):
         try:
             if model_type == 'driver':
                 Driver.objects.create(
-                    first_name=data.get('First Name'),
-                    last_name=data.get('Last Name'),
+                    full_name=data.get('Full Name'),
                     email=data.get('Email'),
                     phone=data.get('Phone'),
                     civil_id_number=data.get('Civil ID Number'),
@@ -281,14 +280,14 @@ def import_from_excel(file, model_type, user):
                 )
             elif model_type == 'talabat_salary':
                 from .models import TalabatSalaryDetail
-                rider_id = str(data.get('Rider ID', '')).strip()
-                if not rider_id:
-                    errors.append(f"Row {row_idx}: Missing Rider ID.")
+                driver_id_val = str(data.get('Driver ID', '')).strip()
+                if not driver_id_val:
+                    errors.append(f"Row {row_idx}: Missing Driver ID.")
                     continue
                 try:
-                    driver = Driver.objects.get(employee_serial_number=rider_id)
+                    driver = Driver.objects.get(employee_serial_number=driver_id_val)
                 except Driver.DoesNotExist:
-                    errors.append(f"Row {row_idx}: Driver with ID {rider_id} not found.")
+                    errors.append(f"Row {row_idx}: Driver with ID {driver_id_val} not found.")
                     continue
                 
                 TalabatSalaryDetail.objects.create(

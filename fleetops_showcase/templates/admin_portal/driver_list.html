@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load role_tags %}
-{% block title %}Manage Drivers — SAYYEDNAA LOGISTICS{% endblock %}
+{% block title %}Manage Drivers — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}Manage Drivers{% endblock %}
 {% block breadcrumb %}{% if portal == 'admin' %}Admin{% elif portal == 'manager' %}Manager{% else %}Employee{% endif %} → Drivers{% endblock %}
 
@@ -91,7 +91,7 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-2">
                             <div class="w-8 h-8 rounded-full bg-gradient-to-br from-brand to-amber-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                                {{ driver.first_name.0 }}{{ driver.last_name.0 }}
+                                {{ driver.full_name.0 }}
                             </div>
                             <div>
                                 <div class="flex items-center gap-1">
