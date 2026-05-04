@@ -269,7 +269,7 @@ class DriverEditView(StaffRequiredMixin, View):
         return render(request, 'admin_portal/driver_form.html', {'form': form, 'editing': True, 'driver': driver})
 
 
-class DriverDeleteView(StaffRequiredMixin, View):
+class DriverDeleteView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         name = driver.full_name

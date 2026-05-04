@@ -1,6 +1,7 @@
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from .validators import validate_file_extension
 
 
 # ─── Choices ─────────────────────────────────────────────────────────────────
@@ -93,7 +94,7 @@ class Profile(AbstractUser):
     base_salary_kd = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     iban_number = models.CharField(max_length=50, blank=True)
     bank_name = models.CharField(max_length=30, choices=BANK_CHOICES, default='nbk')
-    supporting_document = models.FileField(upload_to='profile_docs/', null=True, blank=True)
+    supporting_document = models.FileField(upload_to='profile_docs/', null=True, blank=True, validators=[validate_file_extension])
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -112,7 +113,7 @@ class Driver(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     full_name = models.CharField(max_length=200)
     email = models.EmailField(blank=True)
-    phone = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20, blank=True)
 
     # Identity
     civil_id_number = models.CharField(max_length=50)
@@ -148,16 +149,16 @@ class Driver(models.Model):
     basic_salary_wp = models.DecimalField(max_digits=10, decimal_places=3, default=0)
 
     # Documents
-    supporting_document = models.FileField(upload_to='driver_docs/', null=True, blank=True)
-    civil_id_file = models.FileField(upload_to='driver_docs/civil_id/', null=True, blank=True)
-    driving_license_file = models.FileField(upload_to='driver_docs/driving_license/', null=True, blank=True)
-    work_permit_file = models.FileField(upload_to='driver_docs/work_permit/', null=True, blank=True)
-    health_card_file = models.FileField(upload_to='driver_docs/health_card/', null=True, blank=True)
-    criminal_pcc_file = models.FileField(upload_to='driver_docs/criminal_pcc/', null=True, blank=True)
-    passport_file = models.FileField(upload_to='driver_docs/passport/', null=True, blank=True)
-    vehicle_rc_file = models.FileField(upload_to='driver_docs/vehicle_rc/', null=True, blank=True)
+    supporting_document = models.FileField(upload_to='driver_docs/', null=True, blank=True, validators=[validate_file_extension])
+    civil_id_file = models.FileField(upload_to='driver_docs/civil_id/', null=True, blank=True, validators=[validate_file_extension])
+    driving_license_file = models.FileField(upload_to='driver_docs/driving_license/', null=True, blank=True, validators=[validate_file_extension])
+    work_permit_file = models.FileField(upload_to='driver_docs/work_permit/', null=True, blank=True, validators=[validate_file_extension])
+    health_card_file = models.FileField(upload_to='driver_docs/health_card/', null=True, blank=True, validators=[validate_file_extension])
+    criminal_pcc_file = models.FileField(upload_to='driver_docs/criminal_pcc/', null=True, blank=True, validators=[validate_file_extension])
+    passport_file = models.FileField(upload_to='driver_docs/passport/', null=True, blank=True, validators=[validate_file_extension])
+    vehicle_rc_file = models.FileField(upload_to='driver_docs/vehicle_rc/', null=True, blank=True, validators=[validate_file_extension])
     photo_selfie = models.ImageField(upload_to='driver_docs/photo/', null=True, blank=True)
-    other_docs_file = models.FileField(upload_to='driver_docs/other/', null=True, blank=True)
+    other_docs_file = models.FileField(upload_to='driver_docs/other/', null=True, blank=True, validators=[validate_file_extension])
 
     # Meta
     is_active = models.BooleanField(default=True)
@@ -358,7 +359,7 @@ class Message(models.Model):
     sender = models.ForeignKey(Profile, on_delete=models.CASCADE, related_name='sent_messages')
     subject = models.CharField(max_length=200)
     body = models.TextField()
-    attachment = models.FileField(upload_to='message_attachments/', null=True, blank=True)
+    attachment = models.FileField(upload_to='message_attachments/', null=True, blank=True, validators=[validate_file_extension])
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -431,7 +432,7 @@ class Task(models.Model):
 class CompanyFile(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField(max_length=200)
-    file = models.FileField(upload_to='company_files/')
+    file = models.FileField(upload_to='company_files/', validators=[validate_file_extension])
     description = models.TextField(blank=True)
     category = models.CharField(max_length=100, blank=True)
     uploaded_by = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True)
@@ -479,7 +480,7 @@ class TalabatSalaryDetail(models.Model):
     batch_7_net_amount = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     
     deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
-    attachment = models.FileField(upload_to='talabat_attachments/', null=True, blank=True)
+    attachment = models.FileField(upload_to='talabat_attachments/', null=True, blank=True, validators=[validate_file_extension])
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -523,7 +524,7 @@ class ContractSalaryDetail(models.Model):
     total_salary = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     absent = models.IntegerField(default=0)
     deduction = models.DecimalField(max_digits=10, decimal_places=3, default=0)
-    attachment = models.FileField(upload_to='contract_attachments/', null=True, blank=True)
+    attachment = models.FileField(upload_to='contract_attachments/', null=True, blank=True, validators=[validate_file_extension])
     remark = models.TextField(blank=True)
     month = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)

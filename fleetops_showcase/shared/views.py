@@ -7,7 +7,7 @@ from django.db.models import Sum, Q
 from django.db import transaction
 from django.core.paginator import Paginator
 from django.utils import timezone
-from core.mixins import AnyAuthenticatedMixin, StaffRequiredMixin, AdminManagerRequiredMixin
+from core.mixins import AnyAuthenticatedMixin, StaffRequiredMixin, AdminManagerRequiredMixin, FinancialAccessMixin
 from core.models import (
     Driver, DriverInvoice, InvoiceArchive, Notification,
     Message, MessageRecipient, Profile, Task, CompanyFile,
@@ -74,7 +74,7 @@ class InvoiceListView(StaffRequiredMixin, View):
         })
 
 
-class InvoiceBulkSaveView(StaffRequiredMixin, View):
+class InvoiceBulkSaveView(FinancialAccessMixin, View):
     def post(self, request):
         driver_id = request.POST.get('driver_id')
         target_date_str = request.POST.get('date')
@@ -318,6 +318,11 @@ class MessageDetailView(AnyAuthenticatedMixin, View):
         msg = get_object_or_404(Message, pk=pk)
         # Mark as read if recipient
         mr = MessageRecipient.objects.filter(message=msg, recipient=request.user).first()
+        
+        # Security Check: User must be sender or recipient
+        if msg.sender != request.user and not mr:
+            return redirect('access_denied')
+
         if mr and not mr.is_read:
             mr.is_read = True
             mr.read_at = timezone.now()
@@ -463,7 +468,7 @@ class CompanyFileUpdateView(StaffRequiredMixin, View):
         return redirect('company_files')
 
 
-class CompanyFileDeleteView(StaffRequiredMixin, View):
+class CompanyFileDeleteView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         cfile = get_object_or_404(CompanyFile, pk=pk)
         cfile.delete()
