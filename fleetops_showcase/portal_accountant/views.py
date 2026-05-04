@@ -1,5 +1,7 @@
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, ListView, View
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.views import View
+from django.views.generic import TemplateView, ListView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from core.models import Driver, TalabatSalaryDetail, ContractSalaryDetail, MonthlyProfitLoss
 
@@ -25,7 +27,7 @@ class AccountantTalabatView(AccountantMixin, ListView):
     context_object_name = 'drivers'
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('full_name')
+        return Driver.objects.filter(is_active=True, contract_type='talabat').order_by('full_name')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -112,7 +114,7 @@ class AccountantPharmazoneView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('full_name')
+        return Driver.objects.filter(is_active=True, contract_type='pharmazone').order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'pharmazone', 'accountant_pharmazone')
@@ -130,7 +132,7 @@ class AccountantBurgerKingView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('full_name')
+        return Driver.objects.filter(is_active=True, contract_type='burger_king').order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'burger_king', 'accountant_burgerking')
@@ -148,7 +150,7 @@ class AccountantOtherContractView(AccountantMixin, ListView):
         return context
 
     def get_queryset(self):
-        return Driver.objects.filter(is_active=True).order_by('full_name')
+        return Driver.objects.filter(is_active=True, contract_type='other').order_by('full_name')
 
     def post(self, request, *args, **kwargs):
         return _save_contract_salary(request, 'other', 'accountant_other_contract')
@@ -181,15 +183,17 @@ def _save_contract_salary(request, contract_type, redirect_url):
         try: return int(float(str(val).strip()))
         except: return 0
 
-    ContractSalaryDetail.objects.create(
+    ContractSalaryDetail.objects.update_or_create(
         contract_type=contract_type,
         name=name,
         month=month_date,
-        total_salary=safe_decimal(request.POST.get('total_salary')),
-        absent=safe_int(request.POST.get('absent')),
-        deduction=safe_decimal(request.POST.get('deduction')),
-        remark=request.POST.get('remark', ''),
-        attachment=request.FILES.get('attachment')
+        defaults={
+            'total_salary': safe_decimal(request.POST.get('total_salary')),
+            'absent': safe_int(request.POST.get('absent')),
+            'deduction': safe_decimal(request.POST.get('deduction')),
+            'remark': request.POST.get('remark', ''),
+            'attachment': request.FILES.get('attachment')
+        }
     )
     messages.success(request, f'Salary record saved for {name}.')
     return redirect(redirect_url)
@@ -342,7 +346,74 @@ class AccountantSalarySlipListView(FinancialAccessMixin, ListView):
             qs = qs.filter(full_name__icontains=q) | qs.filter(working_id__icontains=q) | qs.filter(phone__icontains=q)
         return qs.order_by('full_name')
 
+    def get_context_data(self, **kwargs):
+        from datetime import date
+        context = super().get_context_data(**kwargs)
+        context['today'] = date.today()
+        return context
 
-from portal_admin.views import DriverSalarySlipView
-class AccountantSalarySlipView(DriverSalarySlipView):
-    pass
+
+from django.utils import timezone as tz
+from core.models import TalabatSalaryDetail, ContractSalaryDetail
+
+class AccountantSalarySlipView(FinancialAccessMixin, View):
+    """Salary slip that fetches from TalabatSalaryDetail or ContractSalaryDetail,
+    matching the data entered on the Talabat / Burger King / Pharmazone salary pages."""
+
+    def get(self, request, pk):
+        from datetime import date
+        driver = get_object_or_404(Driver, pk=pk)
+
+        # Resolve target month from ?month=YYYY-MM  or fall back to current month
+        month_str = request.GET.get('month', '')
+        if month_str:
+            try:
+                target_month = date.fromisoformat(f"{month_str}-01")
+            except (ValueError, TypeError):
+                target_month = date.today().replace(day=1)
+        else:
+            target_month = date.today().replace(day=1)
+
+        month_label = target_month.strftime('%B %Y')
+        contract_type = driver.contract_type
+
+        salary_record = None
+        slip_type = 'talabat'
+        batches = []
+
+        if contract_type == 'talabat':
+            slip_type = 'talabat'
+            salary_record = TalabatSalaryDetail.objects.filter(
+                driver=driver, month=target_month
+            ).first()
+            if salary_record:
+                # Build batch rows, skip empty batches
+                for i in range(1, 8):
+                    orders = getattr(salary_record, f'batch_{i}_orders')
+                    amount = getattr(salary_record, f'batch_{i}_amount')
+                    net = getattr(salary_record, f'batch_{i}_net_amount')
+                    if orders or amount or net:
+                        batches.append({
+                            'label': f'Batch {i}',
+                            'orders': orders,
+                            'amount': amount,
+                            'net_amount': net,
+                        })
+        else:
+            slip_type = 'contract'
+            salary_record = ContractSalaryDetail.objects.filter(
+                name__iexact=driver.full_name.strip(),
+                contract_type=contract_type,
+                month=target_month
+            ).first()
+
+        return render(request, 'pdf/accountant_salary_slip.html', {
+            'driver': driver,
+            'salary_record': salary_record,
+            'slip_type': slip_type,
+            'batches': batches,
+            'month_label': month_label,
+            'target_month': target_month,
+            'generated_date': tz.now(),
+            'contract_type_display': driver.get_contract_type_display(),
+        })

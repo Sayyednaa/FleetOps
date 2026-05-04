@@ -301,49 +301,61 @@ def import_from_excel(file, model_type, user):
                     except:
                         return None
 
-                Driver.objects.create(
-                    full_name=data.get('Full Name') or '',
-                    email=data.get('Email') or '',
-                    phone=data.get('Phone') or '',
-                    civil_id_number=data.get('Civil ID Number') or '',
-                    civil_id_expiry=safe_date(data.get('Civil ID Expiry')),
-                    passport_number=data.get('Passport Number') or '',
-                    passport_expiry=safe_date(data.get('Passport Expiry')),
-                    working_permit_expiry=safe_date(data.get('Work Permit Expiry')),
-                    driver_license_expiry=safe_date(data.get('Driver License Expiry')),
-                    health_insurance_expiry=safe_date(data.get('Health Insurance Expiry')),
-                    criminal_certificate_expiry=safe_date(data.get('Criminal Certificate Expiry')),
-                    vehicle_registration=data.get('Vehicle Registration') or '',
-                    vehicle_registration_expiry=safe_date(data.get('Vehicle Registration Expiry')),
-                    vehicle_plate_number=data.get('Vehicle Plate Number') or '',
-                    vehicle_name=data.get('Vehicle Name') or '',
-                    vehicle_type=data.get('Vehicle Type') or 'car',
-                    zone=data.get('Zone') or '',
-                    petrol_card_number=data.get('Petrol Card Number') or '',
-                    working_id=data.get('Working ID') or '',
-                    company_name=data.get('Company Name') or 'najmat',
-                    contract_type=data.get('Contract Type') or 'talabat',
-                    position=data.get('Position') or 'Car Driver',
-                    iban_number=data.get('IBAN Number') or '',
-                    bank_name=data.get('Bank Name') or 'nbk',
-                    basic_salary_wp=Decimal(str(data.get('Basic Salary WP', 0) or 0)),
-                    file_status=data.get('File Status') or 'Active',
-                    created_by=user.profile if hasattr(user, 'profile') else None
+                civil_id = data.get('Civil ID Number') or ''
+                if not civil_id:
+                    errors.append(f"Row {row_idx}: Missing Civil ID Number.")
+                    continue
+
+                Driver.objects.update_or_create(
+                    civil_id_number=civil_id,
+                    defaults={
+                        'full_name': data.get('Full Name') or '',
+                        'email': data.get('Email') or '',
+                        'phone': data.get('Phone') or '',
+                        'civil_id_expiry': safe_date(data.get('Civil ID Expiry')),
+                        'passport_number': data.get('Passport Number') or '',
+                        'passport_expiry': safe_date(data.get('Passport Expiry')),
+                        'working_permit_expiry': safe_date(data.get('Work Permit Expiry')),
+                        'driver_license_expiry': safe_date(data.get('Driver License Expiry')),
+                        'health_insurance_expiry': safe_date(data.get('Health Insurance Expiry')),
+                        'criminal_certificate_expiry': safe_date(data.get('Criminal Certificate Expiry')),
+                        'vehicle_registration': data.get('Vehicle Registration') or '',
+                        'vehicle_registration_expiry': safe_date(data.get('Vehicle Registration Expiry')),
+                        'vehicle_plate_number': data.get('Vehicle Plate Number') or '',
+                        'vehicle_name': data.get('Vehicle Name') or '',
+                        'vehicle_type': data.get('Vehicle Type') or 'car',
+                        'zone': data.get('Zone') or '',
+                        'petrol_card_number': data.get('Petrol Card Number') or '',
+                        'working_id': data.get('Working ID') or '',
+                        'company_name': data.get('Company Name') or 'najmat',
+                        'contract_type': data.get('Contract Type') or 'talabat',
+                        'position': data.get('Position') or 'Car Driver',
+                        'iban_number': data.get('IBAN Number') or '',
+                        'bank_name': data.get('Bank Name') or 'nbk',
+                        'basic_salary_wp': Decimal(str(data.get('Basic Salary WP', 0) or 0)),
+                        'file_status': data.get('File Status') or 'Active',
+                        'created_by': user.profile if hasattr(user, 'profile') else None
+                    }
                 )
-            elif model_type == 'team':
-                Profile.objects.create_user(
-                    username=data.get('Email'),
-                    email=data.get('Email'),
-                    first_name=data.get('First Name'),
-                    last_name=data.get('Last Name'),
-                    phone=data.get('Phone', ''),
-                    identification_number=data.get('Identification Number', ''),
-                    passport=data.get('Passport', ''),
-                    role=data.get('Role', 'employee'),
-                    position=data.get('Position', 'Administrative'),
-                    base_salary_kd=Decimal(str(data.get('Base Salary KD', 0) or 0)),
-                    password='Password123!' # Default password
-                )
+                email = data.get('Email')
+                if email:
+                    profile, created = Profile.objects.update_or_create(
+                        username=email,
+                        defaults={
+                            'email': email,
+                            'first_name': data.get('First Name') or '',
+                            'last_name': data.get('Last Name') or '',
+                            'phone': data.get('Phone') or '',
+                            'identification_number': data.get('Identification Number') or '',
+                            'passport': data.get('Passport') or '',
+                            'role': data.get('Role') or 'employee',
+                            'position': data.get('Position') or 'Administrative',
+                            'base_salary_kd': Decimal(str(data.get('Base Salary KD', 0) or 0)),
+                        }
+                    )
+                    if created:
+                        profile.set_password('Password123!')
+                        profile.save()
             elif model_type == 'invoice':
                 driver_phone = str(data.get('Phone', '')).strip()
                 if not driver_phone:

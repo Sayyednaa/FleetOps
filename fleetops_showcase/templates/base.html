@@ -540,6 +540,78 @@
         </div>
     </div>
 
+    <!-- Table Sorting Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            /**
+             * Simple Table Sorter
+             * Sorts tables when <th> elements are clicked.
+             */
+            const getCellValue = (tr, idx) => {
+                let val = tr.children[idx].innerText || tr.children[idx].textContent;
+                val = val.trim();
+                // Clean currency and commas for numeric sorting
+                if (val.includes('KD')) val = val.replace('KD', '').trim();
+                val = val.replace(/,/g, '');
+                return val;
+            };
+
+            const comparer = (idx, asc) => (a, b) => {
+                const v1 = getCellValue(asc ? a : b, idx);
+                const v2 = getCellValue(asc ? b : a, idx);
+                
+                // Numeric sort if both are numbers
+                if (v1 !== '' && v2 !== '' && !isNaN(v1) && !isNaN(v2)) {
+                    return v1 - v2;
+                }
+                // Date sort attempt
+                const d1 = Date.parse(v1);
+                const d2 = Date.parse(v2);
+                if (!isNaN(d1) && !isNaN(d2)) {
+                    return d1 - d2;
+                }
+                // String sort
+                return v1.toString().localeCompare(v2, undefined, {numeric: true, sensitivity: 'base'});
+            };
+
+            // Attach click event to all <th>
+            document.querySelectorAll('th').forEach(th => {
+                const table = th.closest('table');
+                if (!table) return;
+                const tbody = table.querySelector('tbody');
+                if (!tbody || tbody.rows.length <= 1) return;
+
+                // Style the header
+                th.style.cursor = 'pointer';
+                th.style.position = 'relative';
+                th.title = "Click to sort";
+                th.classList.add('select-none', 'hover:bg-black/5', 'dark:hover:bg-white/5', 'transition-colors');
+
+                th.addEventListener('click', function() {
+                    const idx = Array.from(th.parentNode.children).indexOf(th);
+                    this.asc = !this.asc;
+                    
+                    // Sort rows
+                    const rows = Array.from(tbody.querySelectorAll('tr'));
+                    rows.sort(comparer(idx, this.asc)).forEach(tr => tbody.appendChild(tr));
+
+                    // Update UI indicators
+                    th.parentNode.querySelectorAll('th').forEach(h => {
+                        const icon = h.querySelector('.sort-indicator');
+                        if (icon) icon.remove();
+                        h.style.color = '';
+                    });
+
+                    const indicator = document.createElement('span');
+                    indicator.className = 'sort-indicator ml-2 opacity-70';
+                    indicator.innerHTML = this.asc ? '↑' : '↓';
+                    th.appendChild(indicator);
+                    th.style.color = 'var(--color-brand)';
+                });
+            });
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

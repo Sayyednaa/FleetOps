@@ -138,12 +138,18 @@ class TeamListView(AdminManagerRequiredMixin, View):
 
 class TeamAddView(AdminManagerRequiredMixin, View):
     def get(self, request):
-        form = ProfileForm()
+        form = ProfileForm(user=request.user)
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
 
     def post(self, request):
-        form = ProfileForm(request.POST, request.FILES)
+        form = ProfileForm(request.POST, request.FILES, user=request.user)
         if form.is_valid():
+            # Extra safety check for role escalation
+            assigned_role = form.cleaned_data.get('role')
+            if request.user.role == 'manager' and assigned_role not in ['employee', 'accountant']:
+                messages.error(request, "Managers can only add Accountants or Employees.")
+                return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': False})
+            
             user = form.save(commit=False)
             user.username = form.cleaned_data['email']
             p1 = form.cleaned_data.get('password1')
@@ -162,12 +168,30 @@ class TeamAddView(AdminManagerRequiredMixin, View):
 class TeamEditView(AdminManagerRequiredMixin, View):
     def get(self, request, pk):
         member = get_object_or_404(Profile, pk=pk)
-        form = ProfileForm(instance=member)
+        
+        # Security: Check hierarchy
+        if member.role == 'superadmin' and request.user.role != 'superadmin':
+            messages.error(request, "Only Superadmins can modify Superadmin accounts.")
+            return redirect('admin_team_list')
+        if request.user.role == 'manager' and member.role not in ['employee', 'accountant']:
+            messages.error(request, "Managers can only modify Accountants or Employees.")
+            return redirect('admin_team_list')
+
+        form = ProfileForm(instance=member, user=request.user)
         return render(request, 'admin_portal/team_form.html', {'form': form, 'editing': True, 'member': member})
 
     def post(self, request, pk):
         member = get_object_or_404(Profile, pk=pk)
-        form = ProfileForm(request.POST, request.FILES, instance=member)
+        
+        # Security: Check hierarchy
+        if member.role == 'superadmin' and request.user.role != 'superadmin':
+            messages.error(request, "Only Superadmins can modify Superadmin accounts.")
+            return redirect('admin_team_list')
+        if request.user.role == 'manager' and member.role not in ['employee', 'accountant']:
+            messages.error(request, "Managers can only modify Accountants or Employees.")
+            return redirect('admin_team_list')
+
+        form = ProfileForm(request.POST, request.FILES, instance=member, user=request.user)
         if form.is_valid():
             user = form.save(commit=False)
             p1 = form.cleaned_data.get('password1')
@@ -186,6 +210,16 @@ class TeamEditView(AdminManagerRequiredMixin, View):
 class TeamDeleteView(AdminManagerRequiredMixin, View):
     def post(self, request, pk):
         member = get_object_or_404(Profile, pk=pk)
+        
+        # Security: Check hierarchy
+        if member.role == 'superadmin':
+            messages.error(request, "Superadmin accounts cannot be deleted through the portal.")
+            return redirect('admin_team_list')
+            
+        if request.user.role == 'manager' and member.role not in ['employee', 'accountant']:
+            messages.error(request, "Managers can only delete Accountants or Employees.")
+            return redirect('admin_team_list')
+
         name = member.get_full_name()
         member.delete()
 

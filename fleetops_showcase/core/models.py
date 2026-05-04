@@ -85,7 +85,7 @@ NOTIFICATION_TYPE_CHOICES = [
 
 class Profile(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='manager')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='superadmin')
     phone = models.CharField(max_length=20, blank=True)
     position = models.CharField(max_length=50, choices=POSITION_CHOICES, default='Administrative')
     identification_number = models.CharField(max_length=50, blank=True)
@@ -102,6 +102,11 @@ class Profile(AbstractUser):
     class Meta:
         verbose_name = 'Profile'
         verbose_name_plural = 'Profiles'
+
+    def save(self, *args, **kwargs):
+        if self.is_superuser:
+            self.role = 'superadmin'
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.get_full_name()} ({self.role})"

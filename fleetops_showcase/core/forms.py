@@ -43,6 +43,16 @@ class ProfileForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'class': TW_INPUT, 'placeholder': 'Confirm Password'})
     )
 
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            if user.role == 'manager':
+                self.fields['role'].choices = [('employee', 'Employee'), ('accountant', 'Accountant')]
+            elif user.role == 'admin':
+                self.fields['role'].choices = [('manager', 'Manager'), ('employee', 'Employee'), ('accountant', 'Accountant')]
+            # Superadmin can see all (including superadmin role)
+
     role = forms.ChoiceField(
         choices=[('superadmin', 'Super Admin'), ('manager', 'Manager'), ('employee', 'Employee'), ('accountant', 'Accountant')],
         widget=forms.Select(attrs={'class': TW_SELECT}),

@@ -57,36 +57,29 @@
                             </span>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="flex items-center justify-center gap-3">
-                                <a href="{% url 'accountant_salary_slip' driver.pk %}?date={{ today|date:'Y-m-d' }}" 
-                                   target="_blank" title="{{ 'Print Today'|t:lang }}'s {{ 'Slip'|t:lang }}"
-                                   class="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white border border-orange-500/30 rounded-lg text-xs font-bold transition-all">
-                                    <span>🖨️</span> <span x-text="t('Today')"></span>
-                                </a>
-                                <div x-data="{ showRange: false }" class="relative">
-                                    <button @click="showRange = !showRange" 
-                                            class="flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-500/30 rounded-lg text-xs font-bold transition-all">
-                                        <span>📅</span> <span x-text="t('Range')"></span>
-                                    </button>
-                                    
-                                    <!-- Range Dropdown -->
-                                    <div x-show="showRange" @click.away="showRange = false" 
-                                         class="absolute right-0 mt-2 w-64 bg-app-card border border-app-border rounded-xl shadow-xl p-4 z-50">
-                                        <form method="get" action="{% url 'accountant_salary_slip' driver.pk %}" target="_blank">
-                                            <div class="space-y-3">
-                                                <div>
-                                                    <label class="text-[10px] font-bold text-gray-500 uppercase" x-text="t('Start Date')"></label>
-                                                    <input type="date" name="start_date" required class="w-full mt-1 bg-app-bg border border-app-border rounded-lg px-3 py-1.5 text-xs">
-                                                </div>
-                                                <div>
-                                                    <label class="text-[10px] font-bold text-gray-500 uppercase" x-text="t('End Date')"></label>
-                                                    <input type="date" name="end_date" required class="w-full mt-1 bg-app-bg border border-app-border rounded-lg px-3 py-1.5 text-xs">
-                                                </div>
-                                                <button type="submit" class="w-full py-2 bg-blue-600 text-white text-xs font-bold rounded-lg shadow-lg shadow-blue-600/20" x-text="t('Print Report')">
-                                                </button>
+                            <div x-data="{ showPicker: false }" class="relative flex items-center justify-center">
+                                <button @click="showPicker = !showPicker"
+                                        class="flex items-center gap-2 px-3 py-1.5 bg-orange-500/10 hover:bg-orange-500 text-orange-500 hover:text-white border border-orange-500/30 rounded-lg text-xs font-bold transition-all">
+                                    <span>🖨️</span> <span x-text="t('Salary Slip')"></span>
+                                </button>
+
+                                <!-- Month Picker Dropdown -->
+                                <div x-show="showPicker" x-transition @click.away="showPicker = false"
+                                     class="absolute right-0 mt-2 w-64 bg-app-card border border-app-border rounded-xl shadow-xl p-4 z-50 top-full">
+                                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-3" x-text="t('Select Month')"></p>
+                                    <form method="get" action="{% url 'accountant_salary_slip' driver.pk %}" target="_blank">
+                                        <div class="space-y-3">
+                                            <div>
+                                                <label class="text-[10px] font-bold text-gray-500 uppercase block mb-1" x-text="t('Month')"></label>
+                                                <input type="month" name="month" required
+                                                       value="{{ today|date:'Y-m' }}"
+                                                       class="w-full bg-app-bg border border-app-border rounded-lg px-3 py-2 text-sm text-app-text focus:ring-2 focus:ring-brand/20 focus:border-brand outline-none transition-all">
                                             </div>
-                                        </form>
-                                    </div>
+                                            <button type="submit"
+                                                    class="w-full py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-lg shadow-lg shadow-orange-500/20 transition-all" x-text="t('Generate Slip')">
+                                            </button>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
                         </td>
