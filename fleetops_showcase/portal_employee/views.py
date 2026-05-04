@@ -13,7 +13,7 @@ from core.models import (
 from core.forms import DriverForm, EmployeeDeductionForm, DeductionForm
 from portal_admin.views import (
     DriverEditView, DriverDeleteView, DriverToggleActiveView, DriverSalarySlipView,
-    MarkInstallmentPaidView
+    MarkInstallmentPaidView, DriverProfilePrintView
 )
 from django.views import View
 
@@ -167,4 +167,7 @@ class EmployeeSalarySlipView(DriverSalarySlipView):
     pass
 
 class EmployeeMarkPaidView(MarkInstallmentPaidView):
+    pass
+
+class EmployeeDriverPrintView(DriverProfilePrintView):
     pass

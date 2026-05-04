@@ -1,37 +1,38 @@
 {% extends 'shared/generic_form.html' %}
+{% load translation_tags %}
 
-{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Driver — NAJMAT ALWESAM{% endblock %}
-{% block page_title %}{% if editing %}Edit Driver{% else %}Add New Driver{% endif %}{% endblock %}
-{% block breadcrumb %}NAJMAT ALWESAM / {% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% elif portal == 'accountant' %}Accountant{% else %}Admin{% endif %} / Drivers / {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
+{% block title %}{% if editing %}{{ "Edit"|t:lang }}{% else %}{{ "Add"|t:lang }}{% endif %} {{ "Driver"|t:lang }} — NAJMAT ALWESAM{% endblock %}
+{% block page_title %}{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}{% endblock %}
+{% block breadcrumb %}<span x-text="t('NAJMAT ALWESAM')"></span> / <span x-text="t('{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% elif portal == 'accountant' %}Accountant{% else %}Admin{% endif %}')"></span> / <span x-text="t('Drivers')"></span> / <span x-text="t('{% if editing %}Edit{% else %}Add{% endif %}')"></span>{% endblock %}
 
 {% block form_icon %}🚗{% endblock %}
-{% block form_title %}{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}{% endblock %}
-{% block form_subtitle %}{% if editing %}Modify the existing record to match the master database sheet.{% else %}Create a new record following the "ALL DRIVERS DETAILS SHEET" format.{% endif %}{% endblock %}
+{% block form_title %}<span x-text="t('{% if editing %}Update Driver Details{% else %}Add New Driver{% endif %}')"></span>{% endblock %}
+{% block form_subtitle %}<span x-text="t('{% if editing %}Modify the existing record to match the master database sheet.{% else %}Create a new record following the ALL DRIVERS DETAILS SHEET format.{% endif %}')"></span>{% endblock %}
 
 {% block form_content %}
     <div class="mt-4 p-3 bg-brand/10 border border-brand/20 rounded-xl mb-10">
-        <p class="text-xs font-bold text-brand uppercase tracking-wider">⚠️ System Compliance</p>
-        <p class="text-[11px] text-app-text-muted mt-1">Fields and uploads marked with an asterisk (*) are mandatory for system registration.</p>
+        <p class="text-xs font-bold text-brand uppercase tracking-wider" x-text="'⚠️ ' + t('System Compliance')"></p>
+        <p class="text-[11px] text-app-text-muted mt-1" x-text="t('Fields and uploads marked with an asterisk (*) are mandatory for system registration.')"></p>
     </div>
 
     <!-- Section 1: Basic Information -->
     <div class="space-y-6">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">1. Basic Identification</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="'1. ' + t('Basic Identification')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Full Name*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Full Name*')"></label>
                 {{ form.full_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Phone Number*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Phone Number*')"></label>
                 {{ form.phone }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Email Address</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Email Address')"></label>
                 {{ form.email }}
             </div>
             <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
-                <label class="block text-xs font-bold text-app-text uppercase">Profile Avatar (Selfie)*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Profile Avatar (Selfie)*')"></label>
                 {{ form.photo_selfie }}
                 {% if editing and driver.photo_selfie %}
                 <div class="mt-2 flex items-center justify-between p-2 bg-black/5 dark:bg-white/5 rounded-xl border border-app-border">
@@ -48,38 +49,38 @@
 
     <!-- Section 2: Identity Details -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">2. Identity & Expiry Details</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="'2. ' + t('Identity & Expiry Details')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Civil ID Number*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Civil ID Number*')"></label>
                 {{ form.civil_id_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Civil ID Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Civil ID Expiry*')"></label>
                 {{ form.civil_id_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Passport Number*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Passport Number*')"></label>
                 {{ form.passport_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Passport Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Passport Expiry*')"></label>
                 {{ form.passport_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">WP Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('WP Expiry*')"></label>
                 {{ form.working_permit_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">License Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('License Expiry*')"></label>
                 {{ form.driver_license_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">HC Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('HC Expiry*')"></label>
                 {{ form.health_insurance_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">PCC Expiry</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('PCC Expiry')"></label>
                 {{ form.criminal_certificate_expiry }}
             </div>
         </div>
@@ -87,34 +88,34 @@
 
     <!-- Section 3: Vehicle Information -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">3. Vehicle Information</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="'3. ' + t('Vehicle Information')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Car Registration No*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Car Registration No*')"></label>
                 {{ form.vehicle_registration }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Car RC Expiry*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Car RC Expiry*')"></label>
                 {{ form.vehicle_registration_expiry }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Plate Number*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Plate Number*')"></label>
                 {{ form.vehicle_plate_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Vehicle Name*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Vehicle Name*')"></label>
                 {{ form.vehicle_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Vehicle Type*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Vehicle Type*')"></label>
                 {{ form.vehicle_type }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Zone / Working Area</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Zone / Working Area')"></label>
                 {{ form.zone }}
             </div>
             <div class="space-y-1.5 md:col-span-2 lg:col-span-1">
-                <label class="block text-xs font-bold text-app-text uppercase">Petrol Card Number</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Petrol Card Number')"></label>
                 {{ form.petrol_card_number }}
             </div>
         </div>
@@ -122,38 +123,38 @@
 
     <!-- Section 4: Employment & Finance -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">4. Profession & Finance</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="'4. ' + t('Profession & Finance')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Profession (Position)*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Profession (Position)*')"></label>
                 {{ form.position }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">WP Salary*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('WP Salary*')"></label>
                 {{ form.basic_salary_wp }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Working ID*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Working ID*')"></label>
                 {{ form.working_id }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">IBAN Number</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('IBAN Number')"></label>
                 {{ form.iban_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Bank Name</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Bank Name')"></label>
                 {{ form.bank_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">File Status</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('File Status')"></label>
                 {{ form.file_status }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Company Name*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Company Name*')"></label>
                 {{ form.company_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Work Contract (Type)*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Work Contract (Type)*')"></label>
                 {{ form.contract_type }}
             </div>
         </div>
@@ -166,14 +167,14 @@
         init() {
             // Check for existing files if editing
             {% if editing %}
-                {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: 'Civil ID', filename: 'Current File', url: '{{ driver.civil_id_file.url }}'});{% endif %}
-                {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: 'Passport', filename: 'Current File', url: '{{ driver.passport_file.url }}'});{% endif %}
-                {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: 'Work Permit', filename: 'Current File', url: '{{ driver.work_permit_file.url }}'});{% endif %}
-                {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: 'Driving License', filename: 'Current File', url: '{{ driver.driving_license_file.url }}'});{% endif %}
-                {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: 'Health Card', filename: 'Current File', url: '{{ driver.health_card_file.url }}'});{% endif %}
-                {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: 'Vehicle RC', filename: 'Current File', url: '{{ driver.vehicle_rc_file.url }}'});{% endif %}
-                {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: 'PCC (Criminal)', filename: 'Current File', url: '{{ driver.criminal_pcc_file.url }}'});{% endif %}
-                {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: 'Other Docs', filename: 'Current File', url: '{{ driver.other_docs_file.url }}'});{% endif %}
+                {% if driver.civil_id_file %}this.stagedFiles.push({id: 'civil_id_file', label: t('Civil ID File'), filename: t('Current File'), url: '{{ driver.civil_id_file.url }}'});{% endif %}
+                {% if driver.passport_file %}this.stagedFiles.push({id: 'passport_file', label: t('Passport File'), filename: t('Current File'), url: '{{ driver.passport_file.url }}'});{% endif %}
+                {% if driver.work_permit_file %}this.stagedFiles.push({id: 'work_permit_file', label: t('Work Permit File'), filename: t('Current File'), url: '{{ driver.work_permit_file.url }}'});{% endif %}
+                {% if driver.driving_license_file %}this.stagedFiles.push({id: 'driving_license_file', label: t('Driving License File'), filename: t('Current File'), url: '{{ driver.driving_license_file.url }}'});{% endif %}
+                {% if driver.health_card_file %}this.stagedFiles.push({id: 'health_card_file', label: t('Health Card File'), filename: t('Current File'), url: '{{ driver.health_card_file.url }}'});{% endif %}
+                {% if driver.vehicle_rc_file %}this.stagedFiles.push({id: 'vehicle_rc_file', label: t('Vehicle RC File'), filename: t('Current File'), url: '{{ driver.vehicle_rc_file.url }}'});{% endif %}
+                {% if driver.criminal_pcc_file %}this.stagedFiles.push({id: 'criminal_pcc_file', label: t('PCC (Criminal) File'), filename: t('Current File'), url: '{{ driver.criminal_pcc_file.url }}'});{% endif %}
+                {% if driver.other_docs_file %}this.stagedFiles.push({id: 'other_docs_file', label: t('Other Supporting Docs'), filename: t('Current File'), url: '{{ driver.other_docs_file.url }}'});{% endif %}
             {% endif %}
         },
         onFileChange(id, label, e) {
@@ -181,7 +182,7 @@
             if (file) {
                 this.stagedFiles = this.stagedFiles.filter(f => f.id !== id);
                 const url = URL.createObjectURL(file);
-                this.stagedFiles.push({id: id, label: label, filename: file.name, url: url});
+                this.stagedFiles.push({id: id, label: t(label), filename: file.name, url: url});
                 this.activeDoc = '';
             }
         },
@@ -191,26 +192,26 @@
             if (input) input.value = '';
         }
     }">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">5. Document Upload Center</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="'5. ' + t('Document Upload Center')"></h3>
         
         <div class="bg-black/5 dark:bg-white/5 border border-app-border rounded-2xl p-6">
             <div class="flex flex-col md:flex-row items-center gap-6 mb-8">
                 <div class="flex-1 w-full space-y-2">
-                    <label class="block text-xs font-bold text-app-text uppercase">Select Document to Add</label>
+                    <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Select Document to Add')"></label>
                     <select x-model="activeDoc" class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm focus:ring-2 focus:ring-brand/20 transition-all outline-none">
-                        <option value="">-- Choose Document Type --</option>
-                        <option value="civil_id_file" :disabled="stagedFiles.some(f => f.id === 'civil_id_file')">Civil ID File</option>
-                        <option value="passport_file" :disabled="stagedFiles.some(f => f.id === 'passport_file')">Passport File</option>
-                        <option value="work_permit_file" :disabled="stagedFiles.some(f => f.id === 'work_permit_file')">Work Permit File</option>
-                        <option value="driving_license_file" :disabled="stagedFiles.some(f => f.id === 'driving_license_file')">Driving License File</option>
-                        <option value="health_card_file" :disabled="stagedFiles.some(f => f.id === 'health_card_file')">Health Card File</option>
-                        <option value="vehicle_rc_file" :disabled="stagedFiles.some(f => f.id === 'vehicle_rc_file')">Vehicle RC File</option>
-                        <option value="criminal_pcc_file" :disabled="stagedFiles.some(f => f.id === 'criminal_pcc_file')">PCC (Criminal) File</option>
-                        <option value="other_docs_file" :disabled="stagedFiles.some(f => f.id === 'other_docs_file')">Other Supporting Docs</option>
+                        <option value="" x-text="t('-- Choose Document Type --')"></option>
+                        <option value="civil_id_file" :disabled="stagedFiles.some(f => f.id === 'civil_id_file')" x-text="t('Civil ID File')"></option>
+                        <option value="passport_file" :disabled="stagedFiles.some(f => f.id === 'passport_file')" x-text="t('Passport File')"></option>
+                        <option value="work_permit_file" :disabled="stagedFiles.some(f => f.id === 'work_permit_file')" x-text="t('Work Permit File')"></option>
+                        <option value="driving_license_file" :disabled="stagedFiles.some(f => f.id === 'driving_license_file')" x-text="t('Driving License File')"></option>
+                        <option value="health_card_file" :disabled="stagedFiles.some(f => f.id === 'health_card_file')" x-text="t('Health Card File')"></option>
+                        <option value="vehicle_rc_file" :disabled="stagedFiles.some(f => f.id === 'vehicle_rc_file')" x-text="t('Vehicle RC File')"></option>
+                        <option value="criminal_pcc_file" :disabled="stagedFiles.some(f => f.id === 'criminal_pcc_file')" x-text="t('PCC (Criminal) File')"></option>
+                        <option value="other_docs_file" :disabled="stagedFiles.some(f => f.id === 'other_docs_file')" x-text="t('Other Supporting Docs')"></option>
                     </select>
                 </div>
                 <div class="flex-1 w-full space-y-2" x-show="activeDoc">
-                    <label class="block text-xs font-bold text-app-text uppercase" x-text="'Upload ' + activeDoc.replace('_file', '').replace('_', ' ').toUpperCase()"></label>
+                    <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Upload Excel') + ' ' + activeDoc.replace('_file', '').replace('_', ' ').toUpperCase()"></label>
                     <div class="relative group">
                         <!-- Hidden Inputs but functional -->
                         <div class="hidden">
@@ -227,7 +228,7 @@
                         </div>
                         <button type="button" @click="document.getElementById('id_' + activeDoc).click()" class="w-full py-3 px-4 bg-brand/10 hover:bg-brand text-brand hover:text-white border border-brand/30 rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                            Browse File
+                            <span x-text="t('Browse File')"></span>
                         </button>
                     </div>
                 </div>
@@ -235,7 +236,7 @@
 
             <!-- Staged List -->
             <div class="space-y-3">
-                <h4 class="text-[10px] font-black text-app-text-muted uppercase tracking-widest px-1">Selected Documents for Upload</h4>
+                <h4 class="text-[10px] font-black text-app-text-muted uppercase tracking-widest px-1" x-text="t('Selected Documents for Upload')"></h4>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" x-show="stagedFiles.length > 0">
                     <template x-for="file in stagedFiles" :key="file.id">
                         <div class="flex items-center justify-between p-3 bg-app-bg border border-app-border rounded-xl animate-scale-in">
@@ -262,7 +263,7 @@
                     </template>
                 </div>
                 <div x-show="stagedFiles.length === 0" class="py-10 text-center border-2 border-dashed border-app-border rounded-2xl bg-black/5 dark:bg-white/5">
-                    <p class="text-xs text-app-text-muted">No documents selected. Use the dropdown above to start uploading.</p>
+                    <p class="text-xs text-app-text-muted" x-text="t('No documents selected. Use the dropdown above to start uploading.')"></p>
                 </div>
             </div>
         </div>

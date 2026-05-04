@@ -44,6 +44,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise Middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware', # Language Support
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -96,6 +97,16 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Asia/Kuwait'
 USE_I18N = True
 USE_TZ = True
+
+from django.utils.translation import gettext_lazy as _
+LANGUAGES = [
+    ('en', _('English')),
+    ('ar', _('Arabic')),
+]
+
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']

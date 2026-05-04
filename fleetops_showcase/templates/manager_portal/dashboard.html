@@ -2,7 +2,7 @@
 {% load kwd_filters %}
 {% block title %}Manager Dashboard — NAJMAT ALWESAM{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
-{% block breadcrumb %}Welcome back, {{ request.user.first_name }}{% endblock %}
+{% block breadcrumb %}<span x-text="t('Welcome back')"></span>, {{ request.user.first_name }}{% endblock %}
 
 {% block content %}
 <!-- Stats Cards -->
@@ -14,7 +14,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-brand/10 text-brand">This Month</span>
         </div>
         <p class="text-3xl font-extrabold text-app-text">{{ total_orders|default:"0" }}</p>
-        <p class="text-sm text-app-text-muted mt-1">Total Orders</p>
+        <p class="text-sm text-app-text-muted mt-1" x-text="t('Total Orders')"></p>
     </div>
 
     <!-- Total Cash -->
@@ -24,7 +24,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500">Revenue</span>
         </div>
         <p class="text-3xl font-extrabold text-app-text">{{ total_cash|kwd }}</p>
-        <p class="text-sm text-app-text-muted mt-1">Total Cash</p>
+        <p class="text-sm text-app-text-muted mt-1" x-text="t('Total Cash')"></p>
     </div>
 
     <!-- Total Hours -->
@@ -34,7 +34,7 @@
             <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full bg-blue-500/10 text-blue-500">Hours</span>
         </div>
         <p class="text-3xl font-extrabold text-app-text">{{ total_hours|format_hours }}</p>
-        <p class="text-sm text-app-text-muted mt-1">Total Hours</p>
+        <p class="text-sm text-app-text-muted mt-1" x-text="t('Total Hours')"></p>
     </div>
 
     <!-- Active Drivers -->
@@ -49,7 +49,7 @@
             <span class="text-xs text-red-500 font-semibold">⚠️ {{ expiring_docs }} alerts</span>
             {% endif %}
         </div>
-        <p class="text-sm text-app-text-muted mt-1">Active Drivers</p>
+        <p class="text-sm text-app-text-muted mt-1" x-text="t('Active Drivers')"></p>
     </div>
 </div>
 
@@ -57,8 +57,8 @@
 <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
     <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-app-text">Revenue Trend</h3>
-            <span class="text-xs text-app-text-muted">KWD by Vehicle Type</span>
+            <h3 class="text-lg font-bold text-app-text" x-text="t('Revenue Trend')"></h3>
+            <span class="text-xs text-app-text-muted" x-text="t('KWD by Vehicle Type')"></span>
         </div>
         <div class="relative h-[250px]">
             <canvas id="revenueChart"></canvas>
@@ -67,8 +67,8 @@
 
     <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-app-text">Orders Trend</h3>
-            <span class="text-xs text-app-text-muted">Monthly Comparison</span>
+            <h3 class="text-lg font-bold text-app-text" x-text="t('Orders Trend')"></h3>
+            <span class="text-xs text-app-text-muted" x-text="t('Monthly Comparison')"></span>
         </div>
         <div class="relative h-[250px]">
             <canvas id="ordersLineChart"></canvas>
@@ -77,8 +77,8 @@
 
     <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-app-text">Orders by Type</h3>
-            <span class="text-xs text-app-text-muted">Bike vs Car</span>
+            <h3 class="text-lg font-bold text-app-text" x-text="t('Orders by Type')"></h3>
+            <span class="text-xs text-app-text-muted" x-text="t('Bike vs Car')"></span>
         </div>
         <div class="relative h-[250px]">
             <canvas id="ordersBarChart"></canvas>
@@ -87,8 +87,8 @@
 
     <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-app-text">Order Distribution</h3>
-            <span class="text-xs text-app-text-muted">Bike vs Car Split</span>
+            <h3 class="text-lg font-bold text-app-text" x-text="t('Order Distribution')"></h3>
+            <span class="text-xs text-app-text-muted" x-text="t('Bike vs Car Split')"></span>
         </div>
         <div class="relative h-[250px] flex items-center justify-center">
             <canvas id="doughnutChart"></canvas>
@@ -102,20 +102,20 @@
 
     <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
         <h3 class="text-lg font-bold text-app-text mb-4 flex items-center gap-2">
-            <span>🔔</span> Recent Notifications
+            <span>🔔</span> <span x-text="t('Recent Notifications')"></span>
         </h3>
         <div class="space-y-2">
             {% for notif in recent_notifs %}
             <div class="p-3 rounded-xl bg-brand/5 border-l-2 border-brand">
-                <p class="text-sm font-medium text-app-text">{{ notif.title }}</p>
-                <p class="text-xs text-app-text-muted mt-0.5">{{ notif.body }}</p>
+                <p class="text-sm font-medium text-app-text" x-text="t('{{ notif.title }}')"></p>
+                <p class="text-xs text-app-text-muted mt-0.5" x-text="t('{{ notif.body }}')"></p>
             </div>
             {% empty %}
-            <p class="text-sm text-app-text-muted text-center py-4">No unread notifications 🎉</p>
+            <p class="text-sm text-app-text-muted text-center py-4" x-text="t('No unread notifications 🎉')"></p>
             {% endfor %}
         </div>
         {% if recent_notifs %}
-        <a href="{% url 'notification_list' %}" class="block text-center text-sm text-brand hover:text-brand/80 mt-3 font-medium transition-colors">View all →</a>
+        <a href="{% url 'notification_list' %}" class="block text-center text-sm text-brand hover:text-brand/80 mt-3 font-medium transition-colors" x-text="t('View all') + ' →'"></a>
         {% endif %}
     </div>
 </div>
@@ -162,8 +162,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike (KWD)', data: chartData.revenue_bike, borderColor: colors.bike.stroke, backgroundColor: colors.bike.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 },
-                { label: 'Car (KWD)', data: chartData.revenue_car, borderColor: colors.car.stroke, backgroundColor: colors.car.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 }
+                { label: window.t('Bike (KWD)'), data: chartData.revenue_bike, borderColor: colors.bike.stroke, backgroundColor: colors.bike.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 },
+                { label: window.t('Car (KWD)'), data: chartData.revenue_car, borderColor: colors.car.stroke, backgroundColor: colors.car.fill, tension: 0.4, fill: true, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 }
             ]
         },
         options: chartDefaults
@@ -174,8 +174,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike Orders', data: chartData.orders_bike, borderColor: colors.bike.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 },
-                { label: 'Car Orders', data: chartData.orders_car, borderColor: colors.car.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 }
+                { label: window.t('Bike Orders'), data: chartData.orders_bike, borderColor: colors.bike.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 },
+                { label: window.t('Car Orders'), data: chartData.orders_car, borderColor: colors.car.stroke, tension: 0.4, pointRadius: 2, borderWidth: 2 }
             ]
         },
         options: chartDefaults
@@ -186,8 +186,8 @@ document.addEventListener('alpine:init', () => {
         data: {
             labels: chartData.labels,
             datasets: [
-                { label: 'Bike Orders', data: chartData.orders_bike, backgroundColor: colors.bike.solid, borderRadius: 8, barThickness: 12 },
-                { label: 'Car Orders', data: chartData.orders_car, backgroundColor: colors.car.solid, borderRadius: 8, barThickness: 12 }
+                { label: window.t('Bike Orders'), data: chartData.orders_bike, backgroundColor: colors.bike.solid, borderRadius: 8, barThickness: 12 },
+                { label: window.t('Car Orders'), data: chartData.orders_car, backgroundColor: colors.car.solid, borderRadius: 8, barThickness: 12 }
             ]
         },
         options: chartDefaults
@@ -198,7 +198,7 @@ document.addEventListener('alpine:init', () => {
     const doughnutChart = new Chart(document.getElementById('doughnutChart'), {
         type: 'doughnut',
         data: {
-            labels: ['Bike Orders', 'Car Orders'],
+            labels: [window.t('Bike Orders'), window.t('Car Orders')],
             datasets: [{
                 data: [totalBike, totalCar],
                 backgroundColor: [colors.bike.solid, colors.car.solid],

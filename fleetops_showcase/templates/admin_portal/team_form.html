@@ -1,36 +1,37 @@
 {% extends 'shared/generic_form.html' %}
+{% load translation_tags %}
 
-{% block title %}{% if editing %}Edit{% else %}Add{% endif %} Team Member — Najmat Alwesam{% endblock %}
-{% block page_title %}{% if editing %}Edit Team Member{% else %}Add New Team Member{% endif %}{% endblock %}
-{% block breadcrumb %}Admin → Team → {% if editing %}Edit{% else %}Add{% endif %}{% endblock %}
+{% block title %}{{ "Add"|t:lang }} {{ "Team Member"|t:lang }} — Najmat Alwesam{% endblock %}
+{% block page_title %}{% if editing %}Edit Member{% else %}Add New Team Member{% endif %}{% endblock %}
+{% block breadcrumb %}<span x-text="t('Admin')"></span> → <span x-text="t('Team')"></span> → <span x-text="t('{% if editing %}Edit{% else %}Add{% endif %}')"></span>{% endblock %}
 
 {% block form_icon %}👤{% endblock %}
-{% block form_title %}{% if editing %}Edit Member{% else %}Add New Team Member{% endif %}{% endblock %}
-{% block form_subtitle %}{% if editing %}Update the details for this team member.{% else %}Create a new employee, accountant, or manager account.{% endif %}{% endblock %}
+{% block form_title %}<span x-text="t('{% if editing %}Edit Member{% else %}Add New Team Member{% endif %}')"></span>{% endblock %}
+{% block form_subtitle %}<span x-text="t('{% if editing %}Update the details for this team member.{% else %}Create a new employee, accountant, or manager account.{% endif %}')"></span>{% endblock %}
 
 {% block form_content %}
     <!-- Section: Personal Information -->
     <div class="space-y-6">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">Personal Information</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="t('Personal Information')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">First Name*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('First Name*')"></label>
                 {{ form.first_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Last Name*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Last Name*')"></label>
                 {{ form.last_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Email Address*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Email Address*')"></label>
                 {{ form.email }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Phone Number</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Phone Number')"></label>
                 {{ form.phone }}
             </div>
             <div class="space-y-1.5 md:col-span-2">
-                <label class="block text-xs font-bold text-app-text uppercase">Profile Avatar</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Profile Avatar')"></label>
                 {{ form.avatar }}
             </div>
         </div>
@@ -38,18 +39,18 @@
 
     <!-- Section: Identity & Contract -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">Identity & Contract</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="t('Identity & Contract')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Identification Number</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Identification Number')"></label>
                 {{ form.identification_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Passport</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Passport')"></label>
                 {{ form.passport }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Contract Expiry Date</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Contract Expiry Date')"></label>
                 {{ form.contract_expiry_date }}
             </div>
         </div>
@@ -57,26 +58,26 @@
 
     <!-- Section: Financial & Role -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">Financial & Role</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="t('Financial & Role')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Base Salary (KD)</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Base Salary (KD)')"></label>
                 {{ form.base_salary_kd }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">IBAN Number</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('IBAN Number')"></label>
                 {{ form.iban_number }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Bank Name</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Bank Name')"></label>
                 {{ form.bank_name }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">System Role*</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('System Role*')"></label>
                 {{ form.role }}
             </div>
             <div class="space-y-1.5 md:col-span-2">
-                <label class="block text-xs font-bold text-app-text uppercase">Position / Job Title</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Position / Job Title')"></label>
                 {{ form.position }}
             </div>
         </div>
@@ -84,14 +85,14 @@
 
     <!-- Section: Authentication -->
     <div class="space-y-6 pt-10">
-        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2">Authentication</h3>
+        <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em] border-b border-app-border pb-2" x-text="t('Authentication')"></h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Password {% if editing %}<span class="text-[10px] opacity-50">(leave blank to keep current)</span>{% endif %}</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Password') + (editing ? ' (' + t('leave blank to keep current') + ')' : '')"></label>
                 {{ form.password1 }}
             </div>
             <div class="space-y-1.5">
-                <label class="block text-xs font-bold text-app-text uppercase">Confirm Password</label>
+                <label class="block text-xs font-bold text-app-text uppercase" x-text="t('Confirm Password')"></label>
                 {{ form.password2 }}
             </div>
         </div>
@@ -100,7 +101,7 @@
     <!-- Section: Documents -->
     <div class="space-y-6 pt-10" x-data="{ docType: 'docs' }">
         <div class="flex items-center justify-between border-b border-app-border pb-2">
-            <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em]">Supporting Documents</h3>
+            <h3 class="text-xs font-black text-app-text-muted uppercase tracking-[0.2em]" x-text="t('Supporting Documents')"></h3>
         </div>
 
         <div class="p-8 border-2 border-dashed border-app-border rounded-2xl bg-black/5 dark:bg-white/[0.02] hover:bg-black/10 dark:hover:bg-white/[0.04] transition-all group">
@@ -110,7 +111,7 @@
                 </div>
                 
                 <div class="space-y-2">
-                    <p class="text-sm font-medium text-app-text">Upload Supporting Documents</p>
+                    <p class="text-sm font-medium text-app-text" x-text="t('Upload Supporting Documents')"></p>
                     <p class="text-xs text-app-text-muted mb-4">PDF, JPG, PNG up to 10MB</p>
                     {{ form.supporting_document }}
                     {% if editing and member.supporting_document %}

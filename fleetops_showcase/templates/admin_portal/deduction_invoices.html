@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
-{% load kwd_filters %}
-{% block title %}Deductions — SAYYEDNAA LOGISTICS{% endblock %}
-{% block page_title %}Deduction Invoices{% endblock %}
-{% block breadcrumb %}{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% else %}Admin{% endif %} → Deductions{% endblock %}
+{% load kwd_filters translation_tags %}
+{% block title %}{{ "Deductions"|t:lang }} — NAJMAT ALWESAM{% endblock %}
+{% block page_title %}{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% else %}Admin{% endif %} → {{ "Deductions"|t:lang }}{% endblock %}
+{% block breadcrumb %}<span x-text="t('{% if portal == 'manager' %}Manager{% elif portal == 'employee' %}Employee{% else %}Admin{% endif %}')"></span> → <span x-text="t('Deductions')"></span>{% endblock %}
 
 {% block content %}
 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -10,20 +10,20 @@
     <div class="xl:col-span-1 space-y-6">
         <div class="bg-app-card border border-app-border rounded-2xl p-6 shadow-sm">
             <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-bold text-app-text flex items-center gap-2"><span>📝</span> Add Deduction</h3>
-                <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-xs text-orange-500 hover:underline">View Pending Dues →</a>
+                <h3 class="text-lg font-bold text-app-text flex items-center gap-2"><span>📝</span> <span x-text="t('Add Deduction')"></span></h3>
+                <a href="{% if portal == 'admin' %}{% url 'admin_pending_dues' %}{% elif portal == 'manager' %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="text-xs text-orange-500 hover:underline" x-text="t('View Pending Dues →')"></a>
             </div>
 
             <div class="p-3 bg-app-bg border border-app-border border-dashed rounded-xl mb-6 flex items-center justify-between gap-3">
                 <div class="flex-1">
-                    <h4 class="text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Bulk Import</h4>
+                    <h4 class="text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Bulk Import')"></h4>
                 </div>
                 <div class="flex items-center gap-2">
                     <form method="post" action="{% url 'bulk_upload' 'deduction' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <label for="excel-upload-deduction" class="cursor-pointer">
                             <div class="px-3 py-1.5 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-lg text-[10px] font-bold transition-all flex items-center gap-2">
-                                <span>📁</span> Upload
+                                <span>📁</span> <span x-text="t('Upload')"></span>
                             </div>
                             <input id="excel-upload-deduction" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
                         </label>
@@ -38,14 +38,14 @@
             {% endif %}
             <form method="post" enctype="multipart/form-data" class="space-y-4">
                 {% csrf_token %}
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Driver</label>{{ form.driver }}</div>
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Employee</label>{{ form.employee }}</div>
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Reason *</label>{{ form.reason }}</div>
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Date *</label>{{ form.deduction_date }}</div>
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">Contracting Company *</label>{{ form.contracting_company }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Driver')"></label>{{ form.driver }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Employee')"></label>{{ form.employee }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Reason *')"></label>{{ form.reason }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Date *')"></label>{{ form.deduction_date }}</div>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Contracting Company *')"></label>{{ form.contracting_company }}</div>
                 <div class="grid grid-cols-2 gap-3">
-                    <div><label class="block text-xs font-medium text-app-text-muted mb-1">Contractor KD</label>{{ form.contractor_deduction_kd }}</div>
-                    <div><label class="block text-xs font-medium text-app-text-muted mb-1">Company KD</label>{{ form.company_deduction_kd }}</div>
+                    <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Contractor KD')"></label>{{ form.contractor_deduction_kd }}</div>
+                    <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('Company KD')"></label>{{ form.company_deduction_kd }}</div>
                 </div>
                 <!-- Installment Plan (Premium Switch) -->
                 <div class="p-5 bg-brand/5 border border-brand/20 rounded-2xl" x-data="{ isInstallment: {% if form.is_installment_plan.value %}true{% else %}false{% endif %} }">
@@ -54,18 +54,18 @@
                             <input type="checkbox" name="{{ form.is_installment_plan.name }}" class="sr-only peer" x-model="isInstallment" {% if form.is_installment_plan.value %}checked{% endif %}>
                             <div class="w-11 h-6 bg-app-border peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand"></div>
                         </label>
-                        <span class="text-sm font-bold text-app-text">Enable Installment Plan</span>
+                        <span class="text-sm font-bold text-app-text" x-text="t('Enable Installment Plan')"></span>
                     </div>
                     
                     <div x-show="isInstallment" x-transition class="mt-4 pt-4 border-t border-brand/10">
-                        <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">{{ form.total_installments.label }}</label>
+                        <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Installments')"></label>
                         {{ form.total_installments }}
-                        <p class="text-[10px] text-app-text-muted mt-2 italic">Deduction will be split equally across months.</p>
+                        <p class="text-[10px] text-app-text-muted mt-2 italic" x-text="t('Deduction will be split equally across months.')"></p>
                     </div>
                 </div>
 
-                <div><label class="block text-xs font-medium text-app-text-muted mb-1">PDF Proof</label>{{ form.pdf_proof }}</div>
-                <button type="submit" class="w-full py-3 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20">Submit Deduction</button>
+                <div><label class="block text-xs font-medium text-app-text-muted mb-1" x-text="t('PDF Proof')"></label>{{ form.pdf_proof }}</div>
+                <button type="submit" class="w-full py-3 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20" x-text="t('Submit Deduction')"></button>
             </form>
         </div>
     </div>
@@ -74,20 +74,20 @@
     <div class="xl:col-span-2">
         <div class="bg-app-card border border-app-border rounded-2xl overflow-hidden shadow-sm">
             <div class="p-4 border-b border-app-border">
-                <h3 class="text-lg font-bold text-app-text">Deduction History</h3>
+                <h3 class="text-lg font-bold text-app-text" x-text="t('Deduction History')"></h3>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full">
                     <thead>
                         <tr class="border-b border-app-border bg-black/5 dark:bg-white/5">
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Date</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Target</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Reason</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">Company</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase">Contractor KD</th>
-                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase">Company KD</th>
-                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase">By</th>
-                            <th class="px-4 py-3 text-center text-xs font-semibold text-app-text-muted uppercase">PDF</th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase" x-text="t('Date')"></th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase" x-text="t('Target')"></th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase" x-text="t('Reason')"></th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase" x-text="t('Company')"></th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase" x-text="t('Contractor KD')"></th>
+                            <th class="px-4 py-3 text-right text-xs font-semibold text-app-text-muted uppercase" x-text="t('Company KD')"></th>
+                            <th class="px-4 py-3 text-left text-xs font-semibold text-app-text-muted uppercase" x-text="t('By')"></th>
+                            <th class="px-4 py-3 text-center text-xs font-semibold text-app-text-muted uppercase" x-text="t('PDF')"></th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-app-border">
@@ -108,7 +108,7 @@
                             </td>
                         </tr>
                         {% empty %}
-                        <tr><td colspan="8" class="px-4 py-12 text-center text-app-text-muted">No deductions recorded.</td></tr>
+                        <tr><td colspan="8" class="px-4 py-12 text-center text-app-text-muted" x-text="t('No deductions recorded.')"></td></tr>
                         {% endfor %}
                     </tbody>
                 </table>

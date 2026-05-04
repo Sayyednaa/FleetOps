@@ -1,21 +1,22 @@
 {% extends "base.html" %}
-{% block title %}{{ contract_title }} Salary Details — NAJMAT ALWESAM{% endblock %}
-{% block page_title %}{{ contract_title }} Salary Details{% endblock %}
-{% block breadcrumb %}NAJMAT ALWESAM / Accountant / {{ contract_title }}{% endblock %}
+{% load translation_tags %}
+{% block title %}{{ contract_title|t:lang }} {{ "Salary Details"|t:lang }} — NAJMAT ALWESAM{% endblock %}
+{% block page_title %}{{ contract_title|t:lang }} {{ "Salary Details"|t:lang }}{% endblock %}
+{% block breadcrumb %}NAJMAT ALWESAM / <span x-text="t('Accountant')"></span> / <span x-text="t('{{ contract_title }}')"></span>{% endblock %}
 
 {% block content %}
 <div class="space-y-6" x-data="contractSalary()">
     <div class="flex items-center justify-between mb-2">
-        <h3 class="text-xl font-bold text-app-text">NAJMAT ALWESAM — {{ contract_title }} Salary Entry</h3>
+        <h3 class="text-xl font-bold text-app-text" x-text="t('NAJMAT ALWESAM') + ' — ' + t('{{ contract_title }}') + ' ' + t('Salary Entry')"></h3>
         <div class="flex gap-2">
             <a href="{% url 'accountant_download_template' 'contract_salary' %}" class="px-3 py-1.5 text-xs font-semibold bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg flex items-center gap-1 transition-colors">
-                <span>📄</span> Template
+                <span>📄</span> <span x-text="t('Template')"></span>
             </a>
             <a href="{% url 'accountant_export_excel' 'contract_salary' %}?type={{ contract_type }}" class="px-3 py-1.5 text-xs font-semibold bg-green-100 text-green-700 hover:bg-green-200 rounded-lg flex items-center gap-1 transition-colors">
-                <span>📤</span> Export
+                <span>📤</span> <span x-text="t('Export')"></span>
             </a>
             <button onclick="document.getElementById('excelUpload').click()" class="px-3 py-1.5 text-xs font-semibold bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg flex items-center gap-1 transition-colors">
-                <span>📥</span> Import
+                <span>📥</span> <span x-text="t('Import')"></span>
             </button>
             <form id="uploadForm" method="post" action="{% url 'accountant_upload_excel' 'contract_salary' %}" enctype="multipart/form-data" class="hidden">
                 {% csrf_token %}
@@ -25,15 +26,15 @@
     </div>
 
     <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6">
-        <h3 class="text-lg font-bold mb-4">Data Entry Form</h3>
+        <h3 class="text-lg font-bold mb-4" x-text="t('Data Entry Form')"></h3>
         <form method="post" enctype="multipart/form-data" class="space-y-6">
             {% csrf_token %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Name Selection -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Select Name</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Select Name')"></label>
                     <select name="driver_id" x-model="selectedDriverId" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors" required>
-                        <option value="">-- Select Driver / Employee --</option>
+                        <option value="" x-text="'-- ' + t('Select Driver / Employee') + ' --'"></option>
                         {% for driver in drivers %}
                         <option value="{{ driver.id }}">{{ driver.full_name }}</option>
                         {% endfor %}
@@ -42,50 +43,49 @@
 
                 <!-- Month -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Month</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Month')"></label>
                     <input type="month" name="month" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors" required>
                 </div>
                 
                 <!-- Total Salary -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Total Salary</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Total Salary')"></label>
                     <input type="number" step="0.001" name="total_salary" x-model.number="totalSalary" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors">
                 </div>
                 
                 <!-- Absent -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Absent (Days)</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Absent (Days)')"></label>
                     <input type="number" name="absent" x-model.number="absent" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors">
                 </div>
                 
                 <!-- Deduction -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Deduction</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Deduction')"></label>
                     <input type="number" step="0.001" name="deduction" x-model.number="deduction" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors">
                 </div>
                 
                 <!-- File Attachment -->
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Attach File</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Attach File')"></label>
                     <input type="file" name="attachment" class="w-full px-4 py-1.5 bg-app-bg border border-app-border rounded-xl text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition-all">
                 </div>
 
                 <!-- Net Salary Display -->
                 <div class="lg:col-span-1">
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Net Salary</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Net Salary')"></label>
                     <div class="px-4 py-2.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-xl text-lg font-bold" x-text="netSalary.toFixed(3)"></div>
                 </div>
                 
                 <!-- Remark -->
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Remark</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Remark')"></label>
                     <textarea name="remark" x-model="remark" rows="1" class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand transition-colors"></textarea>
                 </div>
             </div>
 
             <div class="flex justify-end pt-4">
-                <button type="submit" class="px-6 py-2.5 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/30 hover:bg-brand-hover hover:-translate-y-0.5 transition-all">
-                    Save Record
+                <button type="submit" class="px-6 py-2.5 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/30 hover:bg-brand-hover hover:-translate-y-0.5 transition-all" x-text="t('Save Record')">
                 </button>
             </div>
         </form>
@@ -93,20 +93,20 @@
 
     <!-- Saved Records -->
     <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6">
-        <h3 class="text-lg font-bold mb-4">Saved Records</h3>
+        <h3 class="text-lg font-bold mb-4" x-text="t('Saved Records')"></h3>
         {% if saved_records %}
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-app-bg border-y border-app-border">
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Name</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Month</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Total Salary</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Absent</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Deduction</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Net Salary</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Attach</th>
-                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider">Remark</th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Name')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Month')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Total Salary')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Absent')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Deduction')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Net Salary')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Attach')"></th>
+                        <th class="px-4 py-3 text-xs font-bold text-app-text-muted uppercase tracking-wider" x-text="t('Remark')"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,7 +132,7 @@
             </table>
         </div>
         {% else %}
-        <p class="text-sm text-app-text-muted text-center py-8">No salary records saved yet.</p>
+        <p class="text-sm text-app-text-muted text-center py-8" x-text="t('No salary records saved yet.')"></p>
         {% endif %}
     </div>
 </div>

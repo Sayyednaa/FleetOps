@@ -1,12 +1,48 @@
-{% load static role_tags kwd_filters %}
+{% load static role_tags kwd_filters translation_tags %}
 <!DOCTYPE html>
-<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 1024, darkMode: localStorage.getItem('darkMode') === 'true', logoutModalOpen: false, lang: document.documentElement.lang }" :class="{ 'dark': darkMode }">
+<html lang="{{ lang }}" x-data="{ 
+    sidebarOpen: window.innerWidth > 1024, 
+    darkMode: localStorage.getItem('darkMode') === 'true', 
+    logoutModalOpen: false, 
+    lang: '{{ lang }}',
+    translations: {},
+    t(text) {
+        return this.lang === 'ar' ? (this.translations[text] || text) : text;
+    },
+    init() {
+        // Load translations from script tag
+        const data = document.getElementById('translations-data');
+        if (data) {
+            this.translations = JSON.parse(data.textContent);
+        }
+        
+        this.$nextTick(() => {
+            if (this.lang === 'ar') {
+                document.querySelectorAll('input, textarea').forEach(el => {
+                    if (el.placeholder && this.translations[el.placeholder]) {
+                        el.placeholder = this.translations[el.placeholder];
+                    }
+                });
+                document.querySelectorAll('select option').forEach(opt => {
+                    const txt = opt.text.trim();
+                    if (this.translations[txt]) {
+                        opt.text = this.translations[txt];
+                    }
+                });
+            }
+        });
+    }
+}" :class="{ 'dark': darkMode }" :dir="lang === 'ar' ? 'rtl' : 'ltr'">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}NAJMAT ALWESAM{% endblock %}</title>
     <meta name="description" content="NAJMAT ALWESAM — Kuwait Delivery Operations Management">
     <link rel="icon" type="image/png" href="{% static 'img/logo.png' %}">
+
+    <script id="translations-data" type="application/json">
+        {{ TRANSLATIONS_JSON|safe }}
+    </script>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,14 +51,15 @@
     
     <script>
       (function () {
-        var lng = localStorage.getItem("i18nextLng") || (window.navigator.language.startsWith('ar') ? 'ar' : 'en');
-        if (lng.startsWith("ar")) {
-          document.documentElement.dir = "rtl";
-          document.documentElement.lang = "ar";
-        } else {
-          document.documentElement.dir = "ltr";
-          document.documentElement.lang = "en";
-        }
+        const translations = JSON.parse(document.getElementById('translations-data').textContent);
+        const lang = '{{ lang }}';
+        
+        window.t = function(text) {
+          return lang === 'ar' ? (translations[text] || text) : text;
+        };
+
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
       })();
     </script>
 
@@ -83,8 +120,9 @@
     </style>
 
     <style>
-        * { font-family: 'Tajawal', 'Inter', system-ui, sans-serif; }
-        html { font-size: 18px; line-height: 1.6; }
+        * { font-family: 'Inter', system-ui, sans-serif; }
+        [lang="ar"], [lang="ar"] * { font-family: 'Tajawal', serif !important; }
+        html { font-size: 16px; line-height: 1.5; }
         body { overflow-x: hidden; color: var(--color-app-text); background-color: var(--color-app-bg); }
 
         /* Scrollbar */
@@ -170,14 +208,8 @@
                 <div class="flex items-center gap-3">
                     <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-contain" alt="Logo">
                     <div>
-                        <h1 class="font-bold text-app-text text-lg tracking-tight">
-                            <span x-show="lang === 'en'">NAJMAT ALWESAM</span>
-                            <span x-show="lang === 'ar'">نجمة الوسام</span>
-                        </h1>
-                        <p class="text-[10px] text-app-text-muted uppercase tracking-widest">
-                            <span x-show="lang === 'en'">Kuwait Operations</span>
-                            <span x-show="lang === 'ar'">عمليات الكويت</span>
-                        </p>
+                        <h1 class="font-bold text-app-text text-lg tracking-tight" x-text="t('NAJMAT ALWESAM')"></h1>
+                        <p class="text-[10px] text-app-text-muted uppercase tracking-widest" x-text="t('Kuwait Operations')"></p>
                     </div>
                 </div>
                 <button @click="sidebarOpen = false" class="lg:hidden text-gray-500 hover:text-white p-1 rounded">
@@ -188,10 +220,7 @@
             <!-- Navigation -->
             <nav class="flex-1 py-4 px-3 space-y-1">
                 <!-- DASHBOARD -->
-                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
-                </p>
+                <p class="px-3 pt-3 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Dashboard')"></p>
 
                 {% if_role 'admin' 'superadmin' as is_admin %}
                 {% if_role 'manager' as is_manager %}
@@ -203,160 +232,147 @@
                 {% if is_admin %}
                 <a href="{% url 'admin_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'admin_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                    <span x-text="t('Dashboard')"></span>
                 </a>
                 {% endif %}
                 {% if is_manager and not is_admin %}
                 <a href="{% url 'manager_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'manager_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                    <span x-text="t('Dashboard')"></span>
                 </a>
                 {% endif %}
                 {% if is_employee and not is_admin and not is_manager %}
                 <a href="{% url 'employee_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'employee_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                    <span x-text="t('Dashboard')"></span>
                 </a>
                 {% endif %}
                 {% if is_driver %}
                 <a href="{% url 'driver_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'driver_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                    <span x-text="t('Dashboard')"></span>
                 </a>
                 {% endif %}
                 {% if is_accountant and not is_admin %}
                 <a href="{% url 'accountant_dashboard' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'accountant_dashboard' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🏠</span> 
-                    <span x-show="lang === 'en'">Dashboard</span>
-                    <span x-show="lang === 'ar'">لوحة التحكم</span>
+                    <span x-text="t('Dashboard')"></span>
                 </a>
                 {% endif %}
 
                 <!-- TEAM MANAGEMENT (admin/manager) -->
                 {% if is_admin or is_manager %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
-                    <span x-show="lang === 'en'">Team Management</span>
-                    <span x-show="lang === 'ar'">إدارة الفريق</span>
-                </p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Team Management')"></p>
                 <a href="{% url 'admin_team_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'team' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>👤</span> 
-                    <span x-show="lang === 'en'">Manage Team</span>
-                    <span x-show="lang === 'ar'">إدارة الفريق</span>
+                    <span x-text="t('Manage Team')"></span>
                 </a>
                 {% endif %}
 
                 <!-- DRIVER MANAGEMENT -->
                 {% if not is_driver and not is_accountant %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">
-                    <span x-show="lang === 'en'">Driver Management</span>
-                    <span x-show="lang === 'ar'">إدارة السائقين</span>
-                </p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Driver Management')"></p>
                 {% if is_admin %}
                 <a href="{% url 'admin_driver_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>🚗</span> 
-                    <span x-show="lang === 'en'">Manage Drivers</span>
-                    <span x-show="lang === 'ar'">إدارة السائقين</span>
+                    <span x-text="t('Manage Drivers')"></span>
                 </a>
                 {% elif is_manager or is_employee %}
                 <a href="{% if is_manager %}{% url 'manager_driver_list' %}{% else %}{% url 'employee_driver_list' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🚗</span> {% if is_manager %}Manage Drivers{% else %}View Drivers{% endif %}
+                    <span>🚗</span> 
+                    <span x-text="t('{% if is_manager %}Manage Drivers{% else %}View Drivers{% endif %}')"></span>
                 </a>
                 {% endif %}
                 {% endif %}
 
                 {% if is_driver %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">My Profile</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('My Profile')"></p>
                 <a href="{% url 'driver_my_profile' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'my-profile' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🚗</span> My Profile
+                    <span>🚗</span> <span x-text="t('My Profile')"></span>
                 </a>
                 {% endif %}
 
                 <!-- INVOICES -->
                 {% if not is_driver and not is_accountant %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Invoices</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Invoices')"></p>
                 <a href="{% url 'invoice_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'invoices' in request.path and 'deduction' not in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
                     <span>📄</span> 
-                    <span x-show="lang === 'en'">Driver Invoices</span>
-                    <span x-show="lang === 'ar'">فواتير السائقين</span>
+                    <span x-text="t('Driver Invoices')"></span>
                 </a>
                 {% endif %}
                 {% if is_admin or is_manager or is_employee %}
                 <a href="{% if is_admin %}{% url 'admin_deductions' %}{% elif is_manager %}{% url 'manager_deductions' %}{% else %}{% url 'employee_deductions' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deductions' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🧾</span> Deduction Invoices
+                    <span>🧾</span> <span x-text="t('Deduction Invoices')"></span>
                 </a>
                 {% if is_admin %}
                 <a href="{% url 'admin_pending_dues' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path and 'admin-portal' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>⏳</span> Pending Dues
+                    <span>⏳</span> <span x-text="t('Pending Dues')"></span>
                 </a>
                 {% elif is_manager or is_employee %}
                 <a href="{% if is_manager %}{% url 'manager_pending_dues' %}{% else %}{% url 'employee_pending_dues' %}{% endif %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pending-dues' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>⏳</span> Pending Dues
+                    <span>⏳</span> <span x-text="t('Pending Dues')"></span>
                 </a>
                 {% endif %}
                 {% endif %}
 
                 <!-- ARCHIVE -->
                 {% if not is_driver and not is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Archive</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Archive')"></p>
                 <a href="{% url 'archive_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if request.resolver_match.url_name == 'archive_list' %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🗃️</span> Invoice Archive
+                    <span>🗃️</span> <span x-text="t('Invoice Archive')"></span>
                 </a>
                 <a href="{% url 'company_files' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'company-files' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>📁</span> Company Files
+                    <span>📁</span> <span x-text="t('Company Files')"></span>
                 </a>
                 <a href="{% url 'deactivated_drivers' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deactivated-drivers' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🚫</span> Deactivated Drivers
+                    <span>🚫</span> <span x-text="t('Deactivated Drivers')"></span>
                 </a>
                 {% endif %}
                 <!-- ACCOUNTANT: Forms -->
                 {% if is_accountant or is_superadmin %}
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Forms</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Forms')"></p>
                 <a href="{% url 'accountant_driver_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'driver-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>📝</span> Driver Info Form
+                    <span>📝</span> <span x-text="t('Driver Info Form')"></span>
                 </a>
                 <a href="{% url 'accountant_deduction_add' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'deduction-add' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🧾</span> Deduction Form
+                    <span>🧾</span> <span x-text="t('Deduction Form')"></span>
                 </a>
 
                 <!-- ACCOUNTANT: Salary -->
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Salary / Accountant</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Salary / Accountant')"></p>
                 <a href="{% url 'accountant_talabat' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'talabat' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🍔</span> Talabat
+                    <span>🍔</span> <span x-text="t('Talabat')"></span>
                 </a>
                 <a href="{% url 'accountant_pharmazone' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'pharmazone' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>💊</span> Pharma Zone
+                    <span>💊</span> <span x-text="t('Pharma Zone')"></span>
                 </a>
                 <a href="{% url 'accountant_burgerking' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'burgerking' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>🍟</span> Burger King
+                    <span>🍟</span> <span x-text="t('Burger King')"></span>
                 </a>
                 <a href="{% url 'accountant_other_contract' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'other-contract' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>📄</span> Other Contracts
+                    <span>📄</span> <span x-text="t('Other Contracts')"></span>
                 </a>
                 <a href="{% url 'accountant_monthly_details' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'monthly-details' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>📊</span> Monthly Details
+                    <span>📊</span> <span x-text="t('Monthly Details')"></span>
                 </a>
                 <a href="{% url 'accountant_salary_slip_list' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'salary-slips' in request.path %}bg-orange-500/10 text-orange-400 border-l-2 border-orange-500{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>💳</span> Salary Slips
+                    <span>💳</span> <span x-text="t('Salary Slips')"></span>
                 </a>
                 {% endif %}
 
                 <!-- COMMUNICATIONS -->
-                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest">Communications</p>
+                <p class="px-3 pt-5 pb-1 text-[10px] font-bold text-app-text-muted uppercase tracking-widest" x-text="t('Communications')"></p>
                 <a href="{% url 'notification_list' %}" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'notifications' in request.path %}bg-brand/10 text-brand border-l-2 border-brand{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span class="flex items-center gap-3"><span>🔔</span> Notifications</span>
+                    <span class="flex items-center gap-3"><span>🔔</span> <span x-text="t('Notifications')"></span></span>
                     {% if unread_notifications_count %}<span class="bg-brand text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unread_notifications_count }}</span>{% endif %}
                 </a>
                 <a href="{% url 'message_inbox' %}" class="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'messages' in request.path %}bg-brand/10 text-brand border-l-2 border-brand{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span class="flex items-center gap-3"><span>💬</span> Messages</span>
+                    <span class="flex items-center gap-3"><span>💬</span> <span x-text="t('Messages')"></span></span>
                     {% if unread_messages_count %}<span class="bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ unread_messages_count }}</span>{% endif %}
                 </a>
                 {% if not is_driver %}
                 <a href="{% url 'contact' %}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {% if 'contact' in request.path %}bg-brand/10 text-brand border-l-2 border-brand{% else %}text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5{% endif %}">
-                    <span>📝</span> Contact Page
+                    <span>📝</span> <span x-text="t('Contact Page')"></span>
                 </a>
                 {% endif %}
             </nav>
@@ -381,18 +397,28 @@
                             {% elif user_role == 'manager' %}bg-blue-500/20 text-blue-400
                             {% elif user_role == 'employee' %}bg-emerald-500/20 text-emerald-400
                             {% else %}bg-purple-500/20 text-purple-400{% endif %}">
-                            {{ user_role }}
+                            <span x-text="t('{{ user_role }}')"></span>
                         </span>
                     </div>
                 </div>
                 <a href="{% url 'profile' %}" class="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/5 dark:bg-white/5 text-app-text-muted hover:text-brand text-xs font-semibold transition-all mb-4 mt-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                    My Profile
+                    <span x-text="t('My Profile')"></span>
                 </a>
+                <form action="{% url 'set_language' %}" method="post" class="mb-3 px-1">
+                    {% csrf_token %}
+                    <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                    <input name="language" type="hidden" :value="lang === 'en' ? 'ar' : 'en'">
+                    <button type="submit" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-brand/10 text-brand hover:bg-brand/20 text-xs font-bold transition-all uppercase tracking-widest">
+                        <span>🌐</span>
+                        <span x-show="lang === 'en'">العربية</span>
+                        <span x-show="lang === 'ar'">English</span>
+                    </button>
+                </form>
+
                 <button type="button" @click="logoutModalOpen = true" class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 text-sm font-medium transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    <span x-show="lang === 'en'">Logout</span>
-                    <span x-show="lang === 'ar'">تسجيل الخروج</span>
+                    <span x-text="t('Logout')"></span>
                 </button>
             </div>
         </aside>
@@ -409,15 +435,27 @@
             <header class="no-print sticky top-0 z-30 bg-app-bg/80 backdrop-blur-xl border-b border-app-border">
                 <div class="flex items-center justify-between px-4 lg:px-6 h-16">
                     <div class="flex items-center gap-4">
-                        <button @click="sidebarOpen = !sidebarOpen" class="p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                        <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
                         </button>
                         <div>
-                            <h2 class="text-lg font-bold text-app-text">{% block page_title %}Dashboard{% endblock %}</h2>
+                            <h2 class="text-lg font-bold text-app-text">
+                                <span x-text="t('{% block page_title %}Dashboard{% endblock %}')"></span>
+                            </h2>
                             <div class="text-xs text-app-text-muted">{% block breadcrumb %}{% endblock %}</div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
+                        <!-- Language toggle -->
+                        <form action="{% url 'set_language' %}" method="post" class="m-0 hidden sm:block">
+                            {% csrf_token %}
+                            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                            <input name="language" type="hidden" :value="lang === 'en' ? 'ar' : 'en'">
+                            <button type="submit" class="p-2 rounded-lg text-app-text-muted hover:text-brand hover:bg-brand/5 transition-colors font-bold text-xs uppercase tracking-widest">
+                                <span x-show="lang === 'en'">Ar</span>
+                                <span x-show="lang === 'ar'">En</span>
+                            </button>
+                        </form>
                         <!-- Theme toggle -->
                         <button @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)"
                                 class="p-2 rounded-lg text-app-text-muted hover:text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
@@ -447,11 +485,11 @@
                             <div x-show="userDropdown" x-transition class="absolute right-0 top-full mt-2 w-48 bg-app-card border border-app-border rounded-xl shadow-lg shadow-black/10 py-1 z-50" x-cloak>
                                 <a href="{% url 'profile' %}" class="flex items-center gap-2 px-4 py-2 text-sm text-app-text hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
-                                    Profile
+                                    <span x-text="t('Profile')"></span>
                                 </a>
                                 <button type="button" @click="logoutModalOpen = true; userDropdown = false" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-500 hover:bg-red-500/10 transition-colors text-left">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                                    Logout
+                                    <span x-text="t('Logout')"></span>
                                 </button>
                             </div>
                         </div>
@@ -487,16 +525,14 @@
                 <div class="w-12 h-12 rounded-full bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                 </div>
-                <h3 class="text-lg font-bold text-app-text mb-2">Confirm Logout</h3>
-                <p class="text-sm text-app-text-muted mb-6">Are you sure you want to sign out of your account?</p>
+                <h3 class="text-lg font-bold text-app-text mb-2" x-text="t('Confirm Logout')"></h3>
+                <p class="text-sm text-app-text-muted mb-6" x-text="t('Are you sure you want to sign out of your account?')"></p>
                 <div class="flex gap-3">
-                    <button type="button" @click="logoutModalOpen = false" class="flex-1 px-4 py-2 rounded-xl border border-app-border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                        Cancel
+                    <button type="button" @click="logoutModalOpen = false" class="flex-1 px-4 py-2 rounded-xl border border-app-border text-sm font-medium hover:bg-black/5 dark:hover:bg-white/5 transition-colors" x-text="t('Cancel')">
                     </button>
                     <form method="post" action="{% url 'logout' %}" class="flex-1 m-0">
                         {% csrf_token %}
-                        <button type="submit" class="w-full px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
-                            Logout
+                        <button type="submit" class="w-full px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors" x-text="t('Logout')">
                         </button>
                     </form>
                 </div>

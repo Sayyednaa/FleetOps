@@ -24,6 +24,7 @@ urlpatterns = [
 
     # Shared
     path('shared/', include('shared.urls')),
+    path('i18n/', include('django.conf.urls.i18n')),
 ]
 
 if settings.DEBUG:

@@ -9,8 +9,8 @@
     <div class="bg-app-card border border-app-border rounded-2xl p-6 lg:p-10 shadow-sm transition-all animate-fade-in">
         <div class="flex items-center justify-between mb-8 pb-4 border-b border-app-border/50">
             <div>
-                <h3 class="text-xl font-bold text-app-text">{{ title }}</h3>
-                <p class="text-sm text-app-text-muted mt-1">{{ subtitle }}</p>
+                <h3 class="text-xl font-bold text-app-text" x-text="t('{{ title|escapejs }}')"></h3>
+                <p class="text-sm text-app-text-muted mt-1" x-text="t('{{ subtitle|escapejs }}')"></p>
             </div>
             <span class="text-3xl">{% block form_icon %}{{ icon|default:"📝" }}{% endblock %}</span>
         </div>
@@ -78,7 +78,7 @@
                         {% else %}
                             <div class="{% if field.field.widget.input_type == 'textarea' or field.name == 'reason' or field.name == 'full_name' or field.name == 'driver' %}md:col-span-2{% endif %}">
                                 <label class="block text-xs font-bold text-app-text-muted uppercase tracking-wider mb-2">
-                                    {{ field.label }} {% if field.field.required %}*{% endif %}
+                                    <span x-text="t('{{ field.label|escapejs }}')"></span> {% if field.field.required %}*{% endif %}
                                 </label>
                                 {{ field }}
                                 {% if field.help_text %}<p class="text-[10px] text-app-text-muted mt-1">{{ field.help_text }}</p>{% endif %}
@@ -210,7 +210,7 @@
             <div class="flex justify-end gap-3 pt-8 border-t border-app-border/50">
                 <a href="javascript:history.back()" class="px-6 py-2.5 bg-app-card hover:bg-black/5 dark:hover:bg-white/5 text-app-text-muted border border-app-border rounded-xl text-sm font-bold transition-all">Cancel</a>
                 <button type="submit" class="px-8 py-2.5 bg-brand hover:bg-brand/90 text-white rounded-xl text-sm font-extrabold transition-all shadow-lg shadow-brand/20">
-                    {% if editing %}Update Record{% else %}Submit Details{% endif %}
+                    <span x-text="t('{% if editing %}Update Record{% else %}Submit Details{% endif %}')"></span>
                 </button>
             </div>
         </form>

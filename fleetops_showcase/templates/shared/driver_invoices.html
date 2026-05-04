@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
-{% load kwd_filters %}
+{% load kwd_filters translation_tags %}
 
-{% block title %}Drivers Invoices — Najmat Alwesam{% endblock %}
+{% block title %}{{ "Drivers Invoices"|t:lang }} — Najmat Alwesam{% endblock %}
 {% block page_title %}Drivers Invoices{% endblock %}
-{% block breadcrumb %}{% if portal == 'admin' %}Admin{% else %}Manager{% endif %} → Invoices{% endblock %}
+{% block breadcrumb %}{{ portal|capfirst|t:lang }} → {{ "Invoices"|t:lang }}{% endblock %}
 
 {% block content %}
 <div class="space-y-6 animate-in fade-in zoom-in-95 duration-300">
     <!-- Header with Date Selection -->
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold tracking-tight text-app-text uppercase">Drivers Invoices</h2>
-            <p class="text-sm text-gray-500 mt-1">Managing performance and cash for {{ target_date|date:"M d, Y" }}</p>
+            <h2 class="text-2xl font-bold tracking-tight text-app-text uppercase" x-text="t('Drivers Invoices')"></h2>
+            <p class="text-sm text-gray-500 mt-1"><span x-text="t('Managing performance and cash for')"></span> {{ target_date|date:"M d, Y" }}</p>
         </div>
         <div class="flex items-center gap-2 bg-app-card p-2 rounded-xl border border-app-border shadow-sm">
-            <label class="text-xs font-semibold text-gray-500 uppercase px-2">Work Date:</label>
+            <label class="text-xs font-semibold text-gray-500 uppercase px-2" x-text="t('Work Date') + ':'"></label>
             <form method="get" class="flex items-center">
                 <input type="date" name="date" value="{{ target_date_iso }}" onchange="this.form.submit()" 
                        class="bg-transparent text-app-text border-none focus:ring-0 text-sm font-medium cursor-pointer">
@@ -26,7 +26,7 @@
     <div class="bg-blue-50 dark:bg-blue-900/40 border-l-4 border-blue-500 p-4 rounded-xl text-sm text-blue-900 dark:text-blue-100 shadow-sm transition-colors">
         <div class="font-bold mb-1 flex items-center gap-2 uppercase tracking-wider">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-info"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-            Instructions
+            <span x-text="t('Instructions')"></span>
         </div>
         <p class="opacity-90">Calculations update cumulatively. Uploading an Excel file or clicking Save will <strong>ADD</strong> the values to the driver's current totals. To make corrections, enter a negative number or click the reset icon to clear the driver's current totals completely.</p>
     </div>
@@ -35,27 +35,27 @@
     <div class="bg-app-card border border-app-border rounded-2xl p-4 mb-6 shadow-sm">
         <div class="flex flex-col sm:flex-row gap-4 items-center justify-between">
             <div class="flex items-center gap-3">
-                <form method="post" action="{% url 'invoice_reset' %}" onsubmit="return confirm('Are you sure you want to RESET ALL totals for {{ target_date_iso }}? This cannot be undone.')">
+                <form method="post" action="{% url 'invoice_reset' %}" :onsubmit="'return confirm(\'' + t('Are you sure you want to RESET ALL totals for') + ' {{ target_date_iso }}? ' + t('This cannot be undone.') + '\')'">
                     {% csrf_token %}
                     <input type="hidden" name="date" value="{{ target_date_iso }}">
                     <input type="hidden" name="all" value="true">
                     <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white border border-red-500/30 rounded-xl text-xs font-bold transition-all">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path><path d="M8 16H3v5"></path></svg>
-                        Reset All
+                        <span x-text="t('Reset All')"></span>
                     </button>
                 </form>
             </div>
 
             <div class="flex items-center gap-4">
                 <div class="hidden md:block text-right">
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Excel Import</p>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest" x-text="t('Excel Import')"></p>
                 </div>
                 <div class="flex items-center gap-2">
                     <form method="post" action="{% url 'bulk_upload' 'invoice' %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <label for="excel-upload-invoice" class="cursor-pointer">
                             <div class="flex items-center gap-2 px-4 py-2 bg-blue-600/10 hover:bg-blue-600 text-blue-500 hover:text-white border border-blue-600/30 rounded-xl text-xs font-bold transition-all">
-                                <span>📁</span> Upload Excel
+                                <span>📁</span> <span x-text="t('Upload Excel')"></span>
                             </div>
                             <input id="excel-upload-invoice" name="excel_file" accept=".xlsx, .xls" class="hidden" type="file" onchange="this.form.submit()">
                         </label>
@@ -75,14 +75,14 @@
                 <thead class="text-xs uppercase bg-gray-50 dark:bg-white/5 text-gray-500 border-b border-app-border">
                     <tr>
                         <th class="px-4 py-4 text-center font-bold">NO.</th>
-                        <th class="px-4 py-4 font-bold">Name</th>
-                        <th class="px-4 py-4 font-bold">Work ID</th>
-                        <th class="px-4 py-4 text-center font-bold">Main Orders</th>
-                        <th class="px-4 py-4 text-center font-bold">Addl. Orders</th>
-                        <th class="px-4 py-4 text-center font-bold">Hours</th>
-                        <th class="px-4 py-4 font-bold">Work Date</th>
-                        <th class="px-4 py-4 text-center font-bold">Cash</th>
-                        <th class="px-4 py-4 text-center font-bold">Actions</th>
+                        <th class="px-4 py-4 font-bold" x-text="t('Name')"></th>
+                        <th class="px-4 py-4 font-bold" x-text="t('Work ID')"></th>
+                        <th class="px-4 py-4 text-center font-bold" x-text="t('Main Orders')"></th>
+                        <th class="px-4 py-4 text-center font-bold" x-text="t('Addl. Orders')"></th>
+                        <th class="px-4 py-4 text-center font-bold" x-text="t('Hours')"></th>
+                        <th class="px-4 py-4 font-bold" x-text="t('Work Date')"></th>
+                        <th class="px-4 py-4 text-center font-bold" x-text="t('Cash')"></th>
+                        <th class="px-4 py-4 text-center font-bold" x-text="t('Actions')"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-app-border">
@@ -161,9 +161,9 @@
     <div class="mt-12 bg-app-card border border-app-border rounded-2xl p-6 lg:p-8 shadow-sm">
         <div class="mb-6">
             <h3 class="text-lg font-bold text-app-text flex items-center gap-2 uppercase tracking-wide">
-                <span>📊</span> Range Performance Report
+                <span>📊</span> <span x-text="t('Range Performance Report')"></span>
             </h3>
-            <p class="text-sm text-app-text-muted mt-1">Generate an aggregated slip for a specific driver over a custom date range.</p>
+            <p class="text-sm text-app-text-muted mt-1" x-text="t('Generate an aggregated slip for a specific driver over a custom date range.')"></p>
         </div>
 
         <form method="get" action="{% if portal == 'admin' %}{% url 'admin_salary_slip' '00000000-0000-0000-0000-000000000000' %}{% else %}{% url 'manager_salary_slip' '00000000-0000-0000-0000-000000000000' %}{% endif %}" 
@@ -171,7 +171,7 @@
               onsubmit="this.action = this.action.replace('00000000-0000-0000-0000-000000000000', this.driver_id.value)">
             
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Select Driver</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1" x-text="t('Select Driver')"></label>
                 <select name="driver_id" required class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm transition-colors shadow-sm outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
                     <option value="">---------</option>
                     {% for d in drivers %}
@@ -181,19 +181,19 @@
             </div>
 
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">Start Date</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1" x-text="t('Start Date')"></label>
                 <input type="date" name="start_date" required value="{{ target_date_iso }}"
                        class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm transition-colors shadow-sm outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
             </div>
 
             <div class="space-y-2">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1">End Date</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest ml-1" x-text="t('End Date')"></label>
                 <input type="date" name="end_date" required value="{{ target_date_iso }}"
                        class="block w-full rounded-xl border border-app-border bg-app-bg py-3 px-4 text-app-text sm:text-sm transition-colors shadow-sm outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500">
             </div>
 
             <button type="submit" class="py-3.5 px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/20 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]">
-                <span>🖨️ Generate Report</span>
+                <span>🖨️ <span x-text="t('Generate Report')"></span></span>
             </button>
         </form>
     </div>

@@ -1,46 +1,46 @@
 {% extends "base.html" %}
-{% block title %}Monthly Details - Accountant{% endblock %}
-{% block page_title %}Monthly Details (Profit & Loss){% endblock %}
-{% block breadcrumb %}Accountant / Monthly Details{% endblock %}
+{% load translation_tags %}
+{% block title %}{{ "Monthly Details"|t:lang }} - NAJMAT ALWESAM{% endblock %}
+{% block page_title %}{{ "Monthly Details (Profit & Loss)"|t:lang }}{% endblock %}
+{% block breadcrumb %}<span x-text="t('Accountant')"></span> / <span x-text="t('Monthly Details')"></span>{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
     <!-- Upload Form -->
     <div class="bg-app-card rounded-2xl shadow-sm border border-app-border p-6">
-        <h3 class="text-lg font-bold mb-4">Add Monthly Report</h3>
+        <h3 class="text-lg font-bold mb-4" x-text="t('Add Monthly Report')"></h3>
         <form method="post" enctype="multipart/form-data" class="space-y-4">
             {% csrf_token %}
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Company Name</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Company Name')"></label>
                     <input type="text" name="company_name" required class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Contract Name</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Contract Name')"></label>
                     <input type="text" name="contract_name" required class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Expense</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Expense')"></label>
                     <input type="number" step="0.001" name="expense" required class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Profit & Loss</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Profit / Loss')"></label>
                     <input type="number" step="0.001" name="profit_loss" required class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand">
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Month</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Month')"></label>
                     <input type="date" name="month" required class="w-full px-4 py-2.5 bg-app-bg border border-app-border rounded-xl text-sm focus:ring-2 focus:ring-brand focus:border-brand">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2">Upload PDF Report</label>
+                    <label class="block text-xs font-medium text-app-text-muted uppercase tracking-wider mb-2" x-text="t('Upload PDF Report')"></label>
                     <input type="file" name="report_pdf" accept="application/pdf" class="w-full px-4 py-2 bg-app-bg border border-app-border rounded-xl text-sm file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-brand/10 file:text-brand hover:file:bg-brand/20 transition-colors">
                 </div>
             </div>
             <div class="flex justify-end pt-2">
-                <button type="submit" class="px-6 py-2.5 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/30 hover:bg-brand-hover transition-all">
-                    Upload & Save
+                <button type="submit" class="px-6 py-2.5 bg-brand text-white text-sm font-bold rounded-xl shadow-lg shadow-brand/30 hover:bg-brand-hover transition-all" x-text="t('Upload & Save')">
                 </button>
             </div>
         </form>
@@ -52,12 +52,12 @@
             <table class="w-full text-left text-sm">
                 <thead>
                     <tr class="bg-app-bg/50 border-b border-app-border">
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs">Month</th>
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs">Company Name</th>
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs">Contract Name</th>
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs">Expense</th>
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs">Profit & Loss</th>
-                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs text-right">PDF Report</th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs" x-text="t('Month')"></th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs" x-text="t('Company Name')"></th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs" x-text="t('Contract Name')"></th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs" x-text="t('Expense')"></th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs" x-text="t('Profit / Loss')"></th>
+                        <th class="px-6 py-4 font-bold text-app-text-muted uppercase tracking-wider text-xs text-right" x-text="t('PDF Report')"></th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-app-border">
@@ -73,7 +73,7 @@
                         <td class="px-6 py-4 text-right">
                             {% if record.report_pdf %}
                             <a href="{{ record.report_pdf.url }}" target="_blank" class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-500 rounded-lg text-xs font-bold hover:bg-blue-500/20 transition-colors">
-                                <span>📄</span> Download PDF
+                                <span>📄</span> <span x-text="t('Download PDF')"></span>
                             </a>
                             {% else %}
                             <span class="text-xs text-app-text-muted italic">No PDF</span>
@@ -82,7 +82,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-app-text-muted">No monthly reports uploaded yet.</td>
+                        <td colspan="6" class="px-6 py-8 text-center text-app-text-muted" x-text="t('No monthly reports uploaded yet.')"></td>
                     </tr>
                     {% endfor %}
                 </tbody>

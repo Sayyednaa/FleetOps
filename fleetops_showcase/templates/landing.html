@@ -50,7 +50,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="min-h-screen hero-gradient" x-data="{ lang: 'en' }" x-init="lang = document.documentElement.lang; document.title = lang === 'ar' ? 'نجمة الوسام | خدمات توصيل حديثة' : 'NAJMAT ALWESAM | Modern Delivery Services';">
+<div class="min-h-screen hero-gradient" x-init="document.title = lang === 'ar' ? 'نجمة الوسام | خدمات توصيل حديثة' : 'NAJMAT ALWESAM | Modern Delivery Services';">
     <!-- Navbar -->
     <nav class="fixed top-0 left-0 right-0 z-50 glass-nav h-16 flex items-center justify-between px-4 lg:px-12">
         <div class="flex items-center gap-2 sm:gap-3 min-w-0">
@@ -61,11 +61,15 @@
             </h1>
         </div>
         <div class="flex items-center gap-3 sm:gap-6 flex-shrink-0">
-            <button @click="localStorage.setItem('i18nextLng', lang === 'en' ? 'ar' : 'en'); window.location.reload();" 
-                    class="text-[10px] sm:text-sm font-bold text-app-text-muted hover:text-orange-500 transition-colors uppercase tracking-widest">
-                <span x-show="lang === 'en'">العربية</span>
-                <span x-show="lang === 'ar'">English</span>
-            </button>
+            <form action="{% url 'set_language' %}" method="post" class="m-0">
+                {% csrf_token %}
+                <input name="next" type="hidden" value="{{ request.get_full_path }}">
+                <input name="language" type="hidden" :value="lang === 'en' ? 'ar' : 'en'">
+                <button type="submit" class="text-[10px] sm:text-sm font-bold text-app-text-muted hover:text-orange-500 transition-colors uppercase tracking-widest">
+                    <span x-show="lang === 'en'">العربية</span>
+                    <span x-show="lang === 'ar'">English</span>
+                </button>
+            </form>
             <a href="{% url 'login' %}" class="px-4 sm:px-6 py-1.5 sm:py-2 rounded-full bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-bold transition-all shadow-lg shadow-orange-500/20 whitespace-nowrap">
                 Sign In
             </a>

@@ -16,7 +16,7 @@ from core.forms import DriverForm, DeductionForm, DeductionInstallmentForm, Task
 from core.utils import notify_superadmin_action, check_and_notify_expiries
 from portal_admin.views import (
     DriverAddView, DriverEditView, DriverDeleteView, DriverToggleActiveView, 
-    DriverSalarySlipView, MarkInstallmentPaidView
+    DriverSalarySlipView, MarkInstallmentPaidView, DriverProfilePrintView
 )
 from django.views import View
 from portal_admin.views import get_chart_data
@@ -265,4 +265,7 @@ class ManagerDriverAddView(DriverAddView):
     pass
 
 class ManagerDriverDeleteView(DriverDeleteView):
+    pass
+
+class ManagerDriverPrintView(DriverProfilePrintView):
     pass

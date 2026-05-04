@@ -357,6 +357,15 @@ class DriverSalarySlipView(StaffRequiredMixin, View):
         })
 
 
+class DriverProfilePrintView(StaffRequiredMixin, View):
+    def get(self, request, pk):
+        driver = get_object_or_404(Driver, pk=pk)
+        return render(request, 'pdf/driver_profile.html', {
+            'driver': driver,
+            'generated_date': timezone.now(),
+        })
+
+
 class DeductionListView(StaffRequiredMixin, View):
     def get(self, request):
         form = DeductionForm()
