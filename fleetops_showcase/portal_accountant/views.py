@@ -110,7 +110,7 @@ class AccountantPharmazoneView(AccountantMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['contract_title'] = 'Pharma Zone'
         context['contract_type'] = 'pharmazone'
-        context['saved_records'] = ContractSalaryDetail.objects.filter(contract_type='pharmazone').order_by('-created_at')[:50]
+        context['saved_records'] = ContractSalaryDetail.objects.select_related('driver').filter(contract_type='pharmazone').order_by('-created_at')[:50]
         return context
 
     def get_queryset(self):
@@ -128,7 +128,7 @@ class AccountantBurgerKingView(AccountantMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['contract_title'] = 'Burger King'
         context['contract_type'] = 'burger_king'
-        context['saved_records'] = ContractSalaryDetail.objects.filter(contract_type='burger_king').order_by('-created_at')[:50]
+        context['saved_records'] = ContractSalaryDetail.objects.select_related('driver').filter(contract_type='burger_king').order_by('-created_at')[:50]
         return context
 
     def get_queryset(self):
@@ -146,7 +146,7 @@ class AccountantOtherContractView(AccountantMixin, ListView):
         context = super().get_context_data(**kwargs)
         context['contract_title'] = 'Other Contracts'
         context['contract_type'] = 'other'
-        context['saved_records'] = ContractSalaryDetail.objects.filter(contract_type='other').order_by('-created_at')[:50]
+        context['saved_records'] = ContractSalaryDetail.objects.select_related('driver').filter(contract_type='other').order_by('-created_at')[:50]
         return context
 
     def get_queryset(self):
@@ -188,6 +188,7 @@ def _save_contract_salary(request, contract_type, redirect_url):
         name=name,
         month=month_date,
         defaults={
+            'driver': driver,
             'total_salary': safe_decimal(request.POST.get('total_salary')),
             'absent': safe_int(request.POST.get('absent')),
             'deduction': safe_decimal(request.POST.get('deduction')),
