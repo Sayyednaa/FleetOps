@@ -9,7 +9,8 @@ from django.db.models import Sum, Q, Count
 from django.core.paginator import Paginator
 from core.mixins import (
     AdminRequiredMixin, StaffRequiredMixin, 
-    AdminManagerRequiredMixin, AccountantRequiredMixin
+    AdminManagerRequiredMixin, AccountantRequiredMixin,
+    FinancialAccessMixin
 )
 from core.models import (
     Profile, Driver, DriverInvoice, Deduction, DeductionInstallment, Notification, Task,
@@ -291,7 +292,7 @@ class DriverToggleActiveView(StaffRequiredMixin, View):
         return redirect('admin_driver_list')
 
 
-class DriverSalarySlipView(StaffRequiredMixin, View):
+class DriverSalarySlipView(FinancialAccessMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         

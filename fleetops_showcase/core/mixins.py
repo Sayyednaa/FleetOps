@@ -33,8 +33,13 @@ class AdminManagerRequiredMixin(RoleRequiredMixin):
 
 
 class StaffRequiredMixin(RoleRequiredMixin):
-    """Access for all office roles."""
+    """Access for all office roles including employees."""
     allowed_roles = ['superadmin', 'admin', 'manager', 'employee', 'accountant']
+
+
+class FinancialAccessMixin(RoleRequiredMixin):
+    """Access for admin, manager, and accountant (excludes employee)."""
+    allowed_roles = ['superadmin', 'admin', 'manager', 'accountant']
 
 
 class DriverRequiredMixin(RoleRequiredMixin):

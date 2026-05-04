@@ -79,10 +79,20 @@ class InvoiceBulkSaveView(StaffRequiredMixin, View):
         driver_id = request.POST.get('driver_id')
         target_date_str = request.POST.get('date')
         
-        cash_delta = Decimal(request.POST.get('cash', '0'))
-        main_delta = int(request.POST.get('main_orders', '0'))
-        additional_delta = int(request.POST.get('additional_orders', '0'))
-        hours_delta = Decimal(request.POST.get('hours', '0'))
+        def safe_decimal(val):
+            if not val or not val.strip(): return Decimal('0')
+            try: return Decimal(val.strip())
+            except: return Decimal('0')
+            
+        def safe_int(val):
+            if not val or not val.strip(): return 0
+            try: return int(float(val.strip()))
+            except: return 0
+
+        cash_delta = safe_decimal(request.POST.get('cash'))
+        main_delta = safe_int(request.POST.get('main_orders'))
+        additional_delta = safe_int(request.POST.get('additional_orders'))
+        hours_delta = safe_decimal(request.POST.get('hours'))
 
         driver = get_object_or_404(Driver, id=driver_id)
         

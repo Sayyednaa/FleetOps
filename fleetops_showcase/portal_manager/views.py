@@ -7,7 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.db.models import Sum, Q
 from django.core.paginator import Paginator
-from core.mixins import AdminManagerRequiredMixin
+from core.mixins import AdminManagerRequiredMixin, FinancialAccessMixin
 from core.models import (
     Driver, DriverInvoice, Deduction, Notification, Task,
     Profile, COMPANY_CHOICES, CONTRACT_CHOICES, VEHICLE_CHOICES,
@@ -116,7 +116,7 @@ class ManagerDriverToggleView(AdminManagerRequiredMixin, View):
         return redirect('manager_driver_list')
 
 
-class ManagerSalarySlipView(AdminManagerRequiredMixin, View):
+class ManagerSalarySlipView(FinancialAccessMixin, View):
     def get(self, request, pk):
         driver = get_object_or_404(Driver, pk=pk)
         

@@ -49,29 +49,39 @@ class AccountantTalabatView(AccountantMixin, ListView):
         
         month_date = f"{month_str}-01"  # convert "2026-04" to "2026-04-01"
         
+        def safe_decimal(val):
+            if not val or not str(val).strip(): return Decimal('0')
+            try: return Decimal(str(val).strip())
+            except: return Decimal('0')
+            
+        def safe_int(val):
+            if not val or not str(val).strip(): return 0
+            try: return int(float(str(val).strip()))
+            except: return 0
+
         defaults = {
-            'batch_1_orders': int(request.POST.get('batch_1_orders', 0) or 0),
-            'batch_1_amount': Decimal(request.POST.get('batch_1_amount', 0) or 0),
-            'batch_1_net_amount': Decimal(request.POST.get('batch_1_net_amount', 0) or 0),
-            'batch_2_orders': int(request.POST.get('batch_2_orders', 0) or 0),
-            'batch_2_amount': Decimal(request.POST.get('batch_2_amount', 0) or 0),
-            'batch_2_net_amount': Decimal(request.POST.get('batch_2_net_amount', 0) or 0),
-            'batch_3_orders': int(request.POST.get('batch_3_orders', 0) or 0),
-            'batch_3_amount': Decimal(request.POST.get('batch_3_amount', 0) or 0),
-            'batch_3_net_amount': Decimal(request.POST.get('batch_3_net_amount', 0) or 0),
-            'batch_4_orders': int(request.POST.get('batch_4_orders', 0) or 0),
-            'batch_4_amount': Decimal(request.POST.get('batch_4_amount', 0) or 0),
-            'batch_4_net_amount': Decimal(request.POST.get('batch_4_net_amount', 0) or 0),
-            'batch_5_orders': int(request.POST.get('batch_5_orders', 0) or 0),
-            'batch_5_amount': Decimal(request.POST.get('batch_5_amount', 0) or 0),
-            'batch_5_net_amount': Decimal(request.POST.get('batch_5_net_amount', 0) or 0),
-            'batch_6_orders': int(request.POST.get('batch_6_orders', 0) or 0),
-            'batch_6_amount': Decimal(request.POST.get('batch_6_amount', 0) or 0),
-            'batch_6_net_amount': Decimal(request.POST.get('batch_6_net_amount', 0) or 0),
-            'batch_7_orders': int(request.POST.get('batch_7_orders', 0) or 0),
-            'batch_7_amount': Decimal(request.POST.get('batch_7_amount', 0) or 0),
-            'batch_7_net_amount': Decimal(request.POST.get('batch_7_net_amount', 0) or 0),
-            'deduction': Decimal(request.POST.get('deduction', 0) or 0),
+            'batch_1_orders': safe_int(request.POST.get('batch_1_orders')),
+            'batch_1_amount': safe_decimal(request.POST.get('batch_1_amount')),
+            'batch_1_net_amount': safe_decimal(request.POST.get('batch_1_net_amount')),
+            'batch_2_orders': safe_int(request.POST.get('batch_2_orders')),
+            'batch_2_amount': safe_decimal(request.POST.get('batch_2_amount')),
+            'batch_2_net_amount': safe_decimal(request.POST.get('batch_2_net_amount')),
+            'batch_3_orders': safe_int(request.POST.get('batch_3_orders')),
+            'batch_3_amount': safe_decimal(request.POST.get('batch_3_amount')),
+            'batch_3_net_amount': safe_decimal(request.POST.get('batch_3_net_amount')),
+            'batch_4_orders': safe_int(request.POST.get('batch_4_orders')),
+            'batch_4_amount': safe_decimal(request.POST.get('batch_4_amount')),
+            'batch_4_net_amount': safe_decimal(request.POST.get('batch_4_net_amount')),
+            'batch_5_orders': safe_int(request.POST.get('batch_5_orders')),
+            'batch_5_amount': safe_decimal(request.POST.get('batch_5_amount')),
+            'batch_5_net_amount': safe_decimal(request.POST.get('batch_5_net_amount')),
+            'batch_6_orders': safe_int(request.POST.get('batch_6_orders')),
+            'batch_6_amount': safe_decimal(request.POST.get('batch_6_amount')),
+            'batch_6_net_amount': safe_decimal(request.POST.get('batch_6_net_amount')),
+            'batch_7_orders': safe_int(request.POST.get('batch_7_orders')),
+            'batch_7_amount': safe_decimal(request.POST.get('batch_7_amount')),
+            'batch_7_net_amount': safe_decimal(request.POST.get('batch_7_net_amount')),
+            'deduction': safe_decimal(request.POST.get('deduction')),
         }
         
         obj, created = TalabatSalaryDetail.objects.update_or_create(
@@ -161,13 +171,23 @@ def _save_contract_salary(request, contract_type, redirect_url):
     name = driver.full_name
     month_date = f"{month_str}-01"
     
+    def safe_decimal(val):
+        if not val or not str(val).strip(): return Decimal('0')
+        try: return Decimal(str(val).strip())
+        except: return Decimal('0')
+        
+    def safe_int(val):
+        if not val or not str(val).strip(): return 0
+        try: return int(float(str(val).strip()))
+        except: return 0
+
     ContractSalaryDetail.objects.create(
         contract_type=contract_type,
         name=name,
         month=month_date,
-        total_salary=Decimal(request.POST.get('total_salary', 0) or 0),
-        absent=int(request.POST.get('absent', 0) or 0),
-        deduction=Decimal(request.POST.get('deduction', 0) or 0),
+        total_salary=safe_decimal(request.POST.get('total_salary')),
+        absent=safe_int(request.POST.get('absent')),
+        deduction=safe_decimal(request.POST.get('deduction')),
         remark=request.POST.get('remark', ''),
         attachment=request.FILES.get('attachment')
     )
@@ -309,7 +329,8 @@ def accountant_upload_excel(request, model_type):
     return redirect(request.META.get('HTTP_REFERER', 'accountant_dashboard'))
 
 
-class AccountantSalarySlipListView(AccountantMixin, ListView):
+from core.mixins import FinancialAccessMixin
+class AccountantSalarySlipListView(FinancialAccessMixin, ListView):
     model = Driver
     template_name = 'accountant_portal/salary_slips.html'
     context_object_name = 'drivers'

@@ -159,17 +159,25 @@ def generate_excel_template(model_type):
     # Define headers and fetch data per model
     if model_type == 'driver':
         headers = [
-            'Full Name', 'Email', 'Phone', 'Civil ID Number',
-            'Passport Number', 'Vehicle Plate Number', 'Vehicle Name', 'Company Name',
-            'Contract Type', 'Vehicle Type'
+            'Full Name', 'Email', 'Phone', 'Civil ID Number', 'Civil ID Expiry',
+            'Passport Number', 'Passport Expiry', 'Work Permit Expiry', 'Driver License Expiry',
+            'Health Insurance Expiry', 'Criminal Certificate Expiry', 'Vehicle Registration',
+            'Vehicle Registration Expiry', 'Vehicle Plate Number', 'Vehicle Name', 'Vehicle Type',
+            'Zone', 'Petrol Card Number', 'Working ID', 'Company Name', 'Contract Type',
+            'Position', 'IBAN Number', 'Bank Name', 'Basic Salary WP', 'File Status'
         ]
         queryset = Driver.objects.all()
         data_rows = []
         for obj in queryset:
             data_rows.append([
-                obj.full_name, obj.email, obj.phone, obj.civil_id_number,
-                obj.passport_number, obj.vehicle_plate_number, obj.vehicle_name,
-                obj.company_name, obj.contract_type, obj.vehicle_type
+                obj.full_name, obj.email, obj.phone, obj.civil_id_number, str(obj.civil_id_expiry or ''),
+                obj.passport_number, str(obj.passport_expiry or ''), str(obj.working_permit_expiry or ''), 
+                str(obj.driver_license_expiry or ''), str(obj.health_insurance_expiry or ''), 
+                str(obj.criminal_certificate_expiry or ''), obj.vehicle_registration, 
+                str(obj.vehicle_registration_expiry or ''), obj.vehicle_plate_number, obj.vehicle_name, 
+                obj.vehicle_type, obj.zone, obj.petrol_card_number, obj.working_id,
+                obj.company_name, obj.contract_type, obj.position, obj.iban_number, obj.bank_name,
+                float(obj.basic_salary_wp), obj.file_status
             ])
     elif model_type == 'team':
         headers = [
@@ -267,6 +275,7 @@ def import_from_excel(file, model_type, user):
     from .models import Driver, Profile, DriverInvoice, Deduction
     from decimal import Decimal
     from datetime import date
+    from django.utils import timezone
     
     wb = openpyxl.load_workbook(file)
     ws = wb.active
@@ -284,17 +293,41 @@ def import_from_excel(file, model_type, user):
         
         try:
             if model_type == 'driver':
+                def safe_date(val):
+                    if not val: return None
+                    if isinstance(val, date): return val
+                    try:
+                        return timezone.datetime.strptime(str(val), '%Y-%m-%d').date()
+                    except:
+                        return None
+
                 Driver.objects.create(
                     full_name=data.get('Full Name'),
-                    email=data.get('Email'),
+                    email=data.get('Email', ''),
                     phone=data.get('Phone'),
                     civil_id_number=data.get('Civil ID Number'),
-                    passport_number=data.get('Passport Number'),
-                    vehicle_plate_number=data.get('Vehicle Plate Number'),
-                    vehicle_name=data.get('Vehicle Name'),
+                    civil_id_expiry=safe_date(data.get('Civil ID Expiry')),
+                    passport_number=data.get('Passport Number', ''),
+                    passport_expiry=safe_date(data.get('Passport Expiry')),
+                    working_permit_expiry=safe_date(data.get('Work Permit Expiry')),
+                    driver_license_expiry=safe_date(data.get('Driver License Expiry')),
+                    health_insurance_expiry=safe_date(data.get('Health Insurance Expiry')),
+                    criminal_certificate_expiry=safe_date(data.get('Criminal Certificate Expiry')),
+                    vehicle_registration=data.get('Vehicle Registration', ''),
+                    vehicle_registration_expiry=safe_date(data.get('Vehicle Registration Expiry')),
+                    vehicle_plate_number=data.get('Vehicle Plate Number', ''),
+                    vehicle_name=data.get('Vehicle Name', ''),
+                    vehicle_type=data.get('Vehicle Type', 'car'),
+                    zone=data.get('Zone', ''),
+                    petrol_card_number=data.get('Petrol Card Number', ''),
+                    working_id=data.get('Working ID', ''),
                     company_name=data.get('Company Name', 'najmat'),
                     contract_type=data.get('Contract Type', 'talabat'),
-                    vehicle_type=data.get('Vehicle Type', 'car'),
+                    position=data.get('Position', 'Car Driver'),
+                    iban_number=data.get('IBAN Number', ''),
+                    bank_name=data.get('Bank Name', 'nbk'),
+                    basic_salary_wp=Decimal(str(data.get('Basic Salary WP', 0) or 0)),
+                    file_status=data.get('File Status', 'Active'),
                     created_by=user.profile if hasattr(user, 'profile') else None
                 )
             elif model_type == 'team':

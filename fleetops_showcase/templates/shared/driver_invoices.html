@@ -126,11 +126,13 @@
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-save"><path d="M15.2 3a2 2 0 0 1 1.4.6l3.8 3.8a2 2 0 0 1 .6 1.4V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"></path><path d="M17 21v-7a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v7"></path><path d="M7 3v4a1 1 0 0 0 1 1h7"></path></svg>
                                     </button>
                         </form>
-                                    <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_salary_slip' driver.pk %}{% else %}{% url 'employee_salary_slip' driver.pk %}{% endif %}?date={{ target_date_iso }}" 
+                                    {% if portal != 'employee' %}
+                                    <a href="{% if portal == 'admin' %}{% url 'admin_salary_slip' driver.pk %}{% elif portal == 'manager' %}{% url 'manager_salary_slip' driver.pk %}{% endif %}?date={{ target_date_iso }}" 
                                        target="_blank" title="Print Daily Slip"
                                        class="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-all shadow-sm">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V2h12v7"></path><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                                     </a>
+                                    {% endif %}
                                     <form method="post" action="{% url 'invoice_reset' %}" onsubmit="return confirm('Clear ALL totals for {{ driver.full_name }} on {{ target_date_iso }}?')">
                                         {% csrf_token %}
                                         <input type="hidden" name="driver_id" value="{{ driver.id }}">
@@ -158,6 +160,7 @@
         </div>
     </div>
     <!-- Range Performance Report Section -->
+    {% if portal != 'employee' %}
     <div class="mt-12 bg-app-card border border-app-border rounded-2xl p-6 lg:p-8 shadow-sm">
         <div class="mb-6">
             <h3 class="text-lg font-bold text-app-text flex items-center gap-2 uppercase tracking-wide">
@@ -197,5 +200,6 @@
             </button>
         </form>
     </div>
+    {% endif %}
 </div>
 {% endblock %}
